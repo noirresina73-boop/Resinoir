@@ -55,25 +55,28 @@ main{
     justify-content: start;
     align-items: center;
     flex-direction: column;
-    z-index: -5;
-    margin-left: 252px;
-    width: 100%;
-    height: 80%;
-    background-color: #167daa;
-}
-
-
-.post{
-    display: flex;
-    position:fixed;
-    justify-content: start;
-    align-items: center;
-    flex-direction: column;
-    z-index: -5;
+    z-index: 0;
     margin-left: 126px;
     width: 100%;
-    height: 80%;
+    height: 100%;
+    margin-top: -265px;
 }
+
+.btn-group{
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    flex-direction: row;
+    width: 30%;
+}
+
+.btn-check{
+    
+}
+
+ .post{
+    margin-top: 10rem;
+} 
 
 .no-decor{
     border-top: none;
