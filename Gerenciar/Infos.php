@@ -111,6 +111,7 @@ include 'autoloader.php';
       </div>
 
       <div class="none infos" id="infos">
+        <!-- anuncio -->
             <div class="anuncio">
               <div class="fotos">
           <div class="carrocel" id="carrocel">
@@ -144,10 +145,29 @@ include 'autoloader.php';
             </div>
           </div>
               </div>
-              <div class="descricao">
+          <div class="infosAnuncio">
+            <div class="Titulos">
                 <h5 class='card-title' id='anuncioName'></h5>
+            </div>
+            <div class="Preco">
                 <h6 class='card-preco' id='anuncioValor'></h6>
             </div>
+            <div class="frete">
+                <h6 class='card-preco' id='anuncioValor'></h6>
+            </div>
+            <div class="cor">
+                <h6 class='card-preco' id='anuncioValor'></h6>
+            </div>
+            <div class="tamanho">
+                <h6 class='card-preco' id='anuncioValor'></h6>
+            </div>
+            <div class="quantidade">
+                <h6 class='card-preco' id='anuncioValor'></h6>
+            </div>
+            <div class="botao">
+                <h6 class='card-preco' id='anuncioValor'></h6>
+            </div>
+          </div>
         </div>
       </div>
     </main>
