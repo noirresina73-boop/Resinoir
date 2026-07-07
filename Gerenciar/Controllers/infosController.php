@@ -1,7 +1,7 @@
 <?php
     namespace Controllers;
 
-    $id = 3;
+    $id =  $_POST["id"];
     $idPDR = $id . $_POST["idPDR"];
     $nome = $_POST["nome"];
     $modelo = $_POST["modelo"];
@@ -19,7 +19,12 @@
     $totalVendidos = 1;
     //$novidade = $_POST["novidade"];
     $novidade = 1;
-    $capa = $_POST["capa"];
+    if (isset($_FILES["capa"]) && !empty($_FILES["capa"])) {
+        move_uploaded_file($_FILES["capa"]["tmp_name"], "../../assets/imgs" . $_FILES["capa"]["name"]);
+        echo "Arquivo enviado com sucesso!";
+    }
+    $capa = '$_POST["capa"]';
+    //$capa = $_POST["capa"];
     $Criar = new infosController;
     $Criar = $Criar->criar(
     $id,
@@ -108,7 +113,6 @@ use PDO;
             try {
                 $query = $BD->prepare('
                 INSERT INTO produtos (
-                    id,
                     idPDR,
                     nome,
                     modelo,
@@ -123,7 +127,6 @@ use PDO;
                     novidade,
                     capa
                 ) VALUES (
-                    :id,
                     :idPDR,
                     :nome,
                     :modelo,
@@ -143,7 +146,6 @@ use PDO;
                 echo $e;
             }
 
-            $query->bindValue(':id', $id, PDO::PARAM_INT);
             $query->bindValue(':idPDR', $idPDR, PDO::PARAM_STR);
             $query->bindValue(':nome', $nome, PDO::PARAM_STR);
             $query->bindValue(':modelo', $modelo, PDO::PARAM_STR);

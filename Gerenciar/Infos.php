@@ -27,10 +27,10 @@ include 'autoloader.php';
 
     <main>
       <div class="formulario">
-        <form id="formAnum" data-bs-theme="dark" method="post" action="./Controllers/infosController.php">
+        <form id="formAnum" data-bs-theme="dark" method="post" action="./Controllers/infosController.php" enctype="multipart/form-data">
 
           <div class="form-floating mb-3">
-            <input required="true" name="id" type="number" class="form-control no-decor" id="floatingInput" value="1" readonly="true">
+            <input required="true" name="id" type="number" class="form-control no-decor" id="floatingInput" value="1" >
             <label for="floatingInput">Id</label>
           </div>
             <label style="margin-bottom: 10px;">Id produto</label><br>
