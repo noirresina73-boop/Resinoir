@@ -1,6 +1,8 @@
 <?php
-
+namespace Resinoir;
+use Controllers\ListController;
 use Tools\listarProdutos;
+
 
   include 'autoloader.php';
 ?>
@@ -92,7 +94,7 @@ use Tools\listarProdutos;
         </div>
 
         <div class="produto">
-            <?php 
+            <?php
                 $listNovidade = new listarProdutos();
                 $listNovidade->listarNovidads();
               ?>

@@ -20,10 +20,11 @@
     //$novidade = $_POST["novidade"];
     $novidade = 1;
     if (isset($_FILES["capa"]) && !empty($_FILES["capa"])) {
-        move_uploaded_file($_FILES["capa"]["tmp_name"], "../../assets/imgs" . $_FILES["capa"]["name"]);
+        move_uploaded_file($_FILES["capa"]["tmp_name"], "../../assets/imgs/" . $_FILES["capa"]["name"]);
         echo "Arquivo enviado com sucesso!";
+        $capa = "./assets/imgs/" . $_FILES["capa"]["name"];
     }
-    $capa = '$_POST["capa"]';
+    
     //$capa = $_POST["capa"];
     $Criar = new infosController;
     $Criar = $Criar->criar(
