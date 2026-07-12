@@ -87,10 +87,10 @@ include 'autoloader.php';
         </div>
 
             <div class="Produtos">
-              <?php
-              $Listar = new ListController;
-              $Listar = $Listar->listProdutos();
-              ?>
+                <?php
+                $Listar = new ListController;
+                $Listar = $Listar->listProdutos();
+                ?>
           </div>
     </main>
 <footer>

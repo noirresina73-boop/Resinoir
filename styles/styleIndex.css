@@ -56,7 +56,7 @@ footer{
     max-width: 90rem;
     border-radius: 10px;
     flex-wrap: wrap;
-    gap: 20px;     
+    gap: 20px;
 }
 
 .card{
@@ -103,6 +103,14 @@ footer{
     box-shadow: 0 0 60px #000000;
     max-width: 90rem;
     border-radius: 10px;
+}
+
+.group{
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    justify-content: center;
+    width: 100%;
 }
 
 

@@ -31,3 +31,117 @@ body{
     background-size: 100%;
     pointer-events: none;
 }
+
+.anuncio{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: row;
+    border: 2px solid;
+    border-color: #38393b;
+    border-radius: 10px;
+    width: 65%;
+    margin-right: 1.5rem;
+    height: 100%;
+
+}
+
+
+.carrocel{
+    display: flex;
+    justify-self: center;
+    align-items: center;
+    flex-direction: column;
+    width: 20rem;
+
+}
+
+.btns{
+    padding-top: 2rem;
+}
+
+.btnC{
+    padding: 0%;
+    background-color: rgb(142, 146, 146);
+    max-width: 2rem;
+    max-height: 2rem;
+}
+
+.btnLogo{
+    width: 100%;
+    border-radius: 100%;
+}
+
+.btnC{
+    border: 0px, solid;
+    border-color: #38393b;
+    border-radius: 100%;
+}
+
+.activeBtn{
+    transition: 1s;
+    box-shadow: 0px 0px 20px #af470b;
+}
+
+.carousel-inner{
+    border: 0px, solid;
+    border-radius: 100%;
+}
+
+.infosAnuncio{
+    display: flex;
+    justify-self: center;
+    align-items: center;
+    flex-direction: column;
+    width: 60%;
+    height: 100%;
+    background-color: #c5a328;
+}
+
+.fotos{
+    width: 40%;
+    height: 100%;
+    background-color: #2896c5;
+}
+
+.Titulos{
+    width: 100%;
+    height: 100%;
+    background-color: #2889c5;
+}
+
+.Preco{
+    width: 100%;
+    height: 100%;
+    background-color: #28c567;
+}
+
+.frete{
+    width: 100%;
+    height: 100%;
+    background-color: #282dc5;
+}
+
+.cor{
+    width: 100%;
+    height: 100%;
+    background-color: #c52828;
+}
+
+.tamanho{
+    width: 100%;
+    height: 100%;
+    background-color: #c528a3;
+}
+
+.quantidade{
+    width: 100%;
+    height: 100%;
+    background-color: #2884c5;
+}
+
+.botao{
+    width: 100%;
+    height: 100%;
+    background-color: #c52889;
+}
