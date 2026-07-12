@@ -9,9 +9,9 @@
     $cor = $_POST["cor"];
     $tamanho = $_POST["tamanho"];
     $estoque = $_POST["estoque"];
-    $imagemString = $_POST['imagens'];
-    $imagem = json_decode($imagemString, true);
-    $imagem = json_encode($imagem);
+    // $imagemString = $_POST['imagens'];
+    // $imagem = json_decode($imagemString, true);
+    // $imagem = json_encode($imagem);
     //$encomenda = $_POST["encomenda"];
     $encomenda = 0;
     $valor = $_POST["valor"];
@@ -19,12 +19,70 @@
     $totalVendidos = 1;
     //$novidade = $_POST["novidade"];
     $novidade = 1;
-    if (isset($_FILES["capa"]) && !empty($_FILES["capa"])) {
-        move_uploaded_file($_FILES["capa"]["tmp_name"], "../../assets/imgs/" . $_FILES["capa"]["name"]);
-        echo "Arquivo enviado com sucesso!";
-        $capa = "./assets/imgs/" . $_FILES["capa"]["name"];
+$nomePasta = preg_replace('/[^a-zA-Z0-9_-]/', '_', $nome);
+
+$pastaPrincipal = "../../assets/imgs/$nomePasta";
+$pastaCapa = "$pastaPrincipal/capa";
+$pastaImagens = "$pastaPrincipal/imagens";
+
+// Cria as pastas
+foreach ([$pastaPrincipal, $pastaCapa, $pastaImagens] as $pasta) {
+    if (!is_dir($pasta)) {
+        mkdir($pasta, 0777, true);
     }
-    
+}
+
+/* ==========================
+   CAPA
+========================== */
+
+$capa = "";
+
+if (
+    isset($_FILES["capa"]) &&
+    $_FILES["capa"]["error"] == UPLOAD_ERR_OK
+) {
+
+    $nomeCapa = basename($_FILES["capa"]["name"]);
+
+    move_uploaded_file(
+        $_FILES["capa"]["tmp_name"],
+        "$pastaCapa/$nomeCapa"
+    );
+
+    // Valor para salvar no banco
+    $capa = "./assets/imgs/$nomePasta/capa/$nomeCapa";
+}
+
+/* ==========================
+   IMAGENS
+========================== */
+
+$imagens = [];
+
+if (isset($_FILES["imagens"])) {
+
+    foreach ($_FILES["imagens"]["tmp_name"] as $i => $tmp) {
+
+        if ($_FILES["imagens"]["error"][$i] == UPLOAD_ERR_OK) {
+
+            $nomeImagem = basename($_FILES["imagens"]["name"][$i]);
+
+            move_uploaded_file(
+                $tmp,
+                "$pastaImagens/$nomeImagem"
+            );
+
+            // Caminho para salvar no banco
+            $imagens[] = "./assets/imgs/$nomePasta/imagens/$nomeImagem";
+        }
+    }
+}
+
+$jsonImagens = json_encode($imagens);
+
+echo "Capa: $capa <br><br>";
+echo "Imagens: $jsonImagens";
     //$capa = $_POST["capa"];
     $Criar = new infosController;
     $Criar = $Criar->criar(
@@ -36,7 +94,7 @@
     $cor,
     $tamanho,
     $estoque,
-    $imagem,
+    $jsonImagens,
     $encomenda,
     $valor,
     $totalVendidos,
@@ -79,7 +137,7 @@ use PDO;
                 $cor = $retorno["cor"];
                 $tamanho = $retorno["tamanho"];
                 $estoque = $retorno["estoque"];
-                $imagem[] = $retorno["imagem"];
+                $imagem = json_decode($retorno["imagem"]);
                 $encomenda = $retorno["encomenda"];
                 $valor = $retorno["valor"];
                 $totalVendidos = $retorno["totalVendidos"];
@@ -101,7 +159,7 @@ use PDO;
             string $cor,
             int $tamanho,
             int $estoque,
-            string $imagem,
+            string $jsonImagens,
             int $encomenda,
             float $valor,
             int $totalVendidos,
@@ -154,7 +212,7 @@ use PDO;
             $query->bindValue(':cor', $cor, PDO::PARAM_STR);
             $query->bindValue(':tamanho', $tamanho, PDO::PARAM_INT);
             $query->bindValue(':estoque', $estoque, PDO::PARAM_INT);
-            $query->bindValue(':imagem', $imagem, PDO::PARAM_STR);
+            $query->bindValue(':imagem', $jsonImagens, PDO::PARAM_STR);
             $query->bindValue(':encomenda', $encomenda, PDO::PARAM_INT);
             $query->bindValue(':valor', $valor, PDO::PARAM_STR);
             $query->bindValue(':totalVendidos', $totalVendidos, PDO::PARAM_INT);

@@ -58,10 +58,28 @@ include 'autoloader.php';
             <span class="input-group-text" id="inputGroup-sizing-default">Cor</span>
             <input required="true" name="cor" type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default">
           </div>
+
           <div class="input-group mb-3">
-            <span class="input-group-text" id="inputGroup-sizing-default">Capa</span>
-            <input required="true" id="inputCapa" accept="image/*" onchange="handleImageUpload(event)" name="capa" type="file" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default">
+              <span class="input-group-text">Capa</span>
+
+              <input
+                  id="inputCapa"
+                  name="capa"
+                  type="file"
+                  accept="image/*"
+                  class="form-control"
+                  onchange="handleImageUpload(event)"
+                  required>
+
+              <button type="button" class="btn btn-danger" onclick="limparCapa()">✕</button>
           </div>
+
+          <script>
+          function limparCapa() {
+              document.getElementById("inputCapa").value = "";
+          }
+          </script>
+
           <div class="input-group mb-3">
             <span class="input-group-text">R$</span>
             <span class="input-group-text">0.00</span>
@@ -72,19 +90,55 @@ include 'autoloader.php';
             <input required="true" name="estoque" type="number" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default">
           </div>
           <div class="mb-3">
+
             <label class="form-label">Imagens</label>
-            <textarea name="imagens" class="form-control" id="exampleFormControlTextarea1" rows="13">
-[
-  {
-    "id": 1,
-    "url": ""
-  },
-  {
-    "id": 2,
-    "url": ""
-  }
-]
-            </textarea>
+            <div id="imagens">
+              <script>
+              function adicionarCampoImagem() {
+
+                  const container = document.getElementById("imagens");
+
+                  const div = document.createElement("div");
+                  div.className = "input-group mb-3";
+
+                  const span = document.createElement("span");
+                  span.className = "input-group-text";
+                  span.innerText = "Imagem";
+
+                  const input = document.createElement("input");
+                  input.type = "file";
+                  input.name = "imagens[]";
+                  input.accept = "image/*";
+                  input.className = "form-control";
+
+                  const botao = document.createElement("button");
+                  botao.type = "button";
+                  botao.className = "btn btn-danger";
+                  botao.innerHTML = "✕";
+
+                  botao.onclick = function () {
+                      div.remove();
+                  };
+
+                  input.onchange = function () {
+
+                      // Quando escolher um arquivo,
+                      // cria automaticamente outro campo.
+                      if (container.lastElementChild === div) {
+                          adicionarCampoImagem();
+                      }
+                  };
+
+                  div.appendChild(span);
+                  div.appendChild(input);
+                  div.appendChild(botao);
+
+                  container.appendChild(div);
+              }
+
+              adicionarCampoImagem();
+              </script>
+            </div>
           </div>
       </form>
       </div>
