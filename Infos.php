@@ -14,7 +14,14 @@ if (isset($_GET['id'])) {
 $controller = new infosController();
 $anuncio = $controller->pageInfo($id);
 
+$capa = $anuncio['capa'];
+$imagens = json_decode($anuncio['imagem'], true);
 
+$todasImagens = [$capa];
+
+if (is_array($imagens)) {
+    $todasImagens = array_merge($todasImagens, $imagens);
+}
 ?>
 
 <!doctype html>
@@ -27,71 +34,151 @@ $anuncio = $controller->pageInfo($id);
     <link rel="stylesheet" href="./styles/styleInfos.css">
   </head>
   <body>
-    <h1>Hello, world!</h1>
     <p>
 
-                <div class="anuncio">
-              <div class="fotos">
-          <div class="carrocel" id="carrocel">
-                  <div id="carouselExampleIndicators" class="carousel slide">
+<div class="anuncio">
+    <div class="Titulos">
+      <h5 id="anuncioName"><?= $anuncio['nome'] ?></h5>
+    </div>
+    <div class="conteudo">
+    <div class="fotos">
 
-            <div class="carousel-inner">
-              <div class="carousel-item active">
-                <img src="https://marketplace.canva.com/wUgTo/MAGiKZwUgTo/1/tl/canva-avatar-icon-MAGiKZwUgTo.png" class=" img d-block w-100" alt="...">
-              </div>
-              <div class="carousel-item">
-                <img src="   https://cdn-icons-png.flaticon.com/512/5064/5064052.png "img class="d-block w-100" alt="...">
-              </div>
-              <div class="carousel-item">
-                <img src="https://lh3.googleusercontent.com/a/ACg8ocIcC9k0lsuZkDapdNakRqlss7SMkojqtLooZLGqpw2aGMrpKsI=s360-c-no" class="img d-block w-100" alt="...">
-              </div>
-            </div>
-            <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
-              <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-              <span class="visually-hidden">Previous</span>
-            </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
-              <span class="carousel-control-next-icon" aria-hidden="true"></span>
-              <span class="visually-hidden">Next</span>
-            </button>
-          </div>
-
-        <div class="btns">
-              <button id="btn1" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" onclick="btnUpdate(1)" class="btnC" aria-label="Slide 1"><img src="https://marketplace.canva.com/wUgTo/MAGiKZwUgTo/1/tl/canva-avatar-icon-MAGiKZwUgTo.png" class="btnLogo" alt="..."></button>
-              <button id="btn2" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1" onclick="btnUpdate(2)" class="btnC" aria-label="Slide 2"><img src="   https://cdn-icons-png.flaticon.com/512/5064/5064052.png " class="btnLogo" alt="..."></button>
-              <button id="btn3" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2" onclick="btnUpdate(3)" class="btnC" aria-label="Slide 3"><img src="https://lh3.googleusercontent.com/a/ACg8ocIcC9k0lsuZkDapdNakRqlss7SMkojqtLooZLGqpw2aGMrpKsI=s360-c-no" class="btnLogo" alt="..."></button>
-            </div>
-          </div>
-              </div>
-          <div class="infosAnuncio">
-            <div class="Titulos">
-                <h5 class='card-title' id='anuncioName'><?php echo $anuncio['nome']; ?></h5>
-            </div>
-            <div class="Preco">
-                <h6 class='card-preco' id='anuncioValor'><?php echo $anuncio['valor']; ?></h6>
-            </div>
-            <div class="frete">
-              <h6 class='card-preco' id='anuncioValor'> <!-- <?php echo $anuncio['frete']; ?> --></h6>
-            </div>
-            <div class="cor">
-                <h6 class='card-preco' id='anuncioValor'><?php echo $anuncio['cor']; ?></h6>
-            </div>
-            <div class="tamanho">
-                <h6 class='card-preco' id='anuncioValor'><?php echo $anuncio['tamanho']; ?></h6>
-            </div>
-            <div class="quantidade">
-                <h6 class='card-preco' id='anuncioValor'><!-- <?php echo $anuncio['quantidade']; ?> --></h6>
-            </div>
-            <div class="botao">
-                <h6 class='card-preco' id='anuncioValor'></h6>
-            </div>
-          </div>
+        <div class="imagemPrincipal">
+            <img
+                id="imagemGrande"
+                src="<?= $todasImagens[0] ?>"
+                class="imgGrande"
+                onclick="abrirImagem()">
         </div>
-      </div>
-        <?php
 
-        ?>
-    </p>
+        <div class="miniaturas">
+
+            <button class="seta" onclick="voltar()">❮</button>
+
+            <div class="viewport">
+
+                <div id="listaMiniaturas" class="lista">
+
+                    <?php foreach ($todasImagens as $imagem) { ?>
+
+                        <img
+                            src="<?= $imagem ?>"
+                            class="btnLogo"
+                            onclick="trocarImagem('<?= $imagem ?>')">
+
+                    <?php } ?>
+
+                </div>
+
+            </div>
+
+            <button class="seta" onclick="avancar()">❯</button>
+
+        </div>
+
+    </div>
+
+    <div id="overlayImagem" onclick="fecharImagem()">
+        <img id="imagemExpandida">
+    </div>
+
+    <div class="infosAnuncio">
+
+        <div class="Preco">
+            <h6 id="anuncioValor"><?= $anuncio['valor'] ?></h6>
+        </div>
+
+        <div class="frete">
+            <!-- Frete -->
+        </div>
+
+        <div class="cor">
+            <h6><?= $anuncio['cor'] ?></h6>
+        </div>
+
+        <div class="tamanho">
+            <h6><?= $anuncio['tamanho'] ?></h6>
+        </div>
+
+        <div class="quantidade">
+            <!-- Quantidade -->
+        </div>
+
+        <div class="botao">
+            <!-- Botão Comprar -->
+        </div>
+
+    </div>
+</div>
+</div>
+
+    <script>
+      let indice = 0;
+
+const lista = document.getElementById("listaMiniaturas");
+const miniaturas = lista.querySelectorAll(".btnLogo");
+const larguraMiniatura = document.querySelector(".btnLogo").offsetWidth + 10;
+
+function trocarImagem(src){
+    document.getElementById("imagemGrande").src = src;
+}
+
+function abrirImagem(){
+
+    const img = document.getElementById("imagemGrande").src;
+
+    document.getElementById("imagemExpandida").src = img;
+    document.getElementById("overlayImagem").classList.add("ativo");
+}
+
+function fecharImagem(){
+    document.getElementById("overlayImagem").classList.remove("ativo");
+}
+
+
+const visiveis = 4;
+
+
+function atualizarMiniaturas() {
+
+    const lista = document.getElementById("listaMiniaturas");
+    const viewport = document.querySelector(".viewport");
+
+    const max = lista.scrollWidth - viewport.clientWidth;
+
+    let deslocamento = indice * larguraMiniatura;
+
+    if (deslocamento > max) {
+        deslocamento = max;
+    }
+
+    lista.style.transform = `translateX(-${deslocamento}px)`;
+}
+
+function avancar() {
+
+    const lista = document.getElementById("listaMiniaturas");
+    const viewport = document.querySelector(".viewport");
+
+    const max = lista.scrollWidth - viewport.clientWidth;
+
+    const atual = indice * 90;
+
+    if (atual < max) {
+        indice++;
+        atualizarMiniaturas();
+    }
+}
+
+function voltar() {
+
+    if (indice > 0) {
+        indice--;
+        atualizarMiniaturas();
+    }
+
+}
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
   </body>
 </html>

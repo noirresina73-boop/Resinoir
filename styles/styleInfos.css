@@ -1,147 +1,467 @@
-html{
-    width: 100%;
-    height: 100%;
+html, body{
+    width:100%;
+    min-height:100%;
+    margin:0;
+    padding:0;
 }
 
 body{
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-direction: column;
-    width: 100%;
-    height: 100%;
-    background-color: #131F24;
-    color: #ffffff;
-}
-.card-img-top{
-    object-fit: cover;
-    object-position: center;
-    max-height: 18rem;
-}
-
-.card-img-top::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: 5;
-    width: 100%;
-    height: 100%;
-    background-image: url('../assets/imgs/janela_gotica.png'); 
-    background-size: 100%;
-    pointer-events: none;
+    display:flex;
+    justify-content:center;
+    align-items:flex-start;
+    background:#131F24;
+    color:#fff;
+    padding:30px;
+    box-sizing:border-box;
 }
 
 .anuncio{
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-direction: row;
-    border: 2px solid;
-    border-color: #38393b;
-    border-radius: 10px;
-    width: 65%;
-    margin-right: 1.5rem;
-    height: 100%;
-
+    width:90%;
+    border:2px solid #38393b;
+    border-radius:10px;
+    overflow:hidden;
 }
 
-
-.carrocel{
-    display: flex;
-    justify-self: center;
-    align-items: center;
-    flex-direction: column;
-    width: 20rem;
-
+.conteudo{
+    display:flex;
 }
 
-.btns{
-    padding-top: 2rem;
+/* ------------------- */
+/* LADO DAS FOTOS */
+/* ------------------- */
+
+.fotos{
+
+    width:55%;
+
+    padding:20px;
+
+    background:#2896c5;
+
+    display:flex;
+    flex-direction:column;
+    align-items:center;
 }
 
-.btnC{
-    padding: 0%;
-    background-color: rgb(142, 146, 146);
-    max-width: 2rem;
-    max-height: 2rem;
+.imagemPrincipal{
+
+    width:100%;
+    max-width:450px;
+    aspect-ratio:1/1;
+
+    background:#fff;
+
+    border-radius:12px;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    overflow:hidden;
+}
+
+.imgGrande{
+
+    width:100%;
+    height:100%;
+
+    object-fit:contain;
+
+    cursor:pointer;
+}
+
+/* ------------------- */
+/* MINIATURAS */
+/* ------------------- */
+
+.miniaturas{
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+
+    width:100%;
+    padding:10px;
+}
+
+.viewport{
+
+    width:360px;
+    overflow:hidden;
+}
+
+.lista{
+
+    display:flex;
+    width:max-content;
+
+    gap:10px;
+
+    transition:transform .3s ease;
 }
 
 .btnLogo{
-    width: 100%;
-    border-radius: 100%;
+
+    width:80px;
+    height:80px;
+
+    flex-shrink:0;
+
+    object-fit:cover;
+
+    border-radius:8px;
+
+    cursor:pointer;
+
+    transition:.2s;
 }
 
-.btnC{
-    border: 0px, solid;
-    border-color: #38393b;
-    border-radius: 100%;
+.btnLogo:hover{
+
+    transform:scale(1.05);
 }
 
-.activeBtn{
-    transition: 1s;
-    box-shadow: 0px 0px 20px #af470b;
+.seta{
+
+    width:40px;
+    height:40px;
+
+    border:none;
+
+    border-radius:50%;
+
+    font-size:20px;
+
+    cursor:pointer;
 }
 
-.carousel-inner{
-    border: 0px, solid;
-    border-radius: 100%;
+/* ------------------- */
+/* IMAGEM AMPLIADA */
+/* ------------------- */
+
+#overlayImagem{
+
+    position:fixed;
+
+    inset:0;
+
+    background:rgba(0,0,0,.8);
+
+    backdrop-filter:blur(6px);
+
+    display:none;
+
+    justify-content:center;
+    align-items:center;
+
+    z-index:999;
 }
+
+#overlayImagem.ativo{
+
+    display:flex;
+}
+
+#imagemExpandida{
+
+    max-width:90vw;
+    max-height:90vh;
+
+    object-fit:contain;
+}
+
+/* ------------------- */
+/* LADO DAS INFORMAÇÕES */
+/* ------------------- */
 
 .infosAnuncio{
-    display: flex;
-    justify-self: center;
-    align-items: center;
-    flex-direction: column;
-    width: 60%;
-    height: 100%;
-    background-color: #c5a328;
-}
 
-.fotos{
-    width: 40%;
-    height: 100%;
-    background-color: #2896c5;
+    width:45%;
+
+    display:flex;
+    flex-direction:column;
 }
 
 .Titulos{
-    width: 100%;
-    height: 100%;
-    background-color: #2889c5;
+
+    width:100%;
+
+    padding:10px;
+    padding-inline:10px;
+
+    background:#2889c5;
+
+    box-sizing:border-box;
+}
+
+#anuncioName{
+
+    margin:0;
+
+    font-size:2rem;
 }
 
 .Preco{
-    width: 100%;
-    height: 100%;
-    background-color: #28c567;
+
+    padding:20px;
+    background:#28c567;
 }
 
 .frete{
-    width: 100%;
-    height: 100%;
-    background-color: #282dc5;
+
+    padding:20px;
+    background:#282dc5;
 }
 
 .cor{
-    width: 100%;
-    height: 100%;
-    background-color: #c52828;
+
+    padding:20px;
+    background:#c52828;
 }
 
 .tamanho{
-    width: 100%;
-    height: 100%;
-    background-color: #c528a3;
+
+    padding:20px;
+    background:#c528a3;
 }
 
 .quantidade{
-    width: 100%;
-    height: 100%;
-    background-color: #2884c5;
+
+    padding:20px;
+    background:#2884c5;
 }
 
 .botao{
-    width: 100%;
-    height: 100%;
-    background-color: #c52889;
+
+    padding:20px;
+    background:#c52889;
+}
+
+/* ========================= */
+/* TABLET */
+/* ========================= */
+
+@media (max-width:992px){
+
+    .anuncio{
+        width:95%;
+        margin:auto;
+    }
+
+    .conteudo{
+        display:flex;
+        gap:20px;
+    }
+
+    .fotos{
+        width:45%;
+    }
+
+    .infosAnuncio{
+        width:55%;
+    }
+
+    .imagemPrincipal{
+        width:100%;
+        height:auto;
+        aspect-ratio:1/1;
+    }
+
+}
+
+/* ========================= */
+/* CELULAR */
+/* ========================= */
+
+@media (max-width:768px){
+
+    html,
+    body{
+        overflow-x:hidden;
+    }
+
+    body{
+        padding:10px;
+    }
+
+    .anuncio{
+
+        width:100%;
+        margin:0;
+
+        display:flex;
+        flex-direction:column;
+
+        gap:20px;
+    }
+
+    .Titulos{
+
+        width:100%;
+
+        padding:15px;
+
+        text-align:center;
+
+        box-sizing:border-box;
+    }
+
+    #anuncioName{
+
+        font-size:1.8rem;
+        margin:0;
+    }
+
+    .conteudo{
+
+        display:flex;
+        flex-direction:column;
+
+        gap:20px;
+    }
+
+    .fotos{
+
+        width:100%;
+
+        display:flex;
+        flex-direction:column;
+
+        align-items:center;
+
+        gap:15px;
+    }
+
+    .imagemPrincipal{
+
+        width:100%;
+        max-width:400px;
+
+        aspect-ratio:1/1;
+
+        margin:auto;
+    }
+
+    .imgGrande{
+
+        width:100%;
+        height:100%;
+
+        object-fit:contain;
+    }
+
+    .miniaturas{
+
+        width:100%;
+
+        display:flex;
+
+        justify-content:center;
+
+        align-items:center;
+
+        gap:8px;
+    }
+
+    .viewport{
+
+        width:280px;
+
+        overflow:hidden;
+    }
+
+    .lista{
+
+        display:flex;
+
+        gap:8px;
+
+        width:max-content;
+    }
+
+    .btnLogo{
+
+        width:60px;
+        height:60px;
+
+        flex-shrink:0;
+    }
+
+    .seta{
+
+        width:35px;
+        height:35px;
+
+        font-size:18px;
+    }
+
+    .infosAnuncio{
+
+        width:100%;
+
+        display:flex;
+
+        flex-direction:column;
+
+        gap:10px;
+    }
+
+    .Preco,
+    .frete,
+    .cor,
+    .tamanho,
+    .quantidade,
+    .botao{
+
+        width:100%;
+
+        padding:15px;
+
+        box-sizing:border-box;
+
+        border-radius:8px;
+    }
+
+}
+
+/* ========================= */
+/* CELULARES PEQUENOS */
+/* ========================= */
+
+@media (max-width:480px){
+
+    body{
+        padding:5px;
+    }
+
+    #anuncioName{
+        font-size:1.5rem;
+    }
+
+    .viewport{
+        width:220px;
+    }
+
+    .btnLogo{
+        width:50px;
+        height:50px;
+    }
+
+    .seta{
+        width:30px;
+        height:30px;
+    }
+
+    .Preco,
+    .frete,
+    .cor,
+    .tamanho,
+    .quantidade,
+    .botao{
+
+        padding:12px;
+        font-size:14px;
+    }
+
 }

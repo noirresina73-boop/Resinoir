@@ -134,7 +134,7 @@ use PDO;
                 $capa = $retorno["capa"];
 
                 echo "
-                <div class='card' style='width: 18rem;' data-bs-theme='dark'>
+                <div class='card card-produto' data-bs-theme='dark'>
                     <img src='$capa' class='card-img-top' alt='...'>
                     <div class='card-body'>
                         <h5 class='card-title'>$nome</h5>

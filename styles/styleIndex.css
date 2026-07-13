@@ -41,6 +41,18 @@ footer{
     height: 100%;
 }
 
+.camp-produtos{
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: space-around;
+    background-color: #212529;
+    color: #fff;
+    width: 100%;
+    min-height: 100%;
+
+}
+
 .Produtos{
     display: flex;
     align-items: center;
@@ -113,9 +125,22 @@ footer{
     width: 100%;
 }
 
+.card-produto{
+    width: 18rem;
+}
 
 /* Para telas maiores*/
-@media (max-width: 1115px) {
+@media (max-width: 700px) {
+
+.card-produto{
+    width: 9rem;
+}
+
+.card-img-top{
+    max-height: 9rem;
+    aspect-ratio:1/1;
+    overflow:hidden;
+}
 
 .popularG{
     flex-direction: column;
@@ -144,7 +169,8 @@ footer{
 }
 
 .card{
- margin-bottom: 1rem;
+    margin-bottom: 1rem;
+    margin-inline: 0;
 }
 
 
@@ -153,3 +179,4 @@ footer{
 }
 
 }
+

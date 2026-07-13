@@ -52,8 +52,7 @@ include 'autoloader.php';
 
     <main>
               <div class="novidades" id="Produtos">
-            <div class="card" style="width: 18rem;" data-bs-theme="dark" id="Fones">
-                <img src="./Assets/fone.png" class="card-img-top" alt="...">
+            <div class="card card-destaque" data-bs-theme="dark">             <img src="./Assets/fone.png" class="card-img-top" alt="...">
                 <div class="card-body">
                     <h5 class="card-title">Plus HB200</h5>
                     <p class="card-text"><del>R$149,90</del><br>
@@ -63,7 +62,7 @@ include 'autoloader.php';
                 </div>
             </div>
 
-            <div class="card" style="width: 18rem;" data-bs-theme="dark" id="Celulares">
+            <div class="card card-destaque" data-bs-theme="dark">
             <img src="./Assets/celular.png" class="card-img-top" alt="...">
             <div class="card-body">
                 <h5 class="card-title">Galaxy Z flip 7</h5>
@@ -74,8 +73,7 @@ include 'autoloader.php';
             </div>
             </div>
 
-            <div class="card" style="width: 18rem;" data-bs-theme="dark" id="Relogios">
-                <img src="./Assets/relogio.png" class="card-img-top" alt="...">
+            <div class="card card-destaque" data-bs-theme="dark">                <img src="./Assets/relogio.png" class="card-img-top" alt="...">
                 <div class="card-body">
                     <h5 class="card-title">Smartwatch S10</h5>
                   <p class="card-text"><del>R$78,90</del><br>
@@ -86,12 +84,14 @@ include 'autoloader.php';
             </div>
         </div>
 
+        <div class="camp-produtos">
             <div class="Produtos">
                 <?php
                 $Listar = new ListController;
                 $Listar = $Listar->listProdutos();
                 ?>
-          </div>
+            </div>
+        </div>
     </main>
 <footer>
   Instagram: @resinoir<br>
