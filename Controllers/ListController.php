@@ -134,17 +134,19 @@ use PDO;
                 $capa = $retorno["capa"];
 
                 echo "
-                <div class='card card-produto' data-bs-theme='dark'>
-                    <img src='$capa' class='card-img-top' alt='...'>
-                    <div class='card-body'>
-                        <h5 class='card-title'>$nome</h5>
-                        <h6 class='card-preco'>R$ $valor</h6>
-                        <a href='infos.php?id=$id' class='btn btn-primary'>Ver mais</a>
+                        <div class='product-card'>
+                        <div class='product-photo'>
+                        <!-- <div class='product-badge'>Novo</div> -->
+                        <img class='img-card' src='$capa' alt=''>
+                        </div>
+                        <div class='product-info'>
+                        <div class='name'>$nome</div>
+                        <div class='price'>R$ $valor</div>
+                        </div>
                     </div>
-                </div>
                 ";
             }
-            
+
             echo "
             <div class='group'>
                 <div class='btn-group' role='group' aria-label='Basic example'>";
