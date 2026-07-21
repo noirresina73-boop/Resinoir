@@ -176,11 +176,56 @@
   }
 
   /* ---------------- BANNER / COLECAO ---------------- */
-  .banner-section{ padding:32px 24px 0; }
+  .banner-frame {
+    position: relative;
+    overflow: hidden;
+    border-radius: 20px;
+}
+
+.banner-frame .img-card {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* Degradê por cima da imagem */
+.banner-frame::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+
+    background: linear-gradient(
+        155deg,
+        rgba(0,0,0,0) 20%,
+        rgba(0,0,0,0.95) 100%
+    );
+
+    z-index: 1;
+}
+
+/* Texto fica acima do degradê */
+.banner-text {
+    position: absolute;
+    z-index: 2;
+    bottom: 40px;
+    left: 40px;
+    color: white;
+}
+
+  .banner-section{
+    padding: 32px 24px 0;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    flex-direction: column;
+    align-content: center;
+  }
+
   .banner-frame{
     position:relative;
-    width:100%;
-    aspect-ratio:2/1;
+    width: 80%;
+    aspect-ratio: 1.5 / 1;
     clip-path:url(#gothicArch);
     background:
       linear-gradient(180deg, rgba(5,4,5,0) 40%, rgba(5,4,5,0.85) 100%),
@@ -489,16 +534,16 @@
   /* ---------------- BOTTOM NAV ---------------- */
   .bottomnav{
     position: fixed;
-    bottom:0;
-    z-index:10;
-    display:flex;
-    align-items:center;
-    justify-content:space-around;
-    padding:12px 10px calc(12px + env(safe-area-inset-bottom));
-    background:rgba(10,9,8,0.92);
-    backdrop-filter:blur(8px);
-    border-top:1px solid rgba(176,141,87,0.25);
+    bottom: 0;
+    z-index: 10;
+    display: grid;
+    padding: 12px 10px calc(12px + env(safe-area-inset-bottom));
+    background: rgba(10, 9, 8, 0.92);
+    backdrop-filter: blur(8px);
+    border-top: 1px solid rgba(176, 141, 87, 0.25);
     min-width: 100%;
+    grid-auto-flow: column;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
   }
   .nav-item{
     display:flex;
@@ -776,14 +821,16 @@
   }
 
   .cat-row{
-    display:flex;
-    gap:18px;
-    overflow-x:auto;
-    padding:18px 24px 6px;
-    margin-top:-34px;
-    position:relative;
-    z-index:3;
-    scrollbar-width:none;
+    display: flex;
+    gap: 18px;
+    overflow-x: auto;
+    padding: 18px 24px 6px;
+    margin-top: -34px;
+    position: relative;
+    z-index: 3;
+    scrollbar-width: none;
+    flex-wrap: nowrap;
+    justify-content: center;
   }
   .cat-row::-webkit-scrollbar{ display:none; }
   .cat-btn{
@@ -794,7 +841,8 @@
     gap:8px;
   }
   .cat-circle{
-    width:64px; height:64px;
+    width: 55px;
+    height: 55px;
     border-radius:50%;
     background:radial-gradient(circle at 35% 30%, #241319, #0c0708);
     border:1px solid var(--gold);
@@ -1020,16 +1068,16 @@
   /* ---------------- BOTTOM NAV ---------------- */
   .bottomnav{
     position: fixed;
-    bottom:0;
-    z-index:10;
-    display:flex;
-    align-items:center;
-    justify-content:space-around;
-    padding:12px 10px calc(12px + env(safe-area-inset-bottom));
-    background:rgba(10,9,8,0.92);
-    backdrop-filter:blur(8px);
-    border-top:1px solid rgba(176,141,87,0.25);
+    bottom: 0;
+    z-index: 10;
+    display: grid;
+    padding: 12px 10px calc(12px + env(safe-area-inset-bottom));
+    background: rgba(10, 9, 8, 0.92);
+    backdrop-filter: blur(8px);
+    border-top: 1px solid rgba(176, 141, 87, 0.25);
     min-width: 100%;
+    grid-auto-flow: column;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
   }
   .nav-item{
     display:flex;

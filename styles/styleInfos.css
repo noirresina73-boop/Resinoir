@@ -1,467 +1,334 @@
-html, body{
-    width:100%;
-    min-height:100%;
-    margin:0;
-    padding:0;
+/* ======================================================
+   Resinoir — Página de Produto (styleInfos.css)
+   Depende das variáveis, fontes, .topnav, .eyebrow,
+   .divider-orn e .cta-btn já definidas em style.css.
+   ====================================================== */
+
+/* ---------------- CABEÇALHO DO PRODUTO ---------------- */
+
+.produto-header{
+    padding:20px 24px 0;
 }
 
-body{
-    display:flex;
-    justify-content:center;
-    align-items:flex-start;
-    background:#131F24;
-    color:#fff;
-    padding:30px;
-    box-sizing:border-box;
-}
-
-.anuncio{
-    width:90%;
-    border:2px solid #38393b;
-    border-radius:10px;
-    overflow:hidden;
-}
-
-.conteudo{
-    display:flex;
-}
-
-/* ------------------- */
-/* LADO DAS FOTOS */
-/* ------------------- */
-
-.fotos{
-
-    width:55%;
-
-    padding:20px;
-
-    background:#2896c5;
-
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-}
-
-.imagemPrincipal{
-
-    width:100%;
-    max-width:450px;
-    aspect-ratio:1/1;
-
-    background:#fff;
-
-    border-radius:12px;
-
-    display:flex;
-    justify-content:center;
-    align-items:center;
-
-    overflow:hidden;
-}
-
-.imgGrande{
-
-    width:100%;
-    height:100%;
-
-    object-fit:contain;
-
-    cursor:pointer;
-}
-
-/* ------------------- */
-/* MINIATURAS */
-/* ------------------- */
-
-.miniaturas{
-
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:10px;
-
-    width:100%;
-    padding:10px;
-}
-
-.viewport{
-
-    width:360px;
-    overflow:hidden;
-}
-
-.lista{
-
-    display:flex;
-    width:max-content;
-
-    gap:10px;
-
-    transition:transform .3s ease;
-}
-
-.btnLogo{
-
-    width:80px;
-    height:80px;
-
-    flex-shrink:0;
-
-    object-fit:cover;
-
-    border-radius:8px;
-
-    cursor:pointer;
-
-    transition:.2s;
-}
-
-.btnLogo:hover{
-
-    transform:scale(1.05);
-}
-
-.seta{
-
-    width:40px;
-    height:40px;
-
-    border:none;
-
-    border-radius:50%;
-
-    font-size:20px;
-
-    cursor:pointer;
-}
-
-/* ------------------- */
-/* IMAGEM AMPLIADA */
-/* ------------------- */
-
-#overlayImagem{
-
-    position:fixed;
-
-    inset:0;
-
-    background:rgba(0,0,0,.8);
-
-    backdrop-filter:blur(6px);
-
-    display:none;
-
-    justify-content:center;
-    align-items:center;
-
-    z-index:999;
-}
-
-#overlayImagem.ativo{
-
-    display:flex;
-}
-
-#imagemExpandida{
-
-    max-width:90vw;
-    max-height:90vh;
-
-    object-fit:contain;
-}
-
-/* ------------------- */
-/* LADO DAS INFORMAÇÕES */
-/* ------------------- */
-
-.infosAnuncio{
-
-    width:45%;
-
-    display:flex;
-    flex-direction:column;
-}
-
-.Titulos{
-
-    width:100%;
-
-    padding:10px;
-    padding-inline:10px;
-
-    background:#2889c5;
-
-    box-sizing:border-box;
+.produto-header .eyebrow{
+    margin-bottom:10px;
 }
 
 #anuncioName{
-
+    font-family:'Cormorant Garamond', serif;
+    font-weight:400;
+    font-size:30px;
+    line-height:1.15;
+    color:var(--bone);
+    letter-spacing:0.3px;
     margin:0;
+}
 
-    font-size:2rem;
+/* ---------------- GALERIA ---------------- */
+
+.fotos{
+    padding:20px 24px 0;
+}
+
+.imagemPrincipal{
+    position:relative;
+    width:100%;
+    aspect-ratio:1/1;
+    background:
+      linear-gradient(180deg, rgba(5,4,5,0) 55%, rgba(5,4,5,0.8) 100%),
+      radial-gradient(circle at 30% 25%, rgba(176,141,87,0.18), transparent 55%),
+      linear-gradient(160deg, #201118 0%, #120a0e 60%, #090506 100%);
+    border:1px solid rgba(176,141,87,0.25);
+    box-shadow:0 10px 24px rgba(0,0,0,0.35);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+}
+
+.imagemPrincipal::before{
+    content:'';
+    position:absolute;
+    top:10px; left:10px; right:10px; bottom:10px;
+    border:1px solid rgba(233,224,201,0.12);
+    pointer-events:none;
+    z-index:1;
+}
+
+.imgGrande{
+    width:100%;
+    height:100%;
+    object-fit:contain;
+    cursor:zoom-in;
+    position:relative;
+    z-index:0;
+    object-fit: cover;
+}
+
+.zoom{
+    position:absolute;
+    bottom: 10px; right:10px;
+    width:30px; height:30px;
+    border-radius:50%;
+    background:rgba(5,4,5,0.55);
+    border:1px solid rgba(233,224,201,0.35);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:2;
+    cursor:pointer;
+}
+
+.zoom svg{ width:14px; height:14px; stroke:var(--bone); }
+
+.zoom.ativo svg{
+    stroke:var(--wine-bright);
+    fill:var(--wine-bright);
+}
+
+/* ---------------- MINIATURAS (faixa horizontal, sem setas) ---------------- */
+
+.miniaturas{
+    margin-top:14px;
+}
+
+.viewport{
+    overflow-x:auto;
+    overflow-y:hidden;
+    scrollbar-width:none;
+    scroll-snap-type:x mandatory;
+}
+.viewport::-webkit-scrollbar{ display:none; }
+
+.lista{
+    display:flex;
+    gap:10px;
+}
+
+.btnLogo{
+    flex:0 0 auto;
+    scroll-snap-align:start;
+    width:64px;
+    height:64px;
+    object-fit:cover;
+    background:radial-gradient(circle at 35% 30%, #241319, #0c0708);
+    border:1px solid rgba(176,141,87,0.3);
+    cursor:pointer;
+    opacity:.6;
+    transition:.2s;
+}
+
+.btnLogo:hover{ opacity:.85; }
+
+.btnLogo.selecionada{
+    opacity:1;
+    border-color:var(--gold-bright);
+}
+
+.seta{ display:none; } /* navegação é por swipe/scroll, como o resto do app */
+
+/* ---------------- IMAGEM AMPLIADA ---------------- */
+
+#overlayImagem{
+    position:fixed;
+    inset:0;
+    background:rgba(5,4,5,0.9);
+    backdrop-filter:blur(6px);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:999;
+}
+
+#overlayImagem.ativo{ display:flex; }
+
+#imagemExpandida{
+    max-width:90vw;
+    max-height:90vh;
+    object-fit:contain;
+}
+
+/* ---------------- PAINEL DE COMPRA ---------------- */
+
+.infosAnuncio{
+    padding:24px;
 }
 
 .Preco{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+    padding-bottom:16px;
+}
 
-    padding:20px;
-    background:#28c567;
+#anuncioValor{
+    font-family:'Cormorant Garamond', serif;
+    font-size:34px;
+    font-weight:500;
+    color:var(--gold);
+    margin:0;
 }
 
 .frete{
+    font-size:11px;
+    color:var(--bone-dim);
+    letter-spacing:0.3px;
+}
+.frete:empty{ display:none; }
 
-    padding:20px;
-    background:#282dc5;
+.detalhes{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    padding:16px 0;
+    border-top:1px solid rgba(176,141,87,0.18);
+    border-bottom:1px solid rgba(176,141,87,0.18);
 }
 
-.cor{
-
-    padding:20px;
-    background:#c52828;
-}
-
+.cor,
 .tamanho{
-
-    padding:20px;
-    background:#c528a3;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:13px;
 }
 
-.quantidade{
-
-    padding:20px;
-    background:#2884c5;
+.cor .rotulo,
+.tamanho .rotulo{
+    font-size:10px;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    color:var(--bone-dim);
 }
+
+.cor h6,
+.tamanho h6{
+    margin:0;
+    font-weight:300;
+    color:var(--bone);
+}
+
+.quantidade{ padding-top:4px; }
+
+/* ---------------- BOTÕES ---------------- */
 
 .botao{
-
-    padding:20px;
-    background:#c52889;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    margin-top:20px;
 }
 
-/* ========================= */
-/* TABLET */
-/* ========================= */
+.botao button{
+    width:100%;
+    padding:15px 20px;
+    font-family:'Jost', sans-serif;
+    font-size:11px;
+    letter-spacing:3px;
+    text-transform:uppercase;
+    cursor:pointer;
+    transition:background 0.2s ease, opacity .2s ease;
+    border:1px solid var(--gold);
+}
 
-@media (max-width:992px){
+.btn-comprar{
+    background:linear-gradient(180deg, var(--gold-bright), var(--gold));
+    color:var(--void);
+}
+.btn-comprar:hover{ opacity:.9; }
+
+.btn-carrinho{
+    background:linear-gradient(180deg, rgba(176,141,87,0.08), transparent);
+    color:var(--bone);
+}
+.btn-carrinho:hover{ background:rgba(176,141,87,0.18); }
+
+/* ---------------- DESCRIÇÃO (seções fixas, sem abas) ---------------- */
+
+.descricaoAnuncio{
+    padding:8px 24px 40px;
+    display:flex;
+    flex-direction:column;
+    gap:26px;
+}
+
+.secaoDescricao{
+    border-top:1px solid rgba(176,141,87,0.18);
+    padding-top:18px;
+}
+
+.secaoDescricao .eyebrow{
+    margin-bottom:12px;
+}
+
+.secaoDescricao .conteudoSecao{
+    font-family:'Jost', sans-serif;
+    font-weight:300;
+    font-size:13px;
+    line-height:1.8;
+    color:var(--bone-dim);
+    white-space:pre-line;
+}
+
+.secaoDescricao .conteudoSecao .vazio{
+    font-style:italic;
+    opacity:.7;
+}
+
+/* ---------------- DESKTOP ---------------- */
+
+@media (min-width:761px){
 
     .anuncio{
-        width:95%;
-        margin:auto;
+        max-width:1080px;
+        margin:0 auto;
+    }
+
+    .produto-header{
+        padding:32px 32px 0;
     }
 
     .conteudo{
         display:flex;
-        gap:20px;
+        align-items:flex-start;
+        gap:40px;
+        padding:0 32px;
     }
 
     .fotos{
-        width:45%;
-    }
-
-    .infosAnuncio{
-        width:55%;
+        width:50%;
+        padding:24px 0 0;
     }
 
     .imagemPrincipal{
-        width:100%;
-        height:auto;
-        aspect-ratio:1/1;
-    }
-
-}
-
-/* ========================= */
-/* CELULAR */
-/* ========================= */
-
-@media (max-width:768px){
-
-    html,
-    body{
-        overflow-x:hidden;
-    }
-
-    body{
-        padding:10px;
-    }
-
-    .anuncio{
-
-        width:100%;
-        margin:0;
-
-        display:flex;
-        flex-direction:column;
-
-        gap:20px;
-    }
-
-    .Titulos{
-
-        width:100%;
-
-        padding:15px;
-
-        text-align:center;
-
-        box-sizing:border-box;
-    }
-
-    #anuncioName{
-
-        font-size:1.8rem;
-        margin:0;
-    }
-
-    .conteudo{
-
-        display:flex;
-        flex-direction:column;
-
-        gap:20px;
-    }
-
-    .fotos{
-
-        width:100%;
-
-        display:flex;
-        flex-direction:column;
-
-        align-items:center;
-
-        gap:15px;
-    }
-
-    .imagemPrincipal{
-
-        width:100%;
-        max-width:400px;
-
-        aspect-ratio:1/1;
-
-        margin:auto;
-    }
-
-    .imgGrande{
-
-        width:100%;
-        height:100%;
-
-        object-fit:contain;
-    }
-
-    .miniaturas{
-
-        width:100%;
-
-        display:flex;
-
-        justify-content:center;
-
-        align-items:center;
-
-        gap:8px;
-    }
-
-    .viewport{
-
-        width:280px;
-
-        overflow:hidden;
-    }
-
-    .lista{
-
-        display:flex;
-
-        gap:8px;
-
-        width:max-content;
+        max-width:460px;
+        margin:0 auto;
     }
 
     .btnLogo{
-
-        width:60px;
-        height:60px;
-
-        flex-shrink:0;
-    }
-
-    .seta{
-
-        width:35px;
-        height:35px;
-
-        font-size:18px;
+        width:72px;
+        height:72px;
     }
 
     .infosAnuncio{
-
-        width:100%;
-
-        display:flex;
-
-        flex-direction:column;
-
-        gap:10px;
+        width:50%;
+        padding:24px 0 24px 0;
     }
 
-    .Preco,
-    .frete,
-    .cor,
-    .tamanho,
-    .quantidade,
-    .botao{
-
-        width:100%;
-
-        padding:15px;
-
-        box-sizing:border-box;
-
-        border-radius:8px;
+    .descricaoAnuncio{
+        max-width:1080px;
+        margin:0 auto;
+        padding:8px 32px 50px;
     }
-
 }
 
-/* ========================= */
-/* CELULARES PEQUENOS */
-/* ========================= */
+/* ---------------- MOBILE PEQUENO ---------------- */
 
-@media (max-width:480px){
+@media (max-width:460px){
 
-    body{
-        padding:5px;
-    }
+    #anuncioName{ font-size:24px; }
 
-    #anuncioName{
-        font-size:1.5rem;
-    }
+    #anuncioValor{ font-size:28px; }
 
-    .viewport{
-        width:220px;
-    }
-
-    .btnLogo{
-        width:50px;
-        height:50px;
-    }
-
-    .seta{
-        width:30px;
-        height:30px;
-    }
-
-    .Preco,
-    .frete,
-    .cor,
-    .tamanho,
-    .quantidade,
-    .botao{
-
-        padding:12px;
-        font-size:14px;
-    }
-
+    .btnLogo{ width:56px; height:56px; }
 }

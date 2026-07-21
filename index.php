@@ -29,16 +29,9 @@ include 'autoloader.php';
   <!-- TOP NAV -->
   <navbar class="topnav">
     <div class="icon-btn">
-      <svg viewBox="0 0 24 24" fill="none" stroke="#e9e0c9" stroke-width="1.4"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
     </div>
     <div class="wordmark">Resinoir</div>
-    <div class="side">
-      <div class="icon-btn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#e9e0c9" stroke-width="1.4"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-      </div>
-      <div class="icon-btn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#e9e0c9" stroke-width="1.4"><path d="M6 7h12l-1 13H7L6 7z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg>
-      </div>
+    <div class="icon-btn">
     </div>
   </navbar>
 
@@ -63,11 +56,7 @@ include 'autoloader.php';
   <!-- BANNER DE COLECAO -->
   <div class="banner-section">
     <div class="banner-frame">
-      <svg class="rose" viewBox="0 0 24 24" fill="none" stroke="#d4b077" stroke-width="0.6">
-        <circle cx="12" cy="12" r="9"/>
-        <circle cx="12" cy="12" r="5"/>
-        <path d="M12 3v18M3 12h18M5.5 5.5l13 13M18.5 5.5l-13 13"/>
-      </svg>
+      <img class='img-card' src="./assets/imgs/WhatsApp Image 2026-07-16 at 19.56.00.jpeg" alt="">
       <div class="banner-text">
         <div class="banner-eyebrow">Coleção em destaque</div>
         <div class="banner-title">Vitral Sombrio</div>
@@ -88,18 +77,6 @@ include 'autoloader.php';
           <svg viewBox="0 0 24 24" fill="none" stroke="#d4b077" stroke-width="1.2"><circle cx="12" cy="8" r="4"/><path d="M9 11 6 21h12l-3-10"/></svg>
         </div>
         <div class="cat-label">Colares</div>
-      </div>
-      <div class="cat-btn">
-        <div class="cat-circle">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#d4b077" stroke-width="1.2"><circle cx="12" cy="14" r="6"/><path d="M9 9l1.5-5h3L15 9"/></svg>
-        </div>
-        <div class="cat-label">Anéis</div>
-      </div>
-      <div class="cat-btn">
-        <div class="cat-circle">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#d4b077" stroke-width="1.2"><path d="M4 12a8 4 0 0 0 16 0 8 4 0 0 0-16 0z"/></svg>
-        </div>
-        <div class="cat-label">Pulseiras</div>
       </div>
       <div class="cat-btn">
         <div class="cat-circle">
@@ -164,44 +141,8 @@ include 'autoloader.php';
         $Listar = $Listar->listProdutos();
       ?>
 
-      <div class="product-card">
-        <div class="product-photo">
-          <div class="product-badge">Novo</div>
-          <div class="wishlist"><svg viewBox="0 0 24 24" fill="none" stroke="#e9e0c9" stroke-width="1.4"><path d="M12 21s-7-4.4-9.5-8.8C.6 8.6 2.6 5 6.2 5 8.4 5 10 6.2 12 8c2-1.8 3.6-3 5.8-3 3.6 0 5.6 3.6 3.7 7.2C19 16.6 12 21 12 21z"/></svg></div>
-          <svg viewBox="0 0 24 24" fill="none" stroke="#d4b077" stroke-width="1"><path d="M12 2C9 6 7 9 7 12a5 5 0 0 0 10 0c0-3-2-6-5-10z"/></svg>
-        </div>
-        <div class="product-info">
-          <div class="name">Brinco Lua Minguante</div>
-          <div class="price">R$ 74,00</div>
-          <div class="rating"><svg viewBox="0 0 24 24" fill="#d4b077" stroke="none"><path d="M12 2l2.9 6.3 6.9.7-5.2 4.7 1.5 6.8L12 17l-6.1 3.5 1.5-6.8-5.2-4.7 6.9-.7z"/></svg><span>4.9 (18)</span></div>
-        </div>
-      </div>
 
-      <div class="product-card">
-        <div class="product-photo">
-          <div class="wishlist"><svg viewBox="0 0 24 24" fill="none" stroke="#e9e0c9" stroke-width="1.4"><path d="M12 21s-7-4.4-9.5-8.8C.6 8.6 2.6 5 6.2 5 8.4 5 10 6.2 12 8c2-1.8 3.6-3 5.8-3 3.6 0 5.6 3.6 3.7 7.2C19 16.6 12 21 12 21z"/></svg></div>
-          <svg viewBox="0 0 24 24" fill="none" stroke="#d4b077" stroke-width="1"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/></svg>
-        </div>
-        <div class="product-info">
-          <div class="name">Pingente Vitral Rubi</div>
-          <div class="price">R$ 118,00</div>
-          <div class="rating"><svg viewBox="0 0 24 24" fill="#d4b077" stroke="none"><path d="M12 2l2.9 6.3 6.9.7-5.2 4.7 1.5 6.8L12 17l-6.1 3.5 1.5-6.8-5.2-4.7 6.9-.7z"/></svg><span>5.0 (7)</span></div>
-        </div>
-      </div>
-
-      <div class="product-card">
-        <div class="product-photo">
-          <div class="wishlist"><svg viewBox="0 0 24 24" fill="none" stroke="#e9e0c9" stroke-width="1.4"><path d="M12 21s-7-4.4-9.5-8.8C.6 8.6 2.6 5 6.2 5 8.4 5 10 6.2 12 8c2-1.8 3.6-3 5.8-3 3.6 0 5.6 3.6 3.7 7.2C19 16.6 12 21 12 21z"/></svg></div>
-          <svg viewBox="0 0 24 24" fill="none" stroke="#d4b077" stroke-width="1"><circle cx="12" cy="14" r="6"/><path d="M9 9l1.5-5h3L15 9"/></svg>
-        </div>
-        <div class="product-info">
-          <div class="name">Anel Gótico Prata</div>
-          <div class="price">R$ 96,00</div>
-          <div class="rating"><svg viewBox="0 0 24 24" fill="#d4b077" stroke="none"><path d="M12 2l2.9 6.3 6.9.7-5.2 4.7 1.5 6.8L12 17l-6.1 3.5 1.5-6.8-5.2-4.7 6.9-.7z"/></svg><span>4.7 (24)</span></div>
-        </div>
-      </div>
-
-      <div class="product-card">
+      <!-- <div class="product-card">
         <div class="product-photo">
           <div class="product-badge">Novo</div>
           <div class="wishlist"><svg viewBox="0 0 24 24" fill="none" stroke="#e9e0c9" stroke-width="1.4"><path d="M12 21s-7-4.4-9.5-8.8C.6 8.6 2.6 5 6.2 5 8.4 5 10 6.2 12 8c2-1.8 3.6-3 5.8-3 3.6 0 5.6 3.6 3.7 7.2C19 16.6 12 21 12 21z"/></svg></div>
@@ -212,32 +153,7 @@ include 'autoloader.php';
           <div class="price">R$ 142,00</div>
           <div class="rating"><svg viewBox="0 0 24 24" fill="#d4b077" stroke="none"><path d="M12 2l2.9 6.3 6.9.7-5.2 4.7 1.5 6.8L12 17l-6.1 3.5 1.5-6.8-5.2-4.7 6.9-.7z"/></svg><span>4.8 (11)</span></div>
         </div>
-      </div>
-
-      <div class="product-card">
-        <div class="product-photo">
-          <div class="wishlist"><svg viewBox="0 0 24 24" fill="none" stroke="#e9e0c9" stroke-width="1.4"><path d="M12 21s-7-4.4-9.5-8.8C.6 8.6 2.6 5 6.2 5 8.4 5 10 6.2 12 8c2-1.8 3.6-3 5.8-3 3.6 0 5.6 3.6 3.7 7.2C19 16.6 12 21 12 21z"/></svg></div>
-          <svg viewBox="0 0 24 24" fill="none" stroke="#d4b077" stroke-width="1"><path d="M12 6c-2-3-6-3-6 1 0 2 2 3 6 6 4-3 6-4 6-6 0-4-4-4-6-1z"/></svg>
-        </div>
-        <div class="product-info">
-          <div class="name">Brinco Morcego Duplo</div>
-          <div class="price">R$ 92,00</div>
-          <div class="rating"><svg viewBox="0 0 24 24" fill="#d4b077" stroke="none"><path d="M12 2l2.9 6.3 6.9.7-5.2 4.7 1.5 6.8L12 17l-6.1 3.5 1.5-6.8-5.2-4.7 6.9-.7z"/></svg><span>4.9 (31)</span></div>
-        </div>
-      </div>
-
-      <div class="product-card">
-        <div class="product-photo">
-          <div class="product-badge sold-out">Esgotado</div>
-          <div class="wishlist"><svg viewBox="0 0 24 24" fill="none" stroke="#e9e0c9" stroke-width="1.4"><path d="M12 21s-7-4.4-9.5-8.8C.6 8.6 2.6 5 6.2 5 8.4 5 10 6.2 12 8c2-1.8 3.6-3 5.8-3 3.6 0 5.6 3.6 3.7 7.2C19 16.6 12 21 12 21z"/></svg></div>
-          <svg viewBox="0 0 24 24" fill="none" stroke="#d4b077" stroke-width="1"><path d="M4 12a8 4 0 0 0 16 0 8 4 0 0 0-16 0z"/></svg>
-        </div>
-        <div class="product-info">
-          <div class="name">Pulseira Corrente Sombria</div>
-          <div class="price">R$ 105,00</div>
-          <div class="rating"><svg viewBox="0 0 24 24" fill="#d4b077" stroke="none"><path d="M12 2l2.9 6.3 6.9.7-5.2 4.7 1.5 6.8L12 17l-6.1 3.5 1.5-6.8-5.2-4.7 6.9-.7z"/></svg><span>4.6 (9)</span></div>
-        </div>
-      </div>
+      </div> -->
 
     </div>
 
@@ -257,21 +173,20 @@ include 'autoloader.php';
       <span>Início</span>
     </div>
     <div class="nav-item">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="4" y="4" width="7" height="7"/><rect x="13" y="4" width="7" height="7"/><rect x="4" y="13" width="7" height="7"/><rect x="13" y="13" width="7" height="7"/></svg>
-      <span>Categorias</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 21s-7-4.4-9.5-8.8C.6 8.6 2.6 5 6.2 5 8.4 5 10 6.2 12 8c2-1.8 3.6-3 5.8-3 3.6 0 5.6 3.6 3.7 7.2C19 16.6 12 21 12 21z"/></svg>
+      <span>Coleções</span>
     </div>
     <div class="nav-item">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 21s-7-4.4-9.5-8.8C.6 8.6 2.6 5 6.2 5 8.4 5 10 6.2 12 8c2-1.8 3.6-3 5.8-3 3.6 0 5.6 3.6 3.7 7.2C19 16.6 12 21 12 21z"/></svg>
-      <span>Favoritos</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="#e9e0c9" stroke-width="1.4"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <span>Pesquisar</span>
     </div>
     <div class="nav-item">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M6 7h12l-1 13H7L6 7z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg>
-      <span>Sacola</span>
-      <div class="badge">2</div>
+      <span>Catálogo completo</span>
     </div>
     <div class="nav-item">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
-      <span>Perfil</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="4" y="4" width="7" height="7"/><rect x="13" y="4" width="7" height="7"/><rect x="4" y="13" width="7" height="7"/><rect x="13" y="13" width="7" height="7"/></svg>
+      <span>Categorias</span>
     </div>
   </div>
 

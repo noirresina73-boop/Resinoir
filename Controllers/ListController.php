@@ -20,6 +20,53 @@ use PDO;
                 return $BD;
         }
 
+        public function Banner($tela = null)
+        {
+
+            $campo = 'id';
+            $condicao = '>';
+            $parametro = 0;
+
+            $BD = new ListController;
+            $BD = $BD->BDlog();
+
+            $sql = "SELECT COUNT(*) AS total FROM produtos WHERE $campo $condicao :parametro";
+
+            $query = $BD->prepare($sql);
+            $query->bindValue(':parametro', $parametro, PDO::PARAM_INT);
+            $query->execute();
+
+            $resultado = $query->fetch(PDO::FETCH_ASSOC);
+
+            $sql = "SELECT * FROM produtos WHERE $campo $condicao :parametro";
+
+            $query = $BD->prepare($sql);
+
+            $query->bindValue(':parametro', $parametro, PDO::PARAM_STR);
+            $query->execute();
+
+            $produto = $query->fetchAll(PDO::FETCH_ASSOC);
+
+            if (!empty($produto)) {
+
+                $id = $produto["id"];
+                $idPDR = $produto["idPDR"];
+                $nome = $produto["nome"];
+                $modelo = $produto["modelo"];
+                $descricao = $produto["descricao"];
+                $cor = $produto["cor"];
+                $tamanho = $produto["tamanho"];
+                $estoque = $produto["estoque"];
+                $imagem = $produto["imagem"];
+                $encomenda = $produto["encomenda"];
+                $valor = $produto["valor"];
+                $totalVendidos = $produto["totalVendidos"];
+                $novidade = $produto["novidade"];
+                $capa = $produto["capa"];
+
+            }
+        }
+
         public function listNovidades(){
             $BD = new ListController;
             $BD = $BD->BDlog();
@@ -57,7 +104,7 @@ use PDO;
                 <img src='$capa' class='card-img-top' alt='...'>
                 <div class='card-body'>
                     <h5 class='card-title'>$nome</h5>
-                    <h6 class='card-preco'>$valor</h6>
+                    <h6 class='card-preco'>R$ <?= number_format((float) $valor, 2, ',', '.') ?></h6>
                     <a href='infos.php?id=$id' class='btn btn-primary'>Ver mais</a>
                 </div>
                 </div>
@@ -69,7 +116,7 @@ use PDO;
             }
         }
 
-        public function listProdutos()
+        public function listProdutos($tela = null)
         {
             $pagina = 1;
             if (isset($_GET['pagina'])) {
@@ -134,7 +181,7 @@ use PDO;
                 $capa = $retorno["capa"];
 
                 echo "
-                        <div class='product-card'>
+                        <div onclick='location.href=\"infos.php?id=$id\"' class='product-card'>
                         <div class='product-photo'>
                         <!-- <div class='product-badge'>Novo</div> -->
                         <img class='img-card' src='$capa' alt=''>
@@ -146,6 +193,10 @@ use PDO;
                     </div>
                 ";
             }
+
+            if($tela === 'home') {
+
+            }elseif($tela === 'catalogo') {
 
             echo "
             <div class='group'>
@@ -164,6 +215,7 @@ use PDO;
                 echo "</div>
             </div>
                     ";
+            }
         }
     }
 ?>
