@@ -37,108 +37,23 @@ include 'autoloader.php';
 
   <!-- HEADER -->
   <div class="header">
-    <div class="eyebrow">Coleção</div>
-    <h1>Nossas<br>categorias</h1>
-    <div class="sub">peças autorais em resina, moldadas à mão e inspiradas na arquitetura gótica</div>
+    <div class="eyebrow">Catálogo</div>
+    <h1>Catálogo<br>completo</h1>
+    <div class="sub">Todas nossas peças, moldadas à mão e inspiradas na arquitetura gótica</div>
   </div>
 
-  <!-- SELO ESTRELADO NOTURNO -->
-  <div class="night-seal">
-    <div class="stars" id="starsField"></div>
-    <div class="seal">
-      <svg viewBox="0 0 24 24" fill="none" stroke="var(--gold-bright)" stroke-width="1">
-        <path d="M12 3a7 7 0 1 0 7 9 6 6 0 0 1-7-9z" fill="var(--gold-bright)" stroke="none"/>
-      </svg>
-    </div>
-    <div class="seal-caption">feito à luz da lua</div>
-  </div>
 
-  <!-- BANNER DE COLECAO -->
-  <div class="banner-section">
-    <div class="banner-frame">
-      <img class='img-card' src="./assets/imgs/WhatsApp Image 2026-07-16 at 19.56.00.jpeg" alt="">
-      <div class="banner-text">
-        <div class="banner-eyebrow">Coleção em destaque</div>
-        <div class="banner-title">Vitral Sombrio</div>
-        <div class="banner-sub">peças em resina inspiradas em rosáceas góticas</div>
-        <div class="banner-cta">Ver coleção <span>&rarr;</span></div>
-      </div>
-    </div>
 
-    <div class="cat-row">
-      <div class="cat-btn">
-        <div class="cat-circle">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#d4b077" stroke-width="1.2"><path d="M12 2C9 6 7 9 7 12a5 5 0 0 0 10 0c0-3-2-6-5-10z"/><circle cx="12" cy="20" r="1.4"/></svg>
-        </div>
-        <div class="cat-label">Brincos</div>
-      </div>
-      <div class="cat-btn">
-        <div class="cat-circle">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#d4b077" stroke-width="1.2"><circle cx="12" cy="8" r="4"/><path d="M9 11 6 21h12l-3-10"/></svg>
-        </div>
-        <div class="cat-label">Colares</div>
-      </div>
-      <div class="cat-btn">
-        <div class="cat-circle">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#d4b077" stroke-width="1.2"><path d="M12 2 3 21l9-4 9 4z"/></svg>
-        </div>
-        <div class="cat-label">Broches</div>
-      </div>
-    </div>
-  </div>
 
-  <!-- NOVIDADES EM VITRAIS -->
-  <div class="divider-orn">
-    <svg viewBox="0 0 24 24" fill="var(--gold)"><path d="M12 2l2.9 6.3 6.9.7-5.2 4.7 1.5 6.8L12 17l-6.1 3.5 1.5-6.8-5.2-4.7 6.9-.7z"/></svg>
-  </div>
-  <div class="novidades-section">
-    <div class="eyebrow">Novidades</div>
-    <div class="vitral-row">
-
-      <div class="vitral-card">
-        <div class="vitral-frame">
-          <div class="mini-ceu"></div>
-          <img class="img-card-vitral" src="./assets/imgs/WhatsApp Image 2026-07-16 at 13.52.51.jpeg" alt="">
-        </div>
-        <div class="vitral-caption">
-          <div class="name">Brinco Morcego Lunar</div>
-          <div class="price">R$ 89,00</div>
-        </div>
-      </div>
-
-      <div class="vitral-card">
-        <div class="vitral-frame">
-          <div class="mini-ceu"></div>
-          <img class="img-card-vitral" src="./assets/imgs/WhatsApp Image 2026-07-16 at 19.56.00.jpeg" alt="">
-        </div>
-        <div class="vitral-caption">
-          <div class="name">Colar Rosácea</div>
-          <div class="price">R$ 129,00</div>
-        </div>
-      </div>
-
-      <div class="vitral-card">
-        <div class="vitral-frame">
-          <div class="mini-ceu"></div>
-          <img class="img-card-vitral" src="./assets/imgs/WhatsApp Image 2026-07-13 at 21.22.27.jpeg" alt="">
-        </div>
-        <div class="vitral-caption">
-          <div class="name">Anel Trevo Sombrio</div>
-          <div class="price">R$ 69,00</div>
-        </div>
-      </div>
-
-    </div>
-  </div>
 
   <!-- CATALOGO GERAL -->
   <div class="catalog-section">
-    <div class="eyebrow">Catálogo</div>
+    <div class="eyebrow">Produtos</div>
     <div class="product-grid">
 
       <?php
         $Listar = new ListController;
-        $Listar = $Listar->listProdutos();
+        $Listar = $Listar->listProdutos('catalogo');
       ?>
 
 
@@ -157,7 +72,6 @@ include 'autoloader.php';
 
     </div>
 
-    <button class="cta-btn" onclick="window.location.href='./catalogo.php'">Ver catálogo completo</button>
   </div>
 
   <div class="divider-orn">
@@ -180,7 +94,7 @@ include 'autoloader.php';
       <svg viewBox="0 0 24 24" fill="none" stroke="#e9e0c9" stroke-width="1.4"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
       <span>Pesquisar</span>
     </div>
-    <div class="nav-item" onclick="window.location.href='./catalogo.php'">
+    <div class="nav-item">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M6 7h12l-1 13H7L6 7z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg>
       <span>Catálogo completo</span>
     </div>

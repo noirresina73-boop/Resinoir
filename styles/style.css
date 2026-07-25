@@ -552,6 +552,7 @@
     gap:4px;
     color:var(--bone-dim);
     position:relative;
+    cursor: pointer;
   }
   .nav-item svg{ width:20px; height:20px; }
   .nav-item span{
