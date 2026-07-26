@@ -14,6 +14,29 @@
     --glass-black:#141013;
   }
 
+  .btn-link{
+    font-size: .7rem;
+    text-decoration: none;
+    color: var(--bone);
+    white-space: nowrap;
+  }
+
+  .btn-group{
+    display: flex;
+    width: 50%;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .group{
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: center;
+  }
 
   *{box-sizing:border-box; margin:0; padding:0;}
 
@@ -472,10 +495,16 @@
     margin-left:2px;
   }
 
+  .cont-btn{
+    width: 5rem !important;
+    margin: 1rem !important;
+    padding: .6rem !important;
+  }
+
   .cta-btn{
     display:block;
     margin:28px auto 0;
-    width:calc(100% - 0px);
+    width:100%;
     text-align:center;
     padding:15px 20px;
     border:1px solid var(--gold);
@@ -534,7 +563,7 @@
   /* ---------------- BOTTOM NAV ---------------- */
   .bottomnav{
     position: fixed;
-    bottom: 0;
+    bottom: -2px;
     z-index: 10;
     display: grid;
     padding: 12px 10px calc(12px + env(safe-area-inset-bottom));
@@ -1069,7 +1098,7 @@
   /* ---------------- BOTTOM NAV ---------------- */
   .bottomnav{
     position: fixed;
-    bottom: 0;
+    bottom: -2px;
     z-index: 10;
     display: grid;
     padding: 12px 10px calc(12px + env(safe-area-inset-bottom));

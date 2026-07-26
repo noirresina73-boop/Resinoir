@@ -167,28 +167,28 @@ include 'autoloader.php';
   <div class="foot-note">Resinoir · peças em resina artesanal</div>
 
   <!-- BOTTOM NAV -->
-  <div class="bottomnav">
-    <div class="nav-item active">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/></svg>
-      <span>Início</span>
-    </div>
-    <div class="nav-item">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 21s-7-4.4-9.5-8.8C.6 8.6 2.6 5 6.2 5 8.4 5 10 6.2 12 8c2-1.8 3.6-3 5.8-3 3.6 0 5.6 3.6 3.7 7.2C19 16.6 12 21 12 21z"/></svg>
-      <span>Coleções</span>
-    </div>
-    <div class="nav-item">
-      <svg viewBox="0 0 24 24" fill="none" stroke="#e9e0c9" stroke-width="1.4"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-      <span>Pesquisar</span>
-    </div>
-    <div class="nav-item" onclick="window.location.href='./catalogo.php'">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M6 7h12l-1 13H7L6 7z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg>
-      <span>Catálogo completo</span>
-    </div>
-    <div class="nav-item">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="4" y="4" width="7" height="7"/><rect x="13" y="4" width="7" height="7"/><rect x="4" y="13" width="7" height="7"/><rect x="13" y="13" width="7" height="7"/></svg>
-      <span>Categorias</span>
-    </div>
+<div class="bottomnav">
+  <div class="nav-item active">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/></svg>
+    <span>Início</span>
   </div>
+  <div class="nav-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/></svg>
+    <span>Coleções</span>
+  </div>
+  <div class="nav-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+    <span>Pesquisar</span>
+  </div>
+  <div class="nav-item" onclick="window.location.href='./catalogo.php'">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 6v14"/><path d="M5 4c3 0 5.5 1 7 2.5C13.5 5 16 4 19 4v14c-3 0-5.5 1-7 2.5C10.5 19 8 18 5 18V4z"/></svg>
+    <span>Catálogo</span>
+  </div>
+  <div class="nav-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="4" y="4" width="7" height="7"/><rect x="13" y="4" width="7" height="7"/><rect x="4" y="13" width="7" height="7"/><rect x="13" y="13" width="7" height="7"/></svg>
+    <span>Categorias</span>
+  </div>
+</div>
 
 </div>
 

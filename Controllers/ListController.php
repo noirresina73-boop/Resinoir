@@ -199,21 +199,17 @@ use PDO;
             }elseif($tela === 'catalogo') {
 
             echo "
+            </div>
             <div class='group'>
                 <div class='btn-group' role='group' aria-label='Basic example'>";
                 if ($pagina > 1) {
-                    echo "<a href='?pagina=" . ($pagina - 1) . "' class='btn btn-primary'><</a>";
-                }else{
-                    echo "<a href='' class='btn btn-outline-primary disabled'><</a>";
+                    echo "<a href='?pagina=" . ($pagina - 1) . "' class='btn-link'>❮ Anterior</a>";
                 }
-                    echo "<a href='?pagina=" . ($pagina) . "' class='btn btn-primary'>$pagina</a>";
+                    echo "<button class='cta-btn cont-btn'>$pagina</button>";
                 if ($pagina < $maxPaginas) {
-                    echo "<a href='?pagina=" . ($pagina + 1) . "' class='btn btn-primary'>></a>";
-                }else{
-                    echo "<a href='' class='btn btn-outline-primary disabled'>></a>";
+                    echo "<a href='?pagina=" . ($pagina + 1) . "' class='btn-link'>Seguinte ❯</a>";
                 }
                 echo "</div>
-            </div>
                     ";
             }
         }
