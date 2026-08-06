@@ -54,38 +54,11 @@ include 'autoloader.php';
   </div>
 
   <!-- BANNER DE COLECAO -->
-  <div class="banner-section">
-    <div class="banner-frame">
-      <img class='img-card' src="./assets/imgs/WhatsApp Image 2026-07-16 at 19.56.00.jpeg" alt="">
-      <div class="banner-text">
-        <div class="banner-eyebrow">Coleção em destaque</div>
-        <div class="banner-title">Vitral Sombrio</div>
-        <div class="banner-sub">peças em resina inspiradas em rosáceas góticas</div>
-        <div class="banner-cta">Ver coleção <span>&rarr;</span></div>
-      </div>
-    </div>
 
-    <div class="cat-row">
-      <div class="cat-btn">
-        <div class="cat-circle">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#d4b077" stroke-width="1.2"><path d="M12 2C9 6 7 9 7 12a5 5 0 0 0 10 0c0-3-2-6-5-10z"/><circle cx="12" cy="20" r="1.4"/></svg>
-        </div>
-        <div class="cat-label">Brincos</div>
-      </div>
-      <div class="cat-btn">
-        <div class="cat-circle">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#d4b077" stroke-width="1.2"><circle cx="12" cy="8" r="4"/><path d="M9 11 6 21h12l-3-10"/></svg>
-        </div>
-        <div class="cat-label">Colares</div>
-      </div>
-      <div class="cat-btn">
-        <div class="cat-circle">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#d4b077" stroke-width="1.2"><path d="M12 2 3 21l9-4 9 4z"/></svg>
-        </div>
-        <div class="cat-label">Broches</div>
-      </div>
-    </div>
-  </div>
+      <?php
+        $Listar = new ListController;
+        $Listar = $Listar->mostraColecaoNova();
+      ?>
 
   <!-- NOVIDADES EM VITRAIS -->
   <div class="divider-orn">
@@ -168,11 +141,11 @@ include 'autoloader.php';
 
   <!-- BOTTOM NAV -->
 <div class="bottomnav">
-  <div class="nav-item active">
+  <div class="nav-item active" onclick="window.location.href='./index.php'">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/></svg>
     <span>Início</span>
   </div>
-  <div class="nav-item">
+  <div class="nav-item" onclick="window.location.href='./colecao.php'">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/></svg>
     <span>Coleções</span>
   </div>
@@ -184,7 +157,7 @@ include 'autoloader.php';
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 6v14"/><path d="M5 4c3 0 5.5 1 7 2.5C13.5 5 16 4 19 4v14c-3 0-5.5 1-7 2.5C10.5 19 8 18 5 18V4z"/></svg>
     <span>Catálogo</span>
   </div>
-  <div class="nav-item">
+  <div class="nav-item" onclick="window.location.href='./categoria.php'">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="4" y="4" width="7" height="7"/><rect x="13" y="4" width="7" height="7"/><rect x="4" y="13" width="7" height="7"/><rect x="13" y="13" width="7" height="7"/></svg>
     <span>Categorias</span>
   </div>

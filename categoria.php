@@ -40,8 +40,8 @@ include 'autoloader.php';
 
   <!-- HEADER -->
   <div class="header">
-    <div class="eyebrow">Catálogo</div>
-    <h1>Catálogo<br>completo</h1>
+    <div class="eyebrow">Categorias</div>
+    <h1>Categorias<br>completo</h1>
     <div class="sub">Todas nossas peças, moldadas à mão e inspiradas na arquitetura gótica</div>
   </div>
 
@@ -56,7 +56,7 @@ include 'autoloader.php';
 
       <?php
         $Listar = new ListController;
-        $Listar = $Listar->listProdutos('catalogo');
+        $Listar = $Listar->listCategoria('catalogo');
       ?>
 
 
@@ -97,11 +97,11 @@ include 'autoloader.php';
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
     <span>Pesquisar</span>
   </div>
-  <div class="nav-item active" onclick="window.location.href='./catalogo.php'">
+  <div class="nav-item" onclick="window.location.href='./catalogo.php'">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 6v14"/><path d="M5 4c3 0 5.5 1 7 2.5C13.5 5 16 4 19 4v14c-3 0-5.5 1-7 2.5C10.5 19 8 18 5 18V4z"/></svg>
     <span>Catálogo</span>
   </div>
-  <div class="nav-item" onclick="window.location.href='./categoria.php'">
+  <div class="nav-item active" onclick="window.location.href='./categoria.php'">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="4" y="4" width="7" height="7"/><rect x="13" y="4" width="7" height="7"/><rect x="4" y="13" width="7" height="7"/><rect x="13" y="13" width="7" height="7"/></svg>
     <span>Categorias</span>
   </div>
