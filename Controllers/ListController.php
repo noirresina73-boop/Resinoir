@@ -451,7 +451,7 @@ use PDO;
             if ($limite === 0) {
                 echo "<p>Nenhum produto encontrado.</p>";
             }
-
+            $inverter=0;
             foreach ($colecao as $retorno) {
 
                 $id = $retorno["id"];
@@ -459,7 +459,7 @@ use PDO;
                 $descricao = $retorno["descricao"];
                 $data_criacao = $retorno["data_criacao"];
                 $capa = $retorno["capa"];
-
+            if($inverter%2==0){
                 echo "
                     <div onclick='location.href=\"catalogoColecao.php?colecao=$id\"' class='collection-row'>
                         <div class='row-photo'>
@@ -474,8 +474,24 @@ use PDO;
                         </svg>
                     </div>
                 ";
+            }else{
+                echo "
+                    <div onclick='location.href=\"catalogoColecao.php?colecao=$id\"' class='collection-row'>
+                        <div class='row-info'>
+                            <div class='name'>$nome</div>
+                            <div class='desc'>$descricao</div>
+                        </div>
+                        <div class='row-photo'>
+                            <img src='$capa' alt='$nome'>
+                        </div>
+                        <svg class='row-arrow' viewBox='0 0 24 24' fill='none' stroke='#a89f8b' stroke-width='1.4'>
+                            <path d='M9 6l6 6-6 6'/>
+                        </svg>
+                    </div>
+                ";
             }
-
+            $inverter++;
+            }
             if($tela === 'home') {
 
             }elseif($tela === 'catalogo') {

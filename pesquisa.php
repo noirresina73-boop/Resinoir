@@ -30,7 +30,7 @@ include 'autoloader.php';
 </div>
 
   <!-- BOTTOM NAV -->
-  <div class="bottomnav">
+  <div class="bottomnav" style="bottom: -3px;">
     <div class="nav-item" onclick="window.location.href='./index.php'">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/></svg>
       <span>Início</span>

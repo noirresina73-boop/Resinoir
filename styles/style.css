@@ -648,6 +648,7 @@
   border-bottom:none;
 }
 .collection-row .row-photo{
+  border-radius:100%;
   flex:0 0 110px;
   width:110px;
   height:110px;
@@ -661,6 +662,7 @@
   box-shadow:0 10px 24px rgba(0,0,0,0.35);
 }
 .collection-row .row-photo::before{
+  border-radius:100%;
   content:'';
   position:absolute; top:6px; left:6px; right:6px; bottom:6px;
   border:1px solid rgba(233,224,201,0.12);
@@ -668,6 +670,7 @@
   z-index:1;
 }
 .collection-row .row-photo img{
+  border-radius:100%;
   width:100%;
   height:100%;
   object-fit:cover;
