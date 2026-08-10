@@ -50,32 +50,17 @@ include 'autoloader.php';
 
 
   <!-- CATALOGO GERAL -->
-  <div class="catalog-section">
-    <div class="eyebrow">Produtos</div>
-    <div class="product-grid">
+<div class="catalog-section">
+  <div class="eyebrow">Produtos</div>
+  <div class="collection-list">
 
-      <?php
-        $Listar = new ListController;
-        $Listar = $Listar->listColecao('catalogo');
-      ?>
-
-
-      <!-- <div class="product-card">
-        <div class="product-photo">
-          <div class="product-badge">Novo</div>
-          <div class="wishlist"><svg viewBox="0 0 24 24" fill="none" stroke="#e9e0c9" stroke-width="1.4"><path d="M12 21s-7-4.4-9.5-8.8C.6 8.6 2.6 5 6.2 5 8.4 5 10 6.2 12 8c2-1.8 3.6-3 5.8-3 3.6 0 5.6 3.6 3.7 7.2C19 16.6 12 21 12 21z"/></svg></div>
-          <svg viewBox="0 0 24 24" fill="none" stroke="#d4b077" stroke-width="1"><path d="M12 3v18M6 8l6-5 6 5"/></svg>
-        </div>
-        <div class="product-info">
-          <div class="name">Colar Cruz Rubi</div>
-          <div class="price">R$ 142,00</div>
-          <div class="rating"><svg viewBox="0 0 24 24" fill="#d4b077" stroke="none"><path d="M12 2l2.9 6.3 6.9.7-5.2 4.7 1.5 6.8L12 17l-6.1 3.5 1.5-6.8-5.2-4.7 6.9-.7z"/></svg><span>4.8 (11)</span></div>
-        </div>
-      </div> -->
-
-    </div>
+    <?php
+      $Listar = new ListController;
+      $Listar = $Listar->listColecao('catalogo');
+    ?>
 
   </div>
+</div>
 
   <div class="divider-orn">
     <svg viewBox="0 0 24 24" fill="var(--gold)"><path d="M12 2l2.9 6.3 6.9.7-5.2 4.7 1.5 6.8L12 17l-6.1 3.5 1.5-6.8-5.2-4.7 6.9-.7z"/></svg>
@@ -93,7 +78,7 @@ include 'autoloader.php';
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/></svg>
     <span>Coleções</span>
   </div>
-  <div class="nav-item">
+  <div class="nav-item" onclick="window.location.href='./pesquisa.php'">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
     <span>Pesquisar</span>
   </div>

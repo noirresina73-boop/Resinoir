@@ -93,7 +93,7 @@ include 'autoloader.php';
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/></svg>
     <span>Coleções</span>
   </div>
-  <div class="nav-item">
+  <div class="nav-item" onclick="window.location.href='./pesquisa.php'">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
     <span>Pesquisar</span>
   </div>

@@ -461,15 +461,17 @@ use PDO;
                 $capa = $retorno["capa"];
 
                 echo "
-                        <div onclick='location.href=\"catalogoColecao.php?colecao=$id\"' class='product-card'>
-                        <div class='product-photo'>
-                        <!-- <div class='product-badge'>Novo</div> -->
-                        <img class='img-card' src='$capa' alt=''>
+                    <div onclick='location.href=\"catalogoColecao.php?colecao=$id\"' class='collection-row'>
+                        <div class='row-photo'>
+                            <img src='$capa' alt='$nome'>
                         </div>
-                        <div class='product-info'>
-                        <div class='name'>$nome</div>
-                        <div class='name'>$descricao</div>
+                        <div class='row-info'>
+                            <div class='name'>$nome</div>
+                            <div class='desc'>$descricao</div>
                         </div>
+                        <svg class='row-arrow' viewBox='0 0 24 24' fill='none' stroke='#a89f8b' stroke-width='1.4'>
+                            <path d='M9 6l6 6-6 6'/>
+                        </svg>
                     </div>
                 ";
             }
@@ -492,5 +494,122 @@ use PDO;
                 echo "</div>";
             }
         }
+
+public function apiPesquisa()
+{
+    header('Content-Type: application/json; charset=utf-8');
+
+    $termo = isset($_GET['q']) ? trim($_GET['q']) : '';
+
+    $BD = new ListController;
+    $BD = $BD->BDlog();
+
+    if ($termo === '' || mb_strlen($termo) < 2) {
+        echo json_encode([
+            'termoBuscado'  => '',
+            'termoSugerido' => null,
+            'resultados'    => $this->buscarProdutos($BD, '', true),
+        ]);
+        return;
+    }
+
+    $resultados = $this->buscarProdutos($BD, $termo, false);
+
+    $termoSugerido = null;
+    if (empty($resultados)) {
+        $termoSugerido = $this->encontrarTermoSimilar($BD, $termo);
+        if ($termoSugerido) {
+            $resultados = $this->buscarProdutos($BD, $termoSugerido, false);
+        }
+    }
+
+    echo json_encode([
+        'termoBuscado'  => $termo,
+        'termoSugerido' => $termoSugerido,
+        'resultados'    => $resultados,
+    ]);
+}
+
+private function buscarProdutos($BD, $termo, $semTermo)
+{
+    if ($semTermo) {
+        $sql = "SELECT id, nome, descricao, valor, capa
+                FROM produtos
+                ORDER BY totalVendidos DESC
+                LIMIT 20";
+        $query = $BD->prepare($sql);
+        $query->execute();
+    } else {
+        $sql = "SELECT DISTINCT p.id, p.nome, p.descricao, p.valor, p.capa, p.totalVendidos
+                FROM produtos p
+                LEFT JOIN categoria c ON p.categoria = c.id
+                LEFT JOIN colecao co ON p.colecao = co.id
+                WHERE p.nome LIKE :termo
+                   OR p.descricao LIKE :termo
+                   OR p.modelo LIKE :termo
+                   OR p.cor LIKE :termo
+                   OR c.nome LIKE :termo
+                   OR co.nome LIKE :termo
+                ORDER BY p.totalVendidos DESC
+                LIMIT 40";
+        $query = $BD->prepare($sql);
+        $query->bindValue(':termo', '%' . $termo . '%', PDO::PARAM_STR);
+        $query->execute();
+    }
+
+    $resultado = [];
+    foreach ($query->fetchAll(PDO::FETCH_ASSOC) as $p) {
+        $resultado[] = [
+            'id'        => (int) $p['id'],
+            'nome'      => $p['nome'],
+            'descricao' => $p['descricao'],
+            'valor'     => number_format((float) $p['valor'], 2, ',', '.'),
+            'capa'      => $p['capa'],
+        ];
+    }
+
+    return $resultado;
+}
+
+private function encontrarTermoSimilar($BD, $termo)
+{
+    $termo = mb_strtolower($termo);
+    $tamanhoTermo = mb_strlen($termo);
+    $candidatos = [];
+
+    foreach (['produtos', 'categoria', 'colecao'] as $tabela) {
+        $query = $BD->prepare("SELECT DISTINCT nome FROM $tabela");
+        $query->execute();
+        foreach ($query->fetchAll(PDO::FETCH_COLUMN) as $nome) {
+            foreach (explode(' ', $nome) as $palavra) {
+                $candidatos[] = mb_strtolower(trim($palavra));
+            }
+        }
+    }
+
+    $melhor = null;
+    $menorDistancia = null;
+
+    foreach (array_unique($candidatos) as $palavra) {
+        if ($palavra === '' || mb_strlen($palavra) < 3) continue;
+
+        // compara com a palavra inteira (erro no fim/meio da palavra completa)
+        $distanciaCompleta = levenshtein($termo, $palavra);
+
+        // compara só com o prefixo do mesmo tamanho (útil pra digitação parcial)
+        $prefixo = mb_substr($palavra, 0, $tamanhoTermo);
+        $distanciaPrefixo = levenshtein($termo, $prefixo);
+
+        $distancia = min($distanciaCompleta, $distanciaPrefixo);
+        $tolerancia = max(1, (int) floor($tamanhoTermo / 3));
+
+        if ($distancia <= $tolerancia && ($menorDistancia === null || $distancia < $menorDistancia)) {
+            $menorDistancia = $distancia;
+            $melhor = $palavra;
+        }
+    }
+
+    return $melhor;
+}
     }
 ?>
