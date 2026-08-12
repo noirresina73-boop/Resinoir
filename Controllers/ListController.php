@@ -116,93 +116,140 @@ use PDO;
             }
         }
 
-                public function mostraColecaoNova()
-        {
+public function mostraColecaoNova()
+{
+    $campo = 'id';
+    $condicao = '>';
+    $parametro = 0;
 
-                $campo = 'id';
-                $condicao = '>';
-                $parametro = 0;
+    $pagina = 1;
+    $limite = 1;
+    $inicio = ($pagina - 1) * $limite;
+    $order = 'id';
 
-            $pagina = 1;
-            $limite = 1;
-            $inicio = ($pagina - 1) * $limite;
-            $order = 'id';
+    $BD = new ListController;
+    $BD = $BD->BDlog();
 
-            $BD = new ListController;
-            $BD = $BD->BDlog();
+    $sql = "SELECT COUNT(*) AS total FROM colecao WHERE $campo $condicao :parametro";
 
-            $sql = "SELECT COUNT(*) AS total FROM colecao WHERE $campo $condicao :parametro";
+    $query = $BD->prepare($sql);
+    $query->bindValue(':parametro', $parametro, PDO::PARAM_INT);
+    $query->execute();
 
-            $query = $BD->prepare($sql);
-            $query->bindValue(':parametro', $parametro, PDO::PARAM_INT);
-            $query->execute();
+    $resultado = $query->fetch(PDO::FETCH_ASSOC);
 
-            $resultado = $query->fetch(PDO::FETCH_ASSOC);
+    $totalRegistros = $resultado['total'];
+    $maxPaginas = ceil($totalRegistros / $limite);
 
-            $totalRegistros = $resultado['total'];
-            $maxPaginas = ceil($totalRegistros / $limite);
+    $sql = "SELECT * FROM colecao WHERE $campo $condicao :parametro order by $order desc LIMIT :inicio, :limite";
 
-            $sql = "SELECT * FROM colecao WHERE $campo $condicao :parametro order by $order desc LIMIT :inicio, :limite";
+    $query = $BD->prepare($sql);
 
-            $query = $BD->prepare($sql);
+    $query->bindValue(':inicio', $inicio, PDO::PARAM_INT);
+    $query->bindValue(':limite', $limite, PDO::PARAM_INT);
+    $query->bindValue(':parametro', $parametro, PDO::PARAM_STR);
+    $query->execute();
 
-            $query->bindValue(':inicio', $inicio, PDO::PARAM_INT);
-            $query->bindValue(':limite', $limite, PDO::PARAM_INT);
-            $query->bindValue(':parametro', $parametro, PDO::PARAM_STR);
-            $query->execute();
+    $colecao = $query->fetchAll(PDO::FETCH_ASSOC);
 
-            $colecao = $query->fetchAll(PDO::FETCH_ASSOC);
+    $limite = count($colecao);
 
-            $limite = count($colecao);
+    if ($limite === 0) {
+        echo "<p>Nenhum produto encontrado.</p>";
+    }
 
-            if ($limite === 0) {
-                echo "<p>Nenhum produto encontrado.</p>";
+    foreach ($colecao as $retorno) {
+
+        $id = $retorno["id"];
+        $nome = $retorno["nome"];
+        $descricao = $retorno["descricao"];
+        $data_criacao = $retorno["data_criacao"];
+        $capa = $retorno["capa"];
+
+        // busca as categorias que essa coleção realmente tem
+        $sqlCategorias = "SELECT DISTINCT ca.id, ca.nome
+                           FROM produtos p
+                           INNER JOIN categoria ca ON p.categoria = ca.id
+                           WHERE p.colecao = :colecaoId
+                           ORDER BY ca.nome ASC";
+
+        $queryCat = $BD->prepare($sqlCategorias);
+        $queryCat->bindValue(':colecaoId', $id, PDO::PARAM_INT);
+        $queryCat->execute();
+        $categorias = $queryCat->fetchAll(PDO::FETCH_ASSOC);
+
+        $totalCategorias = count($categorias);
+        $catRowHtml = '';
+
+        if ($totalCategorias <= 3) {
+            foreach ($categorias as $cat) {
+                $catRowHtml .= $this->montaCatBtn($cat['nome'], "categoria.php?categoria={$cat['id']}");
             }
+        } else {
+            // mostra só as 2 primeiras + "E mais"
+            for ($i = 0; $i < 2; $i++) {
+                $catRowHtml .= $this->montaCatBtn($categorias[$i]['nome'], "categoria.php?categoria={$categorias[$i]['id']}");
+            }
+            $catRowHtml .= $this->montaCatBtn('E mais', "catalogoColecao.php?colecao=$id", true);
+        }
 
-            foreach ($colecao as $retorno) {
-
-                $id = $retorno["id"];
-                $nome = $retorno["nome"];
-                $descricao = $retorno["descricao"];
-                $data_criacao = $retorno["data_criacao"];
-                $capa = $retorno["capa"];
-                echo "
+        echo "
 <div class='banner-section'>
     <div class='banner-frame'>
       <img class='img-card' src='$capa' alt=''>
       <div class='banner-text' style='cursor: pointer;' onclick='location.href=\"catalogoColecao.php?colecao=$id\"'>
         <div class='banner-eyebrow'>Coleção em destaque</div>
-        <div class='banner-title'>Vitral Sombrio</div>
-        <div class='banner-sub'>peças em resina inspiradas em rosáceas góticas</div>
+        <div class='banner-title'>$nome</div>
+        <div class='banner-sub'>$descricao</div>
         <div class='banner-cta'>Ver coleção <span>&rarr;</span></div>
       </div>
     </div>
 
     <div class='cat-row'>
-      <div class='cat-btn'>
-        <div class='cat-circle'>
-          <svg viewBox='0 0 24 24' fill='none' stroke='#d4b077' stroke-width='1.2'><path d='M12 2C9 6 7 9 7 12a5 5 0 0 0 10 0c0-3-2-6-5-10z'/><circle cx='12' cy='20' r='1.4'/></svg>
-        </div>
-        <div class='cat-label'>Brincos</div>
-      </div>
-      <div class='cat-btn'>
-        <div class='cat-circle'>
-          <svg viewBox='0 0 24 24' fill='none' stroke='#d4b077' stroke-width='1.2'><circle cx='12' cy='8' r='4'/><path d='M9 11 6 21h12l-3-10'/></svg>
-        </div>
-        <div class='cat-label'>Colares</div>
-      </div>
-      <div class='cat-btn'>
-        <div class='cat-circle'>
-          <svg viewBox='0 0 24 24' fill='none' stroke='#d4b077' stroke-width='1.2'><path d='M12 2 3 21l9-4 9 4z'/></svg>
-        </div>
-        <div class='cat-label'>Broches</div>
-      </div>
+      $catRowHtml
     </div>
   </div>
-
                 ";
-            }
+    }
+}
+
+private function montaCatBtn($nome, $link, $eMais = false)
+{
+    $icone = $eMais
+        ? "<svg viewBox='0 0 24 24' fill='none' stroke='#d4b077' stroke-width='1.2'><circle cx='6' cy='12' r='1.4'/><circle cx='12' cy='12' r='1.4'/><circle cx='18' cy='12' r='1.4'/></svg>"
+        : $this->iconeCategoria($nome);
+
+    return "
+      <div class='cat-btn' onclick='location.href=\"$link\"' style='cursor:pointer;'>
+        <div class='cat-circle'>
+          $icone
+        </div>
+        <div class='cat-label'>$nome</div>
+      </div>
+    ";
+}
+
+private function iconeCategoria($nome)
+{
+    $chave = mb_strtolower($nome);
+
+    $icones = [
+        'brinco'  => "<svg viewBox='0 0 24 24' fill='none' stroke='#d4b077' stroke-width='1.2'><path d='M12 2C9 6 7 9 7 12a5 5 0 0 0 10 0c0-3-2-6-5-10z'/><circle cx='12' cy='20' r='1.4'/></svg>",
+        'colar'   => "<svg viewBox='0 0 24 24' fill='none' stroke='#d4b077' stroke-width='1.2'><circle cx='12' cy='8' r='4'/><path d='M9 11 6 21h12l-3-10'/></svg>",
+        'broche'  => "<svg viewBox='0 0 24 24' fill='none' stroke='#d4b077' stroke-width='1.2'><path d='M12 2 3 21l9-4 9 4z'/></svg>",
+        'anel'    => "<svg viewBox='0 0 24 24' fill='none' stroke='#d4b077' stroke-width='1.2'><circle cx='12' cy='15' r='6'/><path d='M9 9l3-7 3 7'/></svg>",
+        'pulseira'=> "<svg viewBox='0 0 24 24' fill='none' stroke='#d4b077' stroke-width='1.2'><circle cx='12' cy='12' r='8'/></svg>",
+    ];
+
+    foreach ($icones as $chaveIcone => $svg) {
+        if (str_contains($chave, $chaveIcone)) {
+            return $svg;
         }
+    }
+
+    // ícone padrão pra categoria sem ícone específico mapeado
+    return "<svg viewBox='0 0 24 24' fill='none' stroke='#d4b077' stroke-width='1.2'><path d='M12 2l3 6 6 1-4.5 4.5L18 20l-6-3-6 3 1.5-6.5L3 9l6-1z'/></svg>";
+}
 
         public function listProdutos($tela = null)
         {

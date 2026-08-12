@@ -50,7 +50,7 @@ $secoes = [
             </div>
             <div class="wordmark">Resinoir</div>
             <div class="side">
-                <div class="icon-btn">
+                <div class="icon-btn"  onclick="window.location.href='./pesquisa.php'">
                     <svg viewBox="0 0 24 24" fill="none" stroke="#e9e0c9" stroke-width="1.4"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
                 </div>
             </div>
