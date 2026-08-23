@@ -1,229 +1,113 @@
 <?php
-    namespace Controllers;
-
-    $id =  $_POST["id"];
-    $idPDR = $id . $_POST["idPDR"];
-    $nome = $_POST["nome"];
-    $modelo = $_POST["modelo"];
-    $descricao = $_POST["descricao"];
-    $cor = $_POST["cor"];
-    $tamanho = $_POST["tamanho"];
-    $estoque = $_POST["estoque"];
-    // $imagemString = $_POST['imagens'];
-    // $imagem = json_decode($imagemString, true);
-    // $imagem = json_encode($imagem);
-    //$encomenda = $_POST["encomenda"];
-    $encomenda = 0;
-    $valor = $_POST["valor"];
-    //$totalVendidos = $_POST["totalVendidos"];
-    $totalVendidos = 1;
-    //$novidade = $_POST["novidade"];
-    $novidade = 1;
-$nomePasta = preg_replace('/[^a-zA-Z0-9_-]/', '_', $nome);
-
-$pastaPrincipal = "../../assets/imgs/$nomePasta";
-$pastaCapa = "$pastaPrincipal/capa";
-$pastaImagens = "$pastaPrincipal/imagens";
-
-// Cria as pastas
-foreach ([$pastaPrincipal, $pastaCapa, $pastaImagens] as $pasta) {
-    if (!is_dir($pasta)) {
-        mkdir($pasta, 0777, true);
-    }
-}
-
-/* ==========================
-   CAPA
-========================== */
-
-$capa = "";
-
-if (
-    isset($_FILES["capa"]) &&
-    $_FILES["capa"]["error"] == UPLOAD_ERR_OK
-) {
-
-    $nomeCapa = basename($_FILES["capa"]["name"]);
-
-    move_uploaded_file(
-        $_FILES["capa"]["tmp_name"],
-        "$pastaCapa/$nomeCapa"
-    );
-
-    // Valor para salvar no banco
-    $capa = "./assets/imgs/$nomePasta/capa/$nomeCapa";
-}
-
-/* ==========================
-   IMAGENS
-========================== */
-
-$imagens = [];
-
-if (isset($_FILES["imagens"])) {
-
-    foreach ($_FILES["imagens"]["tmp_name"] as $i => $tmp) {
-
-        if ($_FILES["imagens"]["error"][$i] == UPLOAD_ERR_OK) {
-
-            $nomeImagem = basename($_FILES["imagens"]["name"][$i]);
-
-            move_uploaded_file(
-                $tmp,
-                "$pastaImagens/$nomeImagem"
-            );
-
-            // Caminho para salvar no banco
-            $imagens[] = "./assets/imgs/$nomePasta/imagens/$nomeImagem";
-        }
-    }
-}
-
-$jsonImagens = json_encode($imagens);
-
-echo "Capa: $capa <br><br>";
-echo "Imagens: $jsonImagens";
-    //$capa = $_POST["capa"];
-    $Criar = new infosController;
-    $Criar = $Criar->criar(
-    $id,
-    $idPDR,
-    $nome,
-    $modelo,
-    $descricao,
-    $cor,
-    $tamanho,
-    $estoque,
-    $jsonImagens,
-    $encomenda,
-    $valor,
-    $totalVendidos,
-    $novidade,
-    $capa
-);
-
+namespace Controllers;
 use PDO;
 
-    class infosController
+class infosController
+{
+    protected function BDlog(){
+        try {
+            $BD = new PDO('mysql:host=localhost;dbname=resinior','root','senha');
+        } catch (\Exception $mnsg) {
+            echo "<li>Erro ao conectar ao banco: " . $mnsg->getMessage() . "</li>";
+        }
+        return $BD;
+    }
+
+    public function buscarPorId(int $id)
     {
-        protected function BDlog(){
-            try {
-                    $BD = new PDO('mysql:host=localhost;dbname=resinior','root','senha');
+        $BD = $this->BDlog();
+        $query = $BD->prepare('SELECT * FROM produtos WHERE id = :id');
+        $query->bindValue(':id', $id, PDO::PARAM_INT);
+        $query->execute();
+        return $query->fetch(PDO::FETCH_ASSOC);
+    }
 
-                } catch (\Exception $mnsg) {
-                    echo "<li>";
-                    echo "Erro ao conectar oa banco: ". $mnsg->getMessage();
-                    echo "</li>";
-                }
+    public function listarTodos($pagina = 1)
+    {
+        $BD = $this->BDlog();
+        $limite = 20;
+        $inicio = ($pagina - 1) * $limite;
+        $query = $BD->prepare('SELECT id, nome, valor, capa, estoque FROM produtos ORDER BY id DESC LIMIT :inicio, :limite');
+        $query->bindValue(':inicio', $inicio, PDO::PARAM_INT);
+        $query->bindValue(':limite', $limite, PDO::PARAM_INT);
+        $query->execute();
+        return $query->fetchAll(PDO::FETCH_ASSOC);
+    }
 
-                return $BD;
+    public function criar(
+        int $id, string $idPDR, string $nome, string $modelo, string $descricao, string $cor,
+        int $tamanho, int $estoque, int $categoria, int $colecao, string $jsonImagens,
+        int $encomenda, float $valor, int $totalVendidos, int $novidade, string $capa
+    ){
+        $BD = $this->BDlog();
+
+        $query = $BD->prepare('
+            INSERT INTO produtos (
+                idPDR, nome, modelo, descricao, cor, tamanho, estoque,
+                categoria, colecao, imagem, encomenda, valor, totalVendidos, novidade, capa
+            ) VALUES (
+                :idPDR, :nome, :modelo, :descricao, :cor, :tamanho, :estoque,
+                :categoria, :colecao, :imagem, :encomenda, :valor, :totalVendidos, :novidade, :capa
+            )
+        ');
+
+        $query->bindValue(':idPDR', $idPDR, PDO::PARAM_STR);
+        $query->bindValue(':nome', $nome, PDO::PARAM_STR);
+        $query->bindValue(':modelo', $modelo, PDO::PARAM_STR);
+        $query->bindValue(':descricao', $descricao, PDO::PARAM_STR);
+        $query->bindValue(':cor', $cor, PDO::PARAM_STR);
+        $query->bindValue(':tamanho', $tamanho, PDO::PARAM_INT);
+        $query->bindValue(':estoque', $estoque, PDO::PARAM_INT);
+        $query->bindValue(':categoria', $categoria, PDO::PARAM_INT);
+        $query->bindValue(':colecao', $colecao, PDO::PARAM_INT);
+        $query->bindValue(':imagem', $jsonImagens, PDO::PARAM_STR);
+        $query->bindValue(':encomenda', $encomenda, PDO::PARAM_INT);
+        $query->bindValue(':valor', $valor, PDO::PARAM_STR);
+        $query->bindValue(':totalVendidos', $totalVendidos, PDO::PARAM_INT);
+        $query->bindValue(':novidade', $novidade, PDO::PARAM_INT);
+        $query->bindValue(':capa', $capa, PDO::PARAM_STR);
+
+        if (!$query->execute()) {
+            echo "<pre>"; print_r($query->errorInfo()); echo "</pre>";
+            return 0;
         }
 
-        public function pageInfo(int $id){
-            $BD = new infosController;
-            $BD = $BD->BDlog();
+        return (int) $BD->lastInsertId();
+    }
 
-            $query = $BD->prepare('SELECT * FROM produtos where id = :id;');
-            $query->bindValue(':id', $id, PDO::PARAM_INT);
-            $query->execute();
-            $retorno = $query->fetch();
-            if($retorno){
+    public function atualizar(
+        int $id, string $nome, string $modelo, string $descricao, string $cor,
+        int $tamanho, int $estoque, int $categoria, int $colecao, ?string $jsonImagens,
+        int $encomenda, float $valor, int $novidade, ?string $capa
+    ){
+        $BD = $this->BDlog();
 
-                $id = $retorno["id"];
-                $idPDR = $retorno["idPDR"];
-                $nome = $retorno["nome"];
-                $modelo = $retorno["modelo"];
-                $descricao = $retorno["descricao"];
-                $cor = $retorno["cor"];
-                $tamanho = $retorno["tamanho"];
-                $estoque = $retorno["estoque"];
-                $imagem = json_decode($retorno["imagem"]);
-                $encomenda = $retorno["encomenda"];
-                $valor = $retorno["valor"];
-                $totalVendidos = $retorno["totalVendidos"];
-                $novidade = $retorno["novidade"];
-                $capa = $retorno["capa"];
+        $sql = 'UPDATE produtos SET nome = :nome, modelo = :modelo, descricao = :descricao,
+                cor = :cor, tamanho = :tamanho, estoque = :estoque, categoria = :categoria,
+                colecao = :colecao, encomenda = :encomenda, valor = :valor, novidade = :novidade';
 
-                echo"
-                <!-- toda a pagina -->
-                ";
-            }
-        }
+        if ($jsonImagens !== null) $sql .= ', imagem = :imagem';
+        if ($capa !== null) $sql .= ', capa = :capa';
+        $sql .= ' WHERE id = :id';
 
-        public function criar(
-            int $id,
-            string $idPDR,
-            string $nome,
-            string $modelo,
-            string $descricao,
-            string $cor,
-            int $tamanho,
-            int $estoque,
-            string $jsonImagens,
-            int $encomenda,
-            float $valor,
-            int $totalVendidos,
-            int $novidade,
-            string $capa
-        ){
-            $BD = new infosController;
-            $BD = $BD->BDlog();
+        $query = $BD->prepare($sql);
+        $query->bindValue(':id', $id, PDO::PARAM_INT);
+        $query->bindValue(':nome', $nome, PDO::PARAM_STR);
+        $query->bindValue(':modelo', $modelo, PDO::PARAM_STR);
+        $query->bindValue(':descricao', $descricao, PDO::PARAM_STR);
+        $query->bindValue(':cor', $cor, PDO::PARAM_STR);
+        $query->bindValue(':tamanho', $tamanho, PDO::PARAM_INT);
+        $query->bindValue(':estoque', $estoque, PDO::PARAM_INT);
+        $query->bindValue(':categoria', $categoria, PDO::PARAM_INT);
+        $query->bindValue(':colecao', $colecao, PDO::PARAM_INT);
+        $query->bindValue(':encomenda', $encomenda, PDO::PARAM_INT);
+        $query->bindValue(':valor', $valor, PDO::PARAM_STR);
+        $query->bindValue(':novidade', $novidade, PDO::PARAM_INT);
+        if ($jsonImagens !== null) $query->bindValue(':imagem', $jsonImagens, PDO::PARAM_STR);
+        if ($capa !== null) $query->bindValue(':capa', $capa, PDO::PARAM_STR);
 
-            try {
-                $query = $BD->prepare('
-                INSERT INTO produtos (
-                    idPDR,
-                    nome,
-                    modelo,
-                    descricao,
-                    cor,
-                    tamanho,
-                    estoque,
-                    imagem,
-                    encomenda,
-                    valor,
-                    totalVendidos,
-                    novidade,
-                    capa
-                ) VALUES (
-                    :idPDR,
-                    :nome,
-                    :modelo,
-                    :descricao,
-                    :cor,
-                    :tamanho,
-                    :estoque,
-                    :imagem,
-                    :encomenda,
-                    :valor,
-                    :totalVendidos,
-                    :novidade,
-                    :capa
-                )
-            ');
-            } catch (\Exception $e) {
-                echo $e;
-            }
-
-            $query->bindValue(':idPDR', $idPDR, PDO::PARAM_STR);
-            $query->bindValue(':nome', $nome, PDO::PARAM_STR);
-            $query->bindValue(':modelo', $modelo, PDO::PARAM_STR);
-            $query->bindValue(':descricao', $descricao, PDO::PARAM_STR);
-            $query->bindValue(':cor', $cor, PDO::PARAM_STR);
-            $query->bindValue(':tamanho', $tamanho, PDO::PARAM_INT);
-            $query->bindValue(':estoque', $estoque, PDO::PARAM_INT);
-            $query->bindValue(':imagem', $jsonImagens, PDO::PARAM_STR);
-            $query->bindValue(':encomenda', $encomenda, PDO::PARAM_INT);
-            $query->bindValue(':valor', $valor, PDO::PARAM_STR);
-            $query->bindValue(':totalVendidos', $totalVendidos, PDO::PARAM_INT);
-            $query->bindValue(':novidade', $novidade, PDO::PARAM_INT);
-            $query->bindValue(':capa', $capa, PDO::PARAM_STR);
-
-            if (!$query->execute()) {
-                echo "<pre>";
-                print_r($query->errorInfo());
-                echo "</pre>";
-            }
+        if (!$query->execute()) {
+            echo "<pre>"; print_r($query->errorInfo()); echo "</pre>";
         }
     }
-?>
+}
