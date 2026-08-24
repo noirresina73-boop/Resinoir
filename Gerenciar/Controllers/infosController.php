@@ -22,17 +22,44 @@ class infosController
         return $query->fetch(PDO::FETCH_ASSOC);
     }
 
-    public function listarTodos($pagina = 1)
-    {
-        $BD = $this->BDlog();
-        $limite = 20;
-        $inicio = ($pagina - 1) * $limite;
-        $query = $BD->prepare('SELECT id, nome, valor, capa, estoque FROM produtos ORDER BY id DESC LIMIT :inicio, :limite');
-        $query->bindValue(':inicio', $inicio, PDO::PARAM_INT);
-        $query->bindValue(':limite', $limite, PDO::PARAM_INT);
-        $query->execute();
-        return $query->fetchAll(PDO::FETCH_ASSOC);
+public function listarTodos($pagina = 1, $nome = '', $categoria = 0, $colecao = 0)
+{
+    $BD = $this->BDlog();
+    $limite = 20;
+    $inicio = ($pagina - 1) * $limite;
+
+    $condicoes = [];
+    $parametros = [];
+
+    if ($nome !== '') {
+        $condicoes[] = 'nome LIKE :nome';
+        $parametros[':nome'] = '%' . $nome . '%';
     }
+
+    if ($categoria > 0) {
+        $condicoes[] = 'categoria = :categoria';
+        $parametros[':categoria'] = $categoria;
+    }
+
+    if ($colecao > 0) {
+        $condicoes[] = 'colecao = :colecao';
+        $parametros[':colecao'] = $colecao;
+    }
+
+    $where = $condicoes ? 'WHERE ' . implode(' AND ', $condicoes) : '';
+
+    $sql = "SELECT id, nome, valor, capa, estoque FROM produtos $where ORDER BY id DESC LIMIT :inicio, :limite";
+    $query = $BD->prepare($sql);
+
+    foreach ($parametros as $chave => $valor) {
+        $query->bindValue($chave, $valor, is_int($valor) ? PDO::PARAM_INT : PDO::PARAM_STR);
+    }
+    $query->bindValue(':inicio', $inicio, PDO::PARAM_INT);
+    $query->bindValue(':limite', $limite, PDO::PARAM_INT);
+    $query->execute();
+
+    return $query->fetchAll(PDO::FETCH_ASSOC);
+}
 
     public function criar(
         int $id, string $idPDR, string $nome, string $modelo, string $descricao, string $cor,
