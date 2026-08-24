@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/auth.php';
 use Controllers\infosController;
 include 'autoloader.php';
 
