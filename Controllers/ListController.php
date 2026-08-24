@@ -337,7 +337,7 @@ private function iconeCategoria($nome)
                         </div>
                         <div class='product-info'>
                         <div class='name'>$nome</div>
-                        <div class='price'>R$ $valor</div>
+                        <div class='price'>R$ " . number_format((float) $valor, 2, ',', '.') . "</div>
                         </div>
                     </div>
                 ";
@@ -361,6 +361,8 @@ private function iconeCategoria($nome)
                 echo "</div>";
             }
         }
+
+
 
         public function listCategoria($tela = null)
         {
@@ -563,26 +565,21 @@ public function apiPesquisa()
     header('Content-Type: application/json; charset=utf-8');
 
     $termo = isset($_GET['q']) ? trim($_GET['q']) : '';
+    $categoriaFiltro = (int) ($_GET['categoria'] ?? 0);
+    $colecaoFiltro = (int) ($_GET['colecao'] ?? 0);
 
     $BD = new ListController;
     $BD = $BD->BDlog();
 
-    if ($termo === '' || mb_strlen($termo) < 2) {
-        echo json_encode([
-            'termoBuscado'  => '',
-            'termoSugerido' => null,
-            'resultados'    => $this->buscarProdutos($BD, '', true),
-        ]);
-        return;
-    }
+    $semTermo = ($termo === '' || mb_strlen($termo) < 2);
 
-    $resultados = $this->buscarProdutos($BD, $termo, false);
+    $resultados = $this->buscarProdutos($BD, $termo, $semTermo, $categoriaFiltro, $colecaoFiltro);
 
     $termoSugerido = null;
-    if (empty($resultados)) {
+    if (empty($resultados) && !$semTermo) {
         $termoSugerido = $this->encontrarTermoSimilar($BD, $termo);
         if ($termoSugerido) {
-            $resultados = $this->buscarProdutos($BD, $termoSugerido, false);
+            $resultados = $this->buscarProdutos($BD, $termoSugerido, false, $categoriaFiltro, $colecaoFiltro);
         }
     }
 
@@ -593,32 +590,42 @@ public function apiPesquisa()
     ]);
 }
 
-private function buscarProdutos($BD, $termo, $semTermo)
+private function buscarProdutos($BD, $termo, $semTermo, $categoriaFiltro = 0, $colecaoFiltro = 0)
 {
-    if ($semTermo) {
-        $sql = "SELECT id, nome, descricao, valor, capa
-                FROM produtos
-                ORDER BY totalVendidos DESC
-                LIMIT 20";
-        $query = $BD->prepare($sql);
-        $query->execute();
-    } else {
-        $sql = "SELECT DISTINCT p.id, p.nome, p.descricao, p.valor, p.capa, p.totalVendidos
-                FROM produtos p
-                LEFT JOIN categoria c ON p.categoria = c.id
-                LEFT JOIN colecao co ON p.colecao = co.id
-                WHERE p.nome LIKE :termo
-                   OR p.descricao LIKE :termo
-                   OR p.modelo LIKE :termo
-                   OR p.cor LIKE :termo
-                   OR c.nome LIKE :termo
-                   OR co.nome LIKE :termo
-                ORDER BY p.totalVendidos DESC
-                LIMIT 40";
-        $query = $BD->prepare($sql);
-        $query->bindValue(':termo', '%' . $termo . '%', PDO::PARAM_STR);
-        $query->execute();
+    $condicoes = [];
+    $parametros = [];
+
+    if (!$semTermo) {
+        $condicoes[] = '(p.nome LIKE :termo OR p.descricao LIKE :termo OR p.modelo LIKE :termo OR p.cor LIKE :termo OR c.nome LIKE :termo OR co.nome LIKE :termo)';
+        $parametros[':termo'] = '%' . $termo . '%';
     }
+
+    if ($categoriaFiltro > 0) {
+        $condicoes[] = 'p.categoria = :categoriaFiltro';
+        $parametros[':categoriaFiltro'] = $categoriaFiltro;
+    }
+
+    if ($colecaoFiltro > 0) {
+        $condicoes[] = 'p.colecao = :colecaoFiltro';
+        $parametros[':colecaoFiltro'] = $colecaoFiltro;
+    }
+
+    $where = $condicoes ? 'WHERE ' . implode(' AND ', $condicoes) : '';
+    $limite = $semTermo ? 20 : 40;
+
+    $sql = "SELECT DISTINCT p.id, p.nome, p.descricao, p.valor, p.capa, p.totalVendidos
+            FROM produtos p
+            LEFT JOIN categoria c ON p.categoria = c.id
+            LEFT JOIN colecao co ON p.colecao = co.id
+            $where
+            ORDER BY p.totalVendidos DESC
+            LIMIT $limite";
+
+    $query = $BD->prepare($sql);
+    foreach ($parametros as $chave => $valor) {
+        $query->bindValue($chave, $valor, is_int($valor) ? PDO::PARAM_INT : PDO::PARAM_STR);
+    }
+    $query->execute();
 
     $resultado = [];
     foreach ($query->fetchAll(PDO::FETCH_ASSOC) as $p) {
@@ -656,10 +663,8 @@ private function encontrarTermoSimilar($BD, $termo)
     foreach (array_unique($candidatos) as $palavra) {
         if ($palavra === '' || mb_strlen($palavra) < 3) continue;
 
-        // compara com a palavra inteira (erro no fim/meio da palavra completa)
         $distanciaCompleta = levenshtein($termo, $palavra);
 
-        // compara só com o prefixo do mesmo tamanho (útil pra digitação parcial)
         $prefixo = mb_substr($palavra, 0, $tamanhoTermo);
         $distanciaPrefixo = levenshtein($termo, $prefixo);
 
@@ -674,5 +679,6 @@ private function encontrarTermoSimilar($BD, $termo)
 
     return $melhor;
 }
+
     }
 ?>
