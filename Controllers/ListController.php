@@ -67,54 +67,48 @@ use PDO;
             }
         }
 
-        public function listNovidades(){
-            $BD = new ListController;
-            $BD = $BD->BDlog();
-            $query = $BD->prepare('SELECT COUNT(*) FROM produtos where novidade = :novidade;');
-            $query->bindValue(':novidade', 1, PDO::PARAM_INT);
-            $query->execute();
-            $TotalRegistros = $query->fetch();
-            $i=1;
-            $idP=1;
-            while($i <= $TotalRegistros['COUNT(*)']){
+public function listNovidadesVitral($limite = 3)
+{
+    $BD = new ListController;
+    $BD = $BD->BDlog();
 
-            $query = $BD->prepare('SELECT * FROM produtos where id = :id;');
-            $query->bindValue(':id', $idP, PDO::PARAM_INT);
-            $query->execute();
-            $retorno = $query->fetch();
-            if($retorno){
+    $sql = "SELECT id, nome, valor, capa
+            FROM produtos
+            WHERE novidade = 1
+            ORDER BY id DESC
+            LIMIT :limite";
 
-                $id = $retorno["id"];
-                $idPDR = $retorno["idPDR"];
-                $nome = $retorno["nome"];
-                $modelo = $retorno["modelo"];
-                $descricao = $retorno["descricao"];
-                $cor = $retorno["cor"];
-                $tamanho = $retorno["tamanho"];
-                $estoque = $retorno["estoque"];
-                $imagem[] = $retorno["imagem"];
-                $encomenda = $retorno["encomenda"];
-                $valor = $retorno["valor"];
-                $totalVendidos = $retorno["totalVendidos"];
-                $novidade = $retorno["novidade"];
-                $capa = $retorno["capa"];
+    $query = $BD->prepare($sql);
+    $query->bindValue(':limite', $limite, PDO::PARAM_INT);
+    $query->execute();
 
-                echo"
-                <div class='card' style='width: 18rem;' data-bs-theme='dark'>
-                <img src='$capa' class='card-img-top' alt='...'>
-                <div class='card-body'>
-                    <h5 class='card-title'>$nome</h5>
-                    <h6 class='card-preco'>R$ <?= number_format((float) $valor, 2, ',', '.') ?></h6>
-                    <a href='infos.php?id=$id' class='btn btn-primary'>Ver mais</a>
-                </div>
-                </div>
-                ";
+    $produtos = $query->fetchAll(PDO::FETCH_ASSOC);
 
-                $i++;
-                }
-            $idP++;
-            }
-        }
+    if (empty($produtos)) {
+        echo "<p style='padding: 0 24px; color: var(--bone-dim); font-size: 12px;'>Nenhuma novidade no momento.</p>";
+        return;
+    }
+
+    foreach ($produtos as $p) {
+        $id = $p['id'];
+        $nome = htmlspecialchars($p['nome']);
+        $valor = number_format((float) $p['valor'], 2, ',', '.');
+        $capa = htmlspecialchars($p['capa']);
+
+        echo "
+        <div class='vitral-card' onclick='location.href=\"infos.php?id=$id\"' style='cursor:pointer;'>
+          <div class='vitral-frame'>
+            <div class='mini-ceu'></div>
+            <img class='img-card-vitral' src='$capa' alt='$nome'>
+          </div>
+          <div class='vitral-caption'>
+            <div class='name'>$nome</div>
+            <div class='price'>R\$ $valor</div>
+          </div>
+        </div>
+        ";
+    }
+}
 
 public function mostraColecaoNova()
 {

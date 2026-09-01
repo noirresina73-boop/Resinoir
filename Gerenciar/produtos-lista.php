@@ -26,11 +26,15 @@ $colecoes = $Aux->listarColecoes();
   </head>
   <body data-bs-theme="dark">
     <nav class="navbar bg-body-tertiary" data-bs-theme="dark">
-      <div class="container-fluid">
-        <a class="navbar-brand">Produtos</a>
-        <a href="./infos.php" class="btn btn-outline-success">+ Novo produto</a>
-      </div>
-    </nav>
+  <div class="container-fluid">
+    <a class="navbar-brand">Produtos</a>
+    <div class="d-flex gap-2">
+      <a href="./categorias-lista.php" class="btn btn-outline-secondary">Categorias</a>
+      <a href="./colecoes-lista.php" class="btn btn-outline-secondary">Coleções</a>
+      <a href="./infos.php" class="btn btn-outline-success">+ Novo produto</a>
+    </div>
+  </div>
+</nav>
 
     <div class="container py-4">
 

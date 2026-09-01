@@ -38,8 +38,8 @@ include 'autoloader.php';
   <!-- HEADER -->
   <div class="header">
     <div class="eyebrow">Coleção</div>
-    <h1>Nossas<br>categorias</h1>
-    <div class="sub">peças autorais em resina, moldadas à mão e inspiradas na arquitetura gótica</div>
+    <h1>Arquitetura<br>gótica e natureza</h1>
+    <div class="sub">peças autorais em resina, fabricação artesanal e inspiradas na arquitetura gótica</div>
   </div>
 
   <!-- SELO ESTRELADO NOTURNO -->
@@ -64,45 +64,20 @@ include 'autoloader.php';
   <div class="divider-orn">
     <svg viewBox="0 0 24 24" fill="var(--gold)"><path d="M12 2l2.9 6.3 6.9.7-5.2 4.7 1.5 6.8L12 17l-6.1 3.5 1.5-6.8-5.2-4.7 6.9-.7z"/></svg>
   </div>
-  <div class="novidades-section">
-    <div class="eyebrow">Novidades</div>
-    <div class="vitral-row">
+ 
 
-      <div class="vitral-card">
-        <div class="vitral-frame">
-          <div class="mini-ceu"></div>
-          <img class="img-card-vitral" src="./assets/imgs/WhatsApp Image 2026-07-16 at 13.52.51.jpeg" alt="">
-        </div>
-        <div class="vitral-caption">
-          <div class="name">Brinco Morcego Lunar</div>
-          <div class="price">R$ 89,00</div>
-        </div>
-      </div>
+<div class="novidades-section">
+  <div class="eyebrow">Novidades</div>
+  <div class="vitral-row">
 
-      <div class="vitral-card">
-        <div class="vitral-frame">
-          <div class="mini-ceu"></div>
-          <img class="img-card-vitral" src="./assets/imgs/WhatsApp Image 2026-07-16 at 19.56.00.jpeg" alt="">
-        </div>
-        <div class="vitral-caption">
-          <div class="name">Colar Rosácea</div>
-          <div class="price">R$ 129,00</div>
-        </div>
-      </div>
+    <?php
+      $Listar = new ListController;
+      $Listar->listNovidadesVitral(3);
+    ?>
 
-      <div class="vitral-card">
-        <div class="vitral-frame">
-          <div class="mini-ceu"></div>
-          <img class="img-card-vitral" src="./assets/imgs/WhatsApp Image 2026-07-13 at 21.22.27.jpeg" alt="">
-        </div>
-        <div class="vitral-caption">
-          <div class="name">Anel Trevo Sombrio</div>
-          <div class="price">R$ 69,00</div>
-        </div>
-      </div>
-
-    </div>
   </div>
+</div>
+
 
   <!-- CATALOGO GERAL -->
   <div class="catalog-section">

@@ -215,59 +215,68 @@ if (isset($_GET['id'])) {
       </div>
     </div>
 
-    <!-- MODAL CRIAR CATEGORIA -->
-    <div data-bs-theme="dark" class="modal fade" id="modalCategoria" tabindex="-1">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h1 class="modal-title fs-5">Nova categoria</h1>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-          </div>
-          <div class="modal-body">
-            <div class="mb-3">
-              <label class="form-label">Nome</label>
-              <input type="text" class="form-control" id="novaCategoriaNome">
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Descrição</label>
-              <textarea class="form-control" id="novaCategoriaDescricao" rows="2"></textarea>
-            </div>
-            <div class="form-text" id="erroCategoria" style="color:#f88;"></div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-            <button type="button" class="btn btn-success" onclick="criarCategoria()">Criar</button>
-          </div>
+<!-- MODAL CRIAR CATEGORIA -->
+<div data-bs-theme="dark" class="modal fade" id="modalCategoria" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5">Nova categoria</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="form-label">Nome</label>
+          <input type="text" class="form-control" id="novaCategoriaNome">
         </div>
+        <div class="mb-3">
+          <label class="form-label">Descrição</label>
+          <textarea class="form-control" id="novaCategoriaDescricao" rows="2"></textarea>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Capa</label>
+          <input type="file" accept="image/*" class="form-control" id="novaCategoriaCapa">
+        </div>
+        <div class="form-text" id="erroCategoria" style="color:#f88;"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-success" onclick="criarCategoria()">Criar</button>
       </div>
     </div>
+  </div>
+</div>
 
-    <!-- MODAL CRIAR COLEÇÃO -->
-    <div data-bs-theme="dark" class="modal fade" id="modalColecao" tabindex="-1">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h1 class="modal-title fs-5">Nova coleção</h1>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-          </div>
-          <div class="modal-body">
-            <div class="mb-3">
-              <label class="form-label">Nome</label>
-              <input type="text" class="form-control" id="novaColecaoNome">
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Descrição</label>
-              <textarea class="form-control" id="novaColecaoDescricao" rows="2"></textarea>
-            </div>
-            <div class="form-text" id="erroColecao" style="color:#f88;"></div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-            <button type="button" class="btn btn-success" onclick="criarColecao()">Criar</button>
-          </div>
+<!-- MODAL CRIAR COLEÇÃO -->
+<div data-bs-theme="dark" class="modal fade" id="modalColecao" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5">Nova coleção</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="form-label">Nome</label>
+          <input type="text" class="form-control" id="novaColecaoNome">
         </div>
+        <div class="mb-3">
+          <label class="form-label">Descrição</label>
+          <textarea class="form-control" id="novaColecaoDescricao" rows="2"></textarea>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Capa</label>
+          <input type="file" accept="image/*" class="form-control" id="novaColecaoCapa">
+        </div>
+        <div class="form-text" id="erroColecao" style="color:#f88;"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-success" onclick="criarColecao()">Criar</button>
       </div>
     </div>
+  </div>
+</div>
+
 
     <script>
       updatePost();

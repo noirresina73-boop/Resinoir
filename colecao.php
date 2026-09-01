@@ -42,7 +42,7 @@ include 'autoloader.php';
   <div class="header">
     <div class="eyebrow">Coleções</div>
     <h1>Coleções<br>completo</h1>
-    <div class="sub">Todas nossas peças, moldadas à mão e inspiradas na arquitetura gótica</div>
+    <div class="sub">Nossas coleções de peças e suas inspirações</div>
   </div>
 
 
