@@ -169,6 +169,25 @@
     margin:0;
 }
 
+.estoque-status{
+    display:inline-block;
+    padding:5px 10px;
+    border-radius:999px;
+    border:1px solid rgba(157, 227, 166, 0.36);
+    background:rgba(157, 227, 166, 0.12);
+    color:#d7f5dc;
+    font-size:10px;
+    line-height:1;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+}
+
+.estoque-status.esgotado{
+    color:#ffd7d7;
+    background:rgba(255, 120, 120, 0.1);
+    border-color:rgba(255, 120, 120, 0.28);
+}
+
 .frete{
     font-size:11px;
     color:var(--bone-dim);
@@ -236,6 +255,12 @@
     color:var(--void);
 }
 .btn-comprar:hover{ opacity:.9; }
+
+.btn-comprar.btn-esgotado{
+    background:linear-gradient(180deg, rgba(162, 19, 19, 0.95), rgba(90, 18, 18, 0.95));
+    border-color:rgba(255, 185, 185, 0.4);
+    color:#f8e6e6;
+}
 
 .btn-carrinho{
     background:linear-gradient(180deg, rgba(176,141,87,0.08), transparent);

@@ -344,27 +344,21 @@
     display:flex;
     gap:14px;
     overflow-x:auto;
-    padding-bottom:10px;
-    padding-right:24px;
+    padding:10px 24px 14px 0;
     scroll-snap-type:x mandatory;
     scrollbar-width:none;
     background:
-    linear-gradient(180deg,
-      #0a0908 0%,
-      #17090f  30%,
-      #17090f   50%,
-      #17090f  70%,
-      #0a0908 100%
-    ),
-    radial-gradient(circle at 50% 50%, rgba(163,40,58,0.35), transparent 65%);
-    justify-content: space-around;
-
-    }
+      linear-gradient(180deg, rgba(10,9,8,0.92) 0%, rgba(23,9,15,0.96) 35%, rgba(17,9,11,1) 100%),
+      radial-gradient(circle at 50% 40%, rgba(163,40,58,0.28), transparent 55%);
+    justify-content:center;
+  }
   .vitral-row::-webkit-scrollbar{ display:none; }
   .vitral-card{
     flex:0 0 auto;
-    width:150px;
+    width:170px;
     scroll-snap-align:start;
+    cursor:pointer;
+    position:relative;
   }
   .vitral-frame{
     width:150px;
@@ -372,50 +366,59 @@
     clip-path:url(#gothicArch);
     position:relative;
     background:var(--glass-black);
+    overflow:hidden;
   }
-  .vitral-frame span{ display:block; }
-  .vitral-frame span:nth-child(1){ background:var(--glass-red); }
-  .vitral-frame span:nth-child(2){ background:var(--glass-amber); }
-  .vitral-frame span:nth-child(3){ background:var(--wine); }
-  .vitral-frame span:nth-child(4){ background:var(--glass-black); }
-  .vitral-frame span:nth-child(5){ background:var(--glass-amber); }
-  .vitral-frame span:nth-child(6){ background:var(--glass-red); }
-  .vitral-frame .lead{
-    position:absolute; inset:0;
-    background:
-      repeating-linear-gradient(0deg, transparent 0 34px, rgba(5,4,5,0.85) 34px 35.5px),
-      repeating-linear-gradient(90deg, transparent 0 25px, rgba(5,4,5,0.85) 25px 26.5px);
-    mix-blend-mode:multiply;
+
+  .vitral-frame img.img-card-vitral{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
   }
-  .vitral-frame .shine{
-    position:absolute; inset:0;
-    background:linear-gradient(115deg, rgba(255,255,255,0.16) 0%, transparent 22%, transparent 78%, rgba(255,255,255,0.08) 100%);
+
+  .vitral-frame::after{
+    content:'';
+    position:absolute;
+    inset:0;
+    background:linear-gradient(180deg, rgba(5,4,5,0) 55%, rgba(5,4,5,0.65) 100%);
     pointer-events:none;
   }
-  .vitral-frame .icon{
-    position:absolute; inset:0;
-    display:flex; align-items:center; justify-content:center;
-  }
-  .vitral-frame .icon svg{ width:44px; height:44px; opacity:0.9; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.6)); }
-  .vitral-frame .tag{
-    position:absolute; top:8px; left:8px;
-    font-size:8px; letter-spacing:1.5px;
+
+  .vitral-frame .tag-esgotado{
+    position:absolute;
+    bottom:10px;
+    left:50%;
+    transform:translateX(-50%);
+    z-index:2;
+    font-size:6.4px;
+    letter-spacing:0.8px;
     text-transform:uppercase;
     color:var(--bone);
-    background:rgba(5,4,5,0.55);
-    padding:3px 7px;
+    background:rgba(5,4,5,0.7);
     border:1px solid rgba(233,224,201,0.3);
+    padding:4px 8px;
+    border-radius:20px;
+    white-space:nowrap;
   }
   .vitral-caption{ margin-top:10px; }
   .vitral-caption .name{
     font-family:'Cormorant Garamond', serif;
-    font-size:16px;
+    font-size:17px;
     color:var(--bone);
+    line-height:1.1;
+    letter-spacing:0.2px;
   }
   .vitral-caption .price{
     font-size:11px;
     color:var(--gold);
-    margin-top:2px;
+    margin-top:4px;
+    letter-spacing:0.8px;
+  }
+    color:var(--gold);
+    margin-top:4px;
+    letter-spacing:0.8px;
   }
 
   /* ---------------- CATALOGO GRID ---------------- */
@@ -1045,16 +1048,16 @@
   }
 
   /* ---------------- NOVIDADES / VITRAIS ---------------- */
-  .novidades-section{ padding:36px 0 8px 24px; }
-  .novidades-section .eyebrow{ margin-right:24px; margin-bottom:16px; }
+  .novidades-section{ padding:36px 0 8px; }
+  .novidades-section .eyebrow{ margin-right:0; margin-bottom:16px; text-align:center; }
   .vitral-row{
     display:flex;
     gap:14px;
     overflow-x:auto;
-    padding-bottom:10px;
-    padding-right:24px;
+    padding:0 12px 10px;
     scroll-snap-type:x mandatory;
     scrollbar-width:none;
+    justify-content:flex-start;
   }
   .vitral-row::-webkit-scrollbar{ display:none; }
   .vitral-card{

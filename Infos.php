@@ -110,6 +110,9 @@ $secoes = [
 
                 <div class="Preco">
                     <h6 id="anuncioValor">R$ <?= number_format((float) $anuncio['valor'], 2, ',', '.') ?></h6>
+                    <div class="estoque-status" id="statusEstoque">
+                        <?= ((int) ($anuncio['estoque'] ?? 0)) <= 0 ? 'Esgotado' : 'Disponível' ?>
+                    </div>
                 </div>
 
                 <div class="frete">
@@ -210,6 +213,27 @@ const produtoNome = <?= json_encode((string) ($anuncio['nome'] ?? 'Produto')) ?>
 const produtoId = <?= json_encode((string) ($anuncio['id'] ?? '')) ?>;
 const produtoCapa = <?= json_encode((string) ($capa ?? '')) ?>;
 const valorProduto = Number(<?= json_encode((float) ($anuncio['valor'] ?? 0)) ?>) || 0;
+const produtoEstoque = Number(<?= json_encode((int) ($anuncio['estoque'] ?? 0)) ?>) || 0;
+
+function atualizarEstadoProduto() {
+    const botaoCompra = document.getElementById('btnComprarWhatsApp');
+    const statusEstoque = document.getElementById('statusEstoque');
+
+    if (!botaoCompra || !statusEstoque) return;
+
+    if (produtoEstoque <= 0) {
+        botaoCompra.textContent = 'Fazer pedido';
+        botaoCompra.classList.add('btn-esgotado');
+        statusEstoque.textContent = 'Esgotado · Fazer pedido';
+        statusEstoque.classList.add('esgotado');
+        return;
+    }
+
+    botaoCompra.textContent = 'Comprar';
+    botaoCompra.classList.remove('btn-esgotado');
+    statusEstoque.textContent = 'Disponível';
+    statusEstoque.classList.remove('esgotado');
+}
 
 function trocarImagem(src, elemento){
     document.getElementById("imagemGrande").src = src;
@@ -359,10 +383,9 @@ async function calcularFrete(cep) {
 }
 
 function continuarCompraSemCep() {
-    const nome = encodeURIComponent(produtoNome || 'Produto');
-    const id = encodeURIComponent(produtoId || '');
-    const capa = encodeURIComponent(produtoCapa || '');
-    const texto = `Olá! Gostaria de comprar o produto ${produtoNome} (ID: ${produtoId}).%0A%0ACapa:%20${capa}%0A%0AQuero%20mais%20informações%20sobre%20a%20entrega%20e%20pagamento.`;
+    const texto = produtoEstoque <= 0
+        ? `Olá! Gostaria de fazer o pedido do produto ${produtoNome} (ID: ${produtoId}).%0A%0AQuero%20confirmar%20a%20disponibilidade%20e%20o%20valor%20final.`
+        : `Olá! Gostaria de comprar o produto ${produtoNome} (ID: ${produtoId}).%0A%0AQuero%20mais%20informações%20sobre%20a%20entrega%20e%20pagamento.`;
     const url = `https://wa.me/${whatsappNumero}?text=${texto}`;
     window.open(url, '_blank');
 }
@@ -375,15 +398,15 @@ function prepararLinkCompra() {
         return;
     }
 
-    const nome = encodeURIComponent(produtoNome || 'Produto');
-    const id = encodeURIComponent(produtoId || '');
-    const capa = encodeURIComponent(produtoCapa || '');
     const enderecoTexto = `%0A%0AEndereço salvo:%20${encodeURIComponent((ultimoFrete.rua || 'Rua não informada') + ', ' + (ultimoFrete.bairro || 'bairro não informado'))}%0ACEP:%20${encodeURIComponent(ultimoFrete.cep)}`;
-    const texto = `Olá! Gostaria de comprar o produto ${produtoNome} (ID: ${produtoId}).%0A%0ACapa:%20${capa}%0A%0AQuero%20mais%20informações%20sobre%20a%20entrega%20e%20pagamento.${enderecoTexto}`;
+    const texto = produtoEstoque <= 0
+        ? `Olá! Gostaria de fazer o pedido do produto ${produtoNome} (ID: ${produtoId}).%0A%0AQuero%20confirmar%20a%20disponibilidade%20e%20o%20valor%20final.${enderecoTexto}`
+        : `Olá! Gostaria de comprar o produto ${produtoNome} (ID: ${produtoId}).%0A%0AQuero%20mais%20informações%20sobre%20a%20entrega%20e%20pagamento.${enderecoTexto}`;
     const url = `https://wa.me/${whatsappNumero}?text=${texto}`;
     window.open(url, '_blank');
 }
 
+atualizarEstadoProduto();
 document.getElementById('btnComprarWhatsApp')?.addEventListener('click', prepararLinkCompra);
 document.getElementById('btnCalcularFrete')?.addEventListener('click', abrirModalFrete);
 document.querySelectorAll('[data-fechar-frete]').forEach(function(botao){

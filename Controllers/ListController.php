@@ -9,7 +9,7 @@ use PDO;
     {
         protected function BDlog(){
             try {
-                    $BD = new PDO('mysql:host=localhost;dbname=resinior','root','senha');
+                    $BD = new PDO('mysql:host=sql302.infinityfree.com;port=3306;dbname=if0_42359254_resinoir;charset=utf8mb4','if0_42359254','1ZHLF0ZU3S1Rw');
 
                 } catch (\Exception $mnsg) {
                     echo "<li>";
@@ -72,7 +72,7 @@ public function listNovidadesVitral($limite = 3)
     $BD = new ListController;
     $BD = $BD->BDlog();
 
-    $sql = "SELECT id, nome, valor, capa
+    $sql = "SELECT id, nome, valor, capa, estoque
             FROM produtos
             WHERE novidade = 1
             ORDER BY id DESC
@@ -90,16 +90,19 @@ public function listNovidadesVitral($limite = 3)
     }
 
     foreach ($produtos as $p) {
-        $id = $p['id'];
+        $id = (int) $p['id'];
         $nome = htmlspecialchars($p['nome']);
         $valor = number_format((float) $p['valor'], 2, ',', '.');
-        $capa = htmlspecialchars($p['capa']);
+        $estoque = (int) ($p['estoque'] ?? 0);
+        $capa = !empty($p['capa']) ? htmlspecialchars($p['capa']) : './assets/imgs/placeholder.jpg';
+        $semEstoque = $estoque <= 0;
+        $badgeHtml = $semEstoque ? "<div class='tag-esgotado'>Esgotado · Fazer pedido</div>" : '';
 
         echo "
         <div class='vitral-card' onclick='location.href=\"infos.php?id=$id\"' style='cursor:pointer;'>
           <div class='vitral-frame'>
-            <div class='mini-ceu'></div>
             <img class='img-card-vitral' src='$capa' alt='$nome'>
+            $badgeHtml
           </div>
           <div class='vitral-caption'>
             <div class='name'>$nome</div>
@@ -315,18 +318,20 @@ private function iconeCategoria($nome)
                 $descricao = $retorno["descricao"];
                 $cor = $retorno["cor"];
                 $tamanho = $retorno["tamanho"];
-                $estoque = $retorno["estoque"];
+                $estoque = (int) ($retorno["estoque"] ?? 0);
                 $imagem = $retorno["imagem"];
                 $encomenda = $retorno["encomenda"];
                 $valor = $retorno["valor"];
                 $totalVendidos = $retorno["totalVendidos"];
                 $novidade = $retorno["novidade"];
                 $capa = $retorno["capa"];
+                $badgeTexto = $estoque <= 0 ? 'Esgotado · Fazer pedido' : 'Disponível';
+                $badgeClass = $estoque <= 0 ? 'sold-out' : 'available';
 
                 echo "
                         <div onclick='location.href=\"infos.php?id=$id\"' class='product-card'>
                         <div class='product-photo'>
-                        <!-- <div class='product-badge'>Novo</div> -->
+                        <div class='product-badge $badgeClass'>$badgeTexto</div>
                         <img class='img-card' src='$capa' alt=''>
                         </div>
                         <div class='product-info'>

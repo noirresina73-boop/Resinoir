@@ -3,7 +3,7 @@ require_once __DIR__ . '/auth.php';
 
 include __DIR__ . '/autoloader.php';
 
-$pdo = new PDO('mysql:host=localhost;dbname=resinior', 'root', 'senha');
+$pdo = new PDO('mysql:host=sql302.infinityfree.com;port=3306;dbname=if0_42359254_resinoir;charset=utf8mb4', 'if0_42359254', '1ZHLF0ZU3S1Rw');
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 $pdo->exec("CREATE TABLE IF NOT EXISTS vendas (

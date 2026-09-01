@@ -6,7 +6,7 @@ class infosController
 {
     protected function BDlog(){
         try {
-            $BD = new PDO('mysql:host=localhost;dbname=resinior','root','senha');
+            $BD = new PDO('mysql:host=sql302.infinityfree.com;port=3306;dbname=if0_42359254_resinoir;charset=utf8mb4','if0_42359254','1ZHLF0ZU3S1Rw');
         } catch (\Exception $mnsg) {
             echo "<li>Erro ao conectar ao banco: " . $mnsg->getMessage() . "</li>";
         }
