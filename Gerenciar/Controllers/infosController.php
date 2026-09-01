@@ -13,6 +13,16 @@ class infosController
         return $BD;
     }
 
+    public function garantirEstrutura(): void
+    {
+        $BD = $this->BDlog();
+
+        $colunas = $BD->query('SHOW COLUMNS FROM produtos')->fetchAll(PDO::FETCH_COLUMN);
+        if (!in_array('custo', $colunas, true)) {
+            $BD->exec('ALTER TABLE produtos ADD COLUMN custo DECIMAL(10,2) NOT NULL DEFAULT 0 AFTER valor');
+        }
+    }
+
     public function buscarPorId(int $id)
     {
         $BD = $this->BDlog();
@@ -48,7 +58,7 @@ public function listarTodos($pagina = 1, $nome = '', $categoria = 0, $colecao = 
 
     $where = $condicoes ? 'WHERE ' . implode(' AND ', $condicoes) : '';
 
-    $sql = "SELECT id, nome, valor, capa, estoque FROM produtos $where ORDER BY id DESC LIMIT :inicio, :limite";
+    $sql = "SELECT id, nome, valor, custo, capa, estoque FROM produtos $where ORDER BY id DESC LIMIT :inicio, :limite";
     $query = $BD->prepare($sql);
 
     foreach ($parametros as $chave => $valor) {
@@ -61,20 +71,33 @@ public function listarTodos($pagina = 1, $nome = '', $categoria = 0, $colecao = 
     return $query->fetchAll(PDO::FETCH_ASSOC);
 }
 
+    public function obterProximoId(): int
+    {
+        $BD = $this->BDlog();
+        $query = $BD->query("SELECT AUTO_INCREMENT AS proximo_id
+            FROM information_schema.TABLES
+            WHERE TABLE_SCHEMA = DATABASE()
+              AND TABLE_NAME = 'produtos'");
+        $resultado = $query->fetch(PDO::FETCH_ASSOC);
+
+        return (int) ($resultado['proximo_id'] ?? 1);
+    }
+
     public function criar(
         int $id, string $idPDR, string $nome, string $modelo, string $descricao, string $cor,
         int $tamanho, int $estoque, int $categoria, int $colecao, string $jsonImagens,
-        int $encomenda, float $valor, int $totalVendidos, int $novidade, string $capa
+        int $encomenda, float $valor, float $custo, int $totalVendidos, int $novidade, string $capa
     ){
+        $this->garantirEstrutura();
         $BD = $this->BDlog();
 
         $query = $BD->prepare('
             INSERT INTO produtos (
                 idPDR, nome, modelo, descricao, cor, tamanho, estoque,
-                categoria, colecao, imagem, encomenda, valor, totalVendidos, novidade, capa
+                categoria, colecao, imagem, encomenda, valor, custo, totalVendidos, novidade, capa
             ) VALUES (
                 :idPDR, :nome, :modelo, :descricao, :cor, :tamanho, :estoque,
-                :categoria, :colecao, :imagem, :encomenda, :valor, :totalVendidos, :novidade, :capa
+                :categoria, :colecao, :imagem, :encomenda, :valor, :custo, :totalVendidos, :novidade, :capa
             )
         ');
 
@@ -90,6 +113,7 @@ public function listarTodos($pagina = 1, $nome = '', $categoria = 0, $colecao = 
         $query->bindValue(':imagem', $jsonImagens, PDO::PARAM_STR);
         $query->bindValue(':encomenda', $encomenda, PDO::PARAM_INT);
         $query->bindValue(':valor', $valor, PDO::PARAM_STR);
+        $query->bindValue(':custo', $custo, PDO::PARAM_STR);
         $query->bindValue(':totalVendidos', $totalVendidos, PDO::PARAM_INT);
         $query->bindValue(':novidade', $novidade, PDO::PARAM_INT);
         $query->bindValue(':capa', $capa, PDO::PARAM_STR);
@@ -105,13 +129,14 @@ public function listarTodos($pagina = 1, $nome = '', $categoria = 0, $colecao = 
     public function atualizar(
         int $id, string $nome, string $modelo, string $descricao, string $cor,
         int $tamanho, int $estoque, int $categoria, int $colecao, ?string $jsonImagens,
-        int $encomenda, float $valor, int $novidade, ?string $capa
+        int $encomenda, float $valor, float $custo, int $novidade, ?string $capa
     ){
+        $this->garantirEstrutura();
         $BD = $this->BDlog();
 
         $sql = 'UPDATE produtos SET nome = :nome, modelo = :modelo, descricao = :descricao,
                 cor = :cor, tamanho = :tamanho, estoque = :estoque, categoria = :categoria,
-                colecao = :colecao, encomenda = :encomenda, valor = :valor, novidade = :novidade';
+                colecao = :colecao, encomenda = :encomenda, valor = :valor, custo = :custo, novidade = :novidade';
 
         if ($jsonImagens !== null) $sql .= ', imagem = :imagem';
         if ($capa !== null) $sql .= ', capa = :capa';
@@ -129,6 +154,7 @@ public function listarTodos($pagina = 1, $nome = '', $categoria = 0, $colecao = 
         $query->bindValue(':colecao', $colecao, PDO::PARAM_INT);
         $query->bindValue(':encomenda', $encomenda, PDO::PARAM_INT);
         $query->bindValue(':valor', $valor, PDO::PARAM_STR);
+        $query->bindValue(':custo', $custo, PDO::PARAM_STR);
         $query->bindValue(':novidade', $novidade, PDO::PARAM_INT);
         if ($jsonImagens !== null) $query->bindValue(':imagem', $jsonImagens, PDO::PARAM_STR);
         if ($capa !== null) $query->bindValue(':capa', $capa, PDO::PARAM_STR);
@@ -136,5 +162,14 @@ public function listarTodos($pagina = 1, $nome = '', $categoria = 0, $colecao = 
         if (!$query->execute()) {
             echo "<pre>"; print_r($query->errorInfo()); echo "</pre>";
         }
+    }
+
+    public function excluir(int $id): bool
+    {
+        $this->garantirEstrutura();
+        $BD = $this->BDlog();
+        $query = $BD->prepare('DELETE FROM produtos WHERE id = :id');
+        $query->bindValue(':id', $id, PDO::PARAM_INT);
+        return $query->execute();
     }
 }

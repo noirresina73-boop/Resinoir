@@ -4,11 +4,32 @@ use Controllers\CatalogoAuxController;
 
 include __DIR__ . '/../autoloader.php';
 
+function gerarCodigoProduto(string $nome, int $id): string
+{
+    $nome = preg_replace('/[^a-zA-Z0-9\s]/', ' ', $nome);
+    $palavras = preg_split('/\s+/', trim($nome));
+    $iniciais = '';
+
+    foreach ($palavras as $palavra) {
+        $palavra = trim($palavra);
+        if ($palavra !== '') {
+            $iniciais .= strtoupper(substr($palavra, 0, 1));
+        }
+    }
+
+    if ($iniciais === '') {
+        $iniciais = 'PR';
+    }
+
+    return $iniciais . (string) $id;
+}
+
 $acao = $_POST['acao'] ?? 'criar';
 
-$id = $_POST["id"];
-$idPDR = $id . $_POST["idPDR"];
-$nome = $_POST["nome"];
+$Controller = new infosController;
+$id = isset($_POST['id']) ? (int) $_POST['id'] : $Controller->obterProximoId();
+$nome = trim((string) ($_POST['nome'] ?? ''));
+$idPDR = $acao === 'editar' ? trim((string) ($_POST['idPDR'] ?? '')) : gerarCodigoProduto($nome, $id);
 $modelo = $_POST["modelo"];
 $descricao = $_POST["descricao"];
 $cor = $_POST["cor"];
@@ -18,6 +39,7 @@ $categoria = (int) ($_POST["categoria"] ?? 0);
 $colecao = (int) ($_POST["colecao"] ?? 0);
 $encomenda = 0;
 $valor = $_POST["valor"];
+$custo = (float) ($_POST['custo'] ?? 0);
 $totalVendidos = 1;
 $novidade = 1;
 
@@ -57,9 +79,18 @@ if ($acao === 'editar') {
     $Controller = new infosController;
     $Controller->atualizar(
         $produtoId, $nome, $modelo, $descricao, $cor, (int) $tamanho, (int) $estoque,
-        $categoria, $colecao, $jsonImagens, $encomenda, (float) $valor, $novidade, $capa
+        $categoria, $colecao, $jsonImagens, $encomenda, (float) $valor, $custo, $novidade, $capa
     );
-    header('Location: ../infos.php?id=' . $produtoId . '&salvo=1');
+
+    $redirect = '../produtos-lista.php?' . http_build_query([
+        'salvo' => 1,
+        'nome' => $nome,
+        'idProduto' => trim((string) ($_POST['idPDR'] ?? $idPDR)),
+        'valor' => (string) $valor,
+        'estoque' => (string) $estoque,
+    ]);
+
+    header('Location: ' . $redirect);
     exit;
 }
 
@@ -67,7 +98,16 @@ $Criar = new infosController;
 $novoId = $Criar->criar(
     (int) $id, $idPDR, $nome, $modelo, $descricao, $cor, (int) $tamanho, (int) $estoque,
     $categoria, $colecao, $jsonImagens ?? json_encode([]), $encomenda, (float) $valor,
-    $totalVendidos, $novidade, $capa ?? ''
+    $custo, $totalVendidos, $novidade, $capa ?? ''
 );
-header('Location: ../infos.php?id=' . $novoId . '&salvo=1');
+
+$redirect = '../produtos-lista.php?' . http_build_query([
+    'salvo' => 1,
+    'nome' => $nome,
+    'idProduto' => $idPDR,
+    'valor' => (string) $valor,
+    'estoque' => (string) $estoque,
+]);
+
+header('Location: ' . $redirect);
 exit;

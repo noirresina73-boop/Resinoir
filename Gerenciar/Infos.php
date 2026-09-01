@@ -11,11 +11,16 @@ $colecoes = $Aux->listarColecoes();
 
 $produto = null;
 $modoEdicao = false;
+$proximoId = 1;
 
 if (isset($_GET['id'])) {
     $Produtos = new infosController;
     $produto = $Produtos->buscarPorId((int) $_GET['id']);
     $modoEdicao = (bool) $produto;
+}
+
+if (!$modoEdicao) {
+    $proximoId = (new infosController)->obterProximoId();
 }
 ?>
 
@@ -26,15 +31,16 @@ if (isset($_GET['id'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Resinoir</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="stylesheet" href="./styles/gerenciar.css">
     <link rel="stylesheet" href="./styles/styleInfos.css">
   </head>
   <body>
 
     <header>
-      <nav class="navbar bg-body-tertiary" data-bs-theme="dark">
+      <nav class="navbar navbar-expand-lg" data-bs-theme="dark">
         <div class="container-fluid">
           <a class="navbar-brand"><?= $modoEdicao ? 'Editar produto' : 'Criar post' ?></a>
-          <div class="d-flex">
+          <div class="topbar-actions">
             <a href="./produtos-lista.php" class="btn btn-outline-secondary btn-form">Ver todos</a>
             <button class="btn btn-outline-danger btn-form" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Descartar o post</button>
             <button class="btn btn-outline-success btn-form" form="formAnum" type="submit">Salvar</button>
@@ -52,14 +58,11 @@ if (isset($_GET['id'])) {
             <input type="hidden" name="produtoId" value="<?= (int) $produto['id'] ?>">
           <?php endif; ?>
 
-          <div class="form-floating mb-3">
-            <input required="true" name="id" type="number" class="form-control no-decor" id="floatingInput" value="1">
-            <label for="floatingInput">Id</label>
-          </div>
-          <label style="margin-bottom: 10px;">Id produto</label><br>
+          <input type="hidden" name="id" id="produtoIdReal" value="<?= $proximoId ?>">
+          <label style="margin-bottom: 10px;">ID do produto</label><br>
           <div class="input-group mb-3">
-            <span class="input-group-text" id="inputGroup-sizing-default">1</span>
-            <input required="true" name="idPDR" type="text" class="form-control" value="<?= $modoEdicao ? htmlspecialchars($produto['idPDR']) : '' ?>">
+            <span class="input-group-text" id="inputGroup-sizing-default"><?= $modoEdicao ? htmlspecialchars($produto['id']) : $proximoId ?></span>
+            <input required="true" name="idPDR" id="inputIdPDR" type="text" class="form-control" value="<?= $modoEdicao ? htmlspecialchars($produto['idPDR']) : '' ?>" readonly>
           </div>
           <div class="input-group mb-3">
             <span class="input-group-text">Nome</span>
@@ -116,18 +119,63 @@ if (isset($_GET['id'])) {
               <button type="button" class="btn btn-danger" onclick="limparCapa()">✕</button>
           </div>
           <?php if ($modoEdicao && $produto['capa']): ?>
+            <?php $capaPreview = trim((string) ($produto['capa'] ?? '')); if ($capaPreview !== '' && !preg_match('#^(https?:)?//#', $capaPreview) && !str_starts_with($capaPreview, '../')) { $capaPreview = preg_match('#^assets/#', $capaPreview) ? '../' . $capaPreview : (str_starts_with($capaPreview, './') ? '../' . ltrim($capaPreview, './') : '../' . ltrim($capaPreview, './')); } ?>
             <div class="mb-3">
-              <img src=".<?= htmlspecialchars($produto['capa']) ?>" style="max-width:120px;border-radius:8px;">
+              <img src="<?= htmlspecialchars($capaPreview) ?>" style="max-width:120px;border-radius:8px;">
               <div class="form-text">Capa atual — só envie um arquivo acima se quiser trocar.</div>
             </div>
           <?php endif; ?>
 
           <script>
+          function gerarCodigoProduto(nome, id) {
+              const texto = (nome || '')
+                  .normalize('NFD')
+                  .replace(/[\u0300-\u036f]/g, '')
+                  .trim()
+                  .split(/\s+/)
+                  .filter(Boolean)
+                  .map((palavra) => palavra.charAt(0).toUpperCase())
+                  .join('');
+
+              return (texto || 'PR') + String(id || 1);
+          }
+
+          function atualizarIdProduto() {
+              const nome = document.getElementById('inputNome')?.value || '';
+              const id = document.getElementById('produtoIdReal')?.value || 1;
+              const campo = document.getElementById('inputIdPDR');
+
+              if (campo && !campo.dataset.edicao) {
+                  campo.value = gerarCodigoProduto(nome, id);
+              }
+          }
+
           function limparCapa() {
               document.getElementById("inputCapa").value = "";
           }
+
+          document.addEventListener('DOMContentLoaded', function () {
+              const campo = document.getElementById('inputIdPDR');
+              const nomeInput = document.getElementById('inputNome');
+
+              if (campo && !campo.value) {
+                  atualizarIdProduto();
+              }
+
+              if (campo) {
+                  campo.dataset.edicao = <?= $modoEdicao ? 'true' : 'false' ?>;
+              }
+
+              if (nomeInput) {
+                  nomeInput.addEventListener('input', atualizarIdProduto);
+              }
+          });
           </script>
 
+          <div class="input-group mb-3">
+            <span class="input-group-text">Custo</span>
+            <input required="true" name="custo" step="0.01" type="number" class="form-control" value="<?= $modoEdicao ? htmlspecialchars((string) ($produto['custo'] ?? 0)) : '0' ?>">
+          </div>
           <div class="input-group mb-3">
             <span class="input-group-text">R$</span>
             <input required="true" id="inputValor" oninput="updatePost();" name="valor" step="0.01" type="number" class="form-control" value="<?= $modoEdicao ? htmlspecialchars($produto['valor']) : '' ?>">
@@ -178,17 +226,12 @@ if (isset($_GET['id'])) {
       </form>
       </div>
 
-      <!-- pré-visualização do post (mesma lógica de antes) -->
+      <!-- pré-visualização do post -->
       <div class="postagem fixed" id="postagem">
-        <div class="btn-group" role="group">
-          <input type="radio" class="btn-check" name="btnradio" oninput="noneCarrocelUpdate();" id="btnradio1" checked>
-          <label class="btn btn-outline-primary" for="btnradio1">Card</label>
-          <input type="radio" class="btn-check" name="btnradio" id="btnradio3" oninput="noneCardUpdate();">
-          <label class="btn btn-outline-primary" for="btnradio3">Informações</label>
-        </div>
         <div class="post" id="post">
           <div class="card" style="width: 18rem;" data-bs-theme="dark">
-            <img id="cardCapa" src="<?= $modoEdicao ? '.' . htmlspecialchars($produto['capa']) : '' ?>" class="card-img-top" alt="...">
+            <?php $cardCapa = ''; if ($modoEdicao && !empty($produto['capa'])) { $cardCapa = trim((string) $produto['capa']); if (!preg_match('#^(https?:)?//#', $cardCapa) && !str_starts_with($cardCapa, '../')) { $cardCapa = preg_match('#^assets/#', $cardCapa) ? '../' . $cardCapa : (str_starts_with($cardCapa, './') ? '../' . ltrim($cardCapa, './') : '../' . ltrim($cardCapa, './')); } } ?>
+            <img id="cardCapa" src="<?= htmlspecialchars($cardCapa) ?>" class="card-img-top" alt="...">
             <div class="card-body">
               <h5 class="card-title" id="cardName"></h5>
               <h6 class="card-preco" id="cardValor"></h6>
@@ -295,15 +338,6 @@ if (isset($_GET['id'])) {
           document.getElementById('cardCapa').src = e.target.result;
         };
         reader.readAsDataURL(file);
-      }
-
-      function noneCardUpdate(){
-        document.getElementById('post').classList = 'none post';
-        document.getElementById('postagem').classList = 'postagem';
-      }
-      function noneCarrocelUpdate(){
-        document.getElementById('post').classList = 'post';
-        document.getElementById('postagem').classList = 'postagem fixed';
       }
 
       async function criarCategoria() {

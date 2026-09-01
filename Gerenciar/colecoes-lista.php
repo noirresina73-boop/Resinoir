@@ -14,12 +14,13 @@ $colecoes = $Aux->listarColecoes();
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Resinoir — Coleções</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+    <link rel="stylesheet" href="./styles/gerenciar.css">
   </head>
   <body data-bs-theme="dark">
-    <nav class="navbar bg-body-tertiary" data-bs-theme="dark">
+    <nav class="navbar navbar-expand-lg" data-bs-theme="dark">
       <div class="container-fluid">
         <a class="navbar-brand">Coleções</a>
-        <div class="d-flex gap-2">
+        <div class="topbar-actions">
           <a href="./produtos-lista.php" class="btn btn-outline-secondary">Produtos</a>
           <a href="./categorias-lista.php" class="btn btn-outline-secondary">Categorias</a>
           <button class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#modalItem" onclick="abrirModalCriar()">+ Nova coleção</button>
@@ -27,39 +28,51 @@ $colecoes = $Aux->listarColecoes();
       </div>
     </nav>
 
-    <div class="container py-4">
-      <table class="table table-dark table-hover align-middle">
-        <thead>
-          <tr>
-            <th>Capa</th>
-            <th>Nome</th>
-            <th>Descrição</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          <?php if (empty($colecoes)): ?>
-            <tr><td colspan="4" class="text-center text-secondary">Nenhuma coleção cadastrada.</td></tr>
-          <?php endif; ?>
-          <?php foreach ($colecoes as $c): ?>
-            <tr>
-              <td>
-                <?php if ($c['capa']): ?>
-                  <img src="<?= htmlspecialchars($c['capa']) ?>" style="width:50px;height:50px;object-fit:cover;border-radius:6px;">
-                <?php else: ?>
-                  <span class="text-secondary">—</span>
-                <?php endif; ?>
-              </td>
-              <td><?= htmlspecialchars($c['nome']) ?></td>
-              <td class="text-secondary" style="max-width:300px;"><?= htmlspecialchars($c['descricao']) ?></td>
-              <td>
-                <button class="btn btn-sm btn-outline-light" onclick='abrirModalEditar(<?= json_encode($c) ?>)' data-bs-toggle="modal" data-bs-target="#modalItem">Editar</button>
-                <button class="btn btn-sm btn-outline-danger" onclick="excluir(<?= $c['id'] ?>, '<?= htmlspecialchars($c['nome'], ENT_QUOTES) ?>')">Excluir</button>
-              </td>
-            </tr>
-          <?php endforeach; ?>
-        </tbody>
-      </table>
+    <div class="page-shell">
+      <div class="admin-header">
+        <div>
+          <h1 class="admin-title">Coleções</h1>
+          <div class="admin-subtitle">linhas e editoras</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="table-responsive">
+          <table class="table align-middle">
+            <thead>
+              <tr>
+                <th>Capa</th>
+                <th>Nome</th>
+                <th>Descrição</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <?php if (empty($colecoes)): ?>
+                <tr><td colspan="4" class="empty-state">Nenhuma coleção cadastrada.</td></tr>
+              <?php endif; ?>
+              <?php foreach ($colecoes as $c): ?>
+                <?php $capaColecao = trim((string) ($c['capa'] ?? '')); if ($capaColecao !== '' && !preg_match('#^(https?:)?//#', $capaColecao) && !str_starts_with($capaColecao, '../')) { $capaColecao = preg_match('#^assets/#', $capaColecao) ? '../' . $capaColecao : (str_starts_with($capaColecao, './') ? '../' . ltrim($capaColecao, './') : '../' . ltrim($capaColecao, './')); } ?>
+                <tr>
+                  <td>
+                    <?php if ($c['capa']): ?>
+                      <img class="card-thumb" src="<?= htmlspecialchars($capaColecao) ?>" alt="<?= htmlspecialchars($c['nome']) ?>">
+                    <?php else: ?>
+                      <span class="text-secondary">—</span>
+                    <?php endif; ?>
+                  </td>
+                  <td><?= htmlspecialchars($c['nome']) ?></td>
+                  <td class="text-secondary" style="max-width:300px;"><?= htmlspecialchars($c['descricao']) ?></td>
+                  <td>
+                    <button class="btn btn-sm btn-outline-light" onclick='abrirModalEditar(<?= json_encode($c) ?>)' data-bs-toggle="modal" data-bs-target="#modalItem">Editar</button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="excluir(<?= $c['id'] ?>, '<?= htmlspecialchars($c['nome'], ENT_QUOTES) ?>')">Excluir</button>
+                  </td>
+                </tr>
+              <?php endforeach; ?>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
 
     <!-- MODAL CRIAR/EDITAR -->
