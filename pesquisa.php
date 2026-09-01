@@ -201,7 +201,7 @@ function renderizarGrid(produtos) {
   produtos.forEach(p => {
     const item = document.createElement('div');
     item.className = 'product-card';
-    item.onclick = () => location.href = 'infos.php?id=' + p.id;
+    item.onclick = () => location.href = 'Infos.php?id=' + p.id;
     item.innerHTML = `
       <div class="product-photo">
         <img class="img-card" src="${p.capa}" alt="${p.nome}">

@@ -99,7 +99,7 @@ public function listNovidadesVitral($limite = 3)
         $badgeHtml = $semEstoque ? "<div class='tag-esgotado'>Esgotado · Fazer pedido</div>" : '';
 
         echo "
-        <div class='vitral-card' onclick='location.href=\"infos.php?id=$id\"' style='cursor:pointer;'>
+        <div class='vitral-card' onclick='location.href=\"Infos.php?id=$id\"' style='cursor:pointer;'>
           <div class='vitral-frame'>
             <img class='img-card-vitral' src='$capa' alt='$nome'>
             $badgeHtml
@@ -329,7 +329,7 @@ private function iconeCategoria($nome)
                 $badgeClass = $estoque <= 0 ? 'sold-out' : 'available';
 
                 echo "
-                        <div onclick='location.href=\"infos.php?id=$id\"' class='product-card'>
+                        <div onclick='location.href=\"Infos.php?id=$id\"' class='product-card'>
                         <div class='product-photo'>
                         <div class='product-badge $badgeClass'>$badgeTexto</div>
                         <img class='img-card' src='$capa' alt=''>

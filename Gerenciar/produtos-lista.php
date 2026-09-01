@@ -32,7 +32,7 @@ $colecoes = $Aux->listarColecoes();
         <div class="topbar-actions">
           <a href="./categorias-lista.php" class="btn btn-outline-secondary">Categorias</a>
           <a href="./colecoes-lista.php" class="btn btn-outline-secondary">Coleções</a>
-          <a href="./infos.php" class="btn btn-outline-success">+ Novo produto</a>
+          <a href="./Infos.php" class="btn btn-outline-success">+ Novo produto</a>
         </div>
       </div>
     </nav>
@@ -111,7 +111,7 @@ $colecoes = $Aux->listarColecoes();
                   <td><?= htmlspecialchars($p['estoque']) ?></td>
                   <td>
                     <div class="d-flex gap-2">
-                      <a href="./infos.php?id=<?= $p['id'] ?>" class="btn btn-sm btn-outline-light">Editar</a>
+                      <a href="./Infos.php?id=<?= $p['id'] ?>" class="btn btn-sm btn-outline-light">Editar</a>
                       <button type="button" class="btn btn-sm btn-outline-danger" onclick="excluirProduto(<?= (int) $p['id'] ?>)">Excluir</button>
                     </div>
                   </td>
