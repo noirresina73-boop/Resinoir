@@ -58,13 +58,14 @@ class CatalogoAuxController
         return (int) $BD->lastInsertId();
     }
 
-    public function criarColecao($nome, $descricao, $capa = '')
+    public function criarColecao($nome, $descricao, $capa = '', $destaque = 0)
     {
         $BD = $this->BDlog();
-        $query = $BD->prepare('INSERT INTO colecao (nome, descricao, data_criacao, capa) VALUES (:nome, :descricao, NOW(), :capa)');
+        $query = $BD->prepare('INSERT INTO colecao (nome, descricao, data_criacao, capa, destaque) VALUES (:nome, :descricao, NOW(), :capa, :destaque)');
         $query->bindValue(':nome', $nome, PDO::PARAM_STR);
         $query->bindValue(':descricao', $descricao, PDO::PARAM_STR);
         $query->bindValue(':capa', $capa, PDO::PARAM_STR);
+        $query->bindValue(':destaque', $destaque, PDO::PARAM_INT);
         $query->execute();
         return (int) $BD->lastInsertId();
     }
@@ -84,11 +85,12 @@ class CatalogoAuxController
         $query->execute();
     }
 
-    public function atualizarColecao(int $id, $nome, $descricao, $capa = null)
+    public function atualizarColecao(int $id, $nome, $descricao, $capa = null, $destaque = null)
     {
         $BD = $this->BDlog();
         $sql = 'UPDATE colecao SET nome = :nome, descricao = :descricao';
         if ($capa !== null) $sql .= ', capa = :capa';
+        if ($destaque !== null) $sql .= ', destaque = :destaque';
         $sql .= ' WHERE id = :id';
 
         $query = $BD->prepare($sql);
@@ -96,6 +98,7 @@ class CatalogoAuxController
         $query->bindValue(':nome', $nome, PDO::PARAM_STR);
         $query->bindValue(':descricao', $descricao, PDO::PARAM_STR);
         if ($capa !== null) $query->bindValue(':capa', $capa, PDO::PARAM_STR);
+        if ($destaque !== null) $query->bindValue(':destaque', $destaque, PDO::PARAM_INT);
         $query->execute();
     }
 
@@ -132,6 +135,18 @@ class CatalogoAuxController
         $query->bindValue(':id', $id, PDO::PARAM_INT);
         $query->execute();
         return 'ok';
+    }
+
+    public function setColecaoDestaque(int $id)
+    {
+        $BD = $this->BDlog();
+        // Remove destaque de todas as coleções
+        $query = $BD->prepare('UPDATE colecao SET destaque = 0');
+        $query->execute();
+        // Define a coleção como destaque
+        $query = $BD->prepare('UPDATE colecao SET destaque = 1 WHERE id = :id');
+        $query->bindValue(':id', $id, PDO::PARAM_INT);
+        $query->execute();
     }
 
     public function salvarImagemCapa($nomeReferencia, $arquivo)

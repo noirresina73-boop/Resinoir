@@ -41,6 +41,7 @@ $colecoes = $Aux->listarColecoes();
           <table class="table align-middle">
             <thead>
               <tr>
+                <th></th>
                 <th>Capa</th>
                 <th>Nome</th>
                 <th>Descrição</th>
@@ -49,11 +50,14 @@ $colecoes = $Aux->listarColecoes();
             </thead>
             <tbody>
               <?php if (empty($colecoes)): ?>
-                <tr><td colspan="4" class="empty-state">Nenhuma coleção cadastrada.</td></tr>
+                <tr><td colspan="5" class="empty-state">Nenhuma coleção cadastrada.</td></tr>
               <?php endif; ?>
               <?php foreach ($colecoes as $c): ?>
                 <?php $capaColecao = trim((string) ($c['capa'] ?? '')); if ($capaColecao !== '' && !preg_match('#^(https?:)?//#', $capaColecao) && !str_starts_with($capaColecao, '../')) { $capaColecao = preg_match('#^assets/#', $capaColecao) ? '../' . $capaColecao : (str_starts_with($capaColecao, './') ? '../' . ltrim($capaColecao, './') : '../' . ltrim($capaColecao, './')); } ?>
                 <tr>
+                  <td style="width: 50px;">
+                    <input type="checkbox" <?= ($c['destaque'] ?? 0) == 1 ? 'checked' : '' ?> onchange="definirDestaque(<?= (int) $c['id'] ?>, this.checked)">
+                  </td>
                   <td>
                     <?php if ($c['capa']): ?>
                       <img class="card-thumb" src="<?= htmlspecialchars($capaColecao) ?>" alt="<?= htmlspecialchars($c['nome']) ?>">
@@ -98,6 +102,14 @@ $colecoes = $Aux->listarColecoes();
               <input type="file" accept="image/*" class="form-control" id="itemCapa">
               <div class="form-text" id="capaAtualTexto"></div>
             </div>
+            <div class="mb-3">
+              <div class="form-check">
+                <input type="checkbox" class="form-check-input" id="itemDestaque">
+                <label class="form-check-label" for="itemDestaque">
+                  Marcar como destaque
+                </label>
+              </div>
+            </div>
             <div class="form-text" id="erroItem" style="color:#f88;"></div>
           </div>
           <div class="modal-footer">
@@ -115,6 +127,7 @@ $colecoes = $Aux->listarColecoes();
         document.getElementById('itemNome').value = '';
         document.getElementById('itemDescricao').value = '';
         document.getElementById('itemCapa').value = '';
+        document.getElementById('itemDestaque').checked = false;
         document.getElementById('capaAtualTexto').textContent = '';
         document.getElementById('erroItem').textContent = '';
       }
@@ -125,6 +138,7 @@ $colecoes = $Aux->listarColecoes();
         document.getElementById('itemNome').value = colecao.nome;
         document.getElementById('itemDescricao').value = colecao.descricao;
         document.getElementById('itemCapa').value = '';
+        document.getElementById('itemDestaque').checked = colecao.destaque == 1;
         document.getElementById('capaAtualTexto').textContent = colecao.capa ? 'Já tem uma capa — envie um arquivo só se quiser trocar.' : '';
         document.getElementById('erroItem').textContent = '';
       }
@@ -133,6 +147,7 @@ $colecoes = $Aux->listarColecoes();
         const id = document.getElementById('itemId').value;
         const nome = document.getElementById('itemNome').value.trim();
         const descricao = document.getElementById('itemDescricao').value.trim();
+        const destaque = document.getElementById('itemDestaque').checked ? 1 : 0;
         const arquivoCapa = document.getElementById('itemCapa').files[0];
         const erro = document.getElementById('erroItem');
 
@@ -143,12 +158,27 @@ $colecoes = $Aux->listarColecoes();
         if (id) form.append('id', id);
         form.append('nome', nome);
         form.append('descricao', descricao);
+        form.append('destaque', destaque);
         if (arquivoCapa) form.append('capa', arquivoCapa);
 
         const resp = await fetch('./api/colecao.php', { method: 'POST', body: form });
         const dados = await resp.json();
 
         if (dados.erro) { erro.textContent = dados.erro; return; }
+
+        window.location.reload();
+      }
+
+      async function definirDestaque(id, isChecked) {
+        const form = new FormData();
+        form.append('acao', 'editar');
+        form.append('id', id);
+        form.append('nome', ''); // será preenchido do banco
+        form.append('descricao', '');
+        form.append('destaque', isChecked ? 1 : 0);
+
+        const resp = await fetch('./api/colecao.php', { method: 'POST', body: form });
+        const dados = await resp.json();
 
         window.location.reload();
       }

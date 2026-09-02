@@ -68,18 +68,18 @@ class infosController
 
     public function criar(
         int $id, string $idPDR, string $nome, string $modelo, string $descricao, string $cor,
-        int $tamanho, int $estoque, int $categoria, int $colecao, string $jsonImagens,
-        int $encomenda, float $valor, int $totalVendidos, int $novidade, string $capa
+        int $tamanho, int $estoque, ?int $categoria, ?int $colecao, string $jsonImagens,
+        int $encomenda, float $valor, float $custo, int $totalVendidos, int $novidade, string $capa
     ){
         $BD = $this->BDlog();
 
         $query = $BD->prepare('
             INSERT INTO produtos (
                 idPDR, nome, modelo, descricao, cor, tamanho, estoque,
-                categoria, colecao, imagem, encomenda, valor, totalVendidos, novidade, capa
+                categoria, colecao, imagem, encomenda, valor, custo, totalVendidos, novidade, capa
             ) VALUES (
                 :idPDR, :nome, :modelo, :descricao, :cor, :tamanho, :estoque,
-                :categoria, :colecao, :imagem, :encomenda, :valor, :totalVendidos, :novidade, :capa
+                :categoria, :colecao, :imagem, :encomenda, :valor, :custo, :totalVendidos, :novidade, :capa
             )
         ');
 
@@ -90,11 +90,12 @@ class infosController
         $query->bindValue(':cor', $cor, PDO::PARAM_STR);
         $query->bindValue(':tamanho', $tamanho, PDO::PARAM_INT);
         $query->bindValue(':estoque', $estoque, PDO::PARAM_INT);
-        $query->bindValue(':categoria', $categoria, PDO::PARAM_INT);
-        $query->bindValue(':colecao', $colecao, PDO::PARAM_INT);
+        $query->bindValue(':categoria', $categoria, $categoria === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
+        $query->bindValue(':colecao', $colecao, $colecao === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
         $query->bindValue(':imagem', $jsonImagens, PDO::PARAM_STR);
         $query->bindValue(':encomenda', $encomenda, PDO::PARAM_INT);
         $query->bindValue(':valor', $valor, PDO::PARAM_STR);
+        $query->bindValue(':custo', $custo, PDO::PARAM_STR);
         $query->bindValue(':totalVendidos', $totalVendidos, PDO::PARAM_INT);
         $query->bindValue(':novidade', $novidade, PDO::PARAM_INT);
         $query->bindValue(':capa', $capa, PDO::PARAM_STR);
@@ -109,14 +110,14 @@ class infosController
 
     public function atualizar(
         int $id, string $nome, string $modelo, string $descricao, string $cor,
-        int $tamanho, int $estoque, int $categoria, int $colecao, ?string $jsonImagens,
-        int $encomenda, float $valor, int $novidade, ?string $capa
+        int $tamanho, int $estoque, ?int $categoria, ?int $colecao, ?string $jsonImagens,
+        int $encomenda, float $valor, float $custo, int $novidade, ?string $capa
     ){
         $BD = $this->BDlog();
 
         $sql = 'UPDATE produtos SET nome = :nome, modelo = :modelo, descricao = :descricao,
                 cor = :cor, tamanho = :tamanho, estoque = :estoque, categoria = :categoria,
-                colecao = :colecao, encomenda = :encomenda, valor = :valor, novidade = :novidade';
+                colecao = :colecao, encomenda = :encomenda, valor = :valor, custo = :custo, novidade = :novidade';
 
         if ($jsonImagens !== null) $sql .= ', imagem = :imagem';
         if ($capa !== null) $sql .= ', capa = :capa';
@@ -130,10 +131,11 @@ class infosController
         $query->bindValue(':cor', $cor, PDO::PARAM_STR);
         $query->bindValue(':tamanho', $tamanho, PDO::PARAM_INT);
         $query->bindValue(':estoque', $estoque, PDO::PARAM_INT);
-        $query->bindValue(':categoria', $categoria, PDO::PARAM_INT);
-        $query->bindValue(':colecao', $colecao, PDO::PARAM_INT);
+        $query->bindValue(':categoria', $categoria, $categoria === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
+        $query->bindValue(':colecao', $colecao, $colecao === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
         $query->bindValue(':encomenda', $encomenda, PDO::PARAM_INT);
         $query->bindValue(':valor', $valor, PDO::PARAM_STR);
+        $query->bindValue(':custo', $custo, PDO::PARAM_STR);
         $query->bindValue(':novidade', $novidade, PDO::PARAM_INT);
         if ($jsonImagens !== null) $query->bindValue(':imagem', $jsonImagens, PDO::PARAM_STR);
         if ($capa !== null) $query->bindValue(':capa', $capa, PDO::PARAM_STR);

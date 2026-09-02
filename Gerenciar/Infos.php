@@ -88,8 +88,8 @@ if (!$modoEdicao) {
           <!-- CATEGORIA -->
           <div class="input-group mb-3">
             <span class="input-group-text">Categoria</span>
-            <select required name="categoria" id="selectCategoria" class="form-select">
-              <option value="">Selecione</option>
+            <select name="categoria" id="selectCategoria" class="form-select">
+              <option value="">Nenhuma</option>
               <?php foreach ($categorias as $c): ?>
                 <option value="<?= $c['id'] ?>" <?= ($modoEdicao && (int)$produto['categoria'] === (int)$c['id']) ? 'selected' : '' ?>>
                   <?= htmlspecialchars($c['nome']) ?>
@@ -102,8 +102,8 @@ if (!$modoEdicao) {
           <!-- COLEÇÃO -->
           <div class="input-group mb-3">
             <span class="input-group-text">Coleção</span>
-            <select required name="colecao" id="selectColecao" class="form-select">
-              <option value="">Selecione</option>
+            <select name="colecao" id="selectColecao" class="form-select">
+              <option value="">Nenhuma</option>
               <?php foreach ($colecoes as $co): ?>
                 <option value="<?= $co['id'] ?>" <?= ($modoEdicao && (int)$produto['colecao'] === (int)$co['id']) ? 'selected' : '' ?>>
                   <?= htmlspecialchars($co['nome']) ?>

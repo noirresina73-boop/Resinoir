@@ -32,6 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $nome = trim($_POST['nome'] ?? '');
     $descricao = trim($_POST['descricao'] ?? '');
+    $destaque = isset($_POST['destaque']) && $_POST['destaque'] == '1' ? 1 : 0;
 
     if ($nome === '') {
         http_response_code(400);
@@ -46,11 +47,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($acao === 'editar') {
         $id = (int) ($_POST['id'] ?? 0);
-        $Controller->atualizarColecao($id, $nome, $descricao, $capa);
+        $Controller->atualizarColecao($id, $nome, $descricao, $capa, $destaque);
+        
+        if ($destaque == 1) {
+            $Controller->setColecaoDestaque($id);
+        }
+        
         echo json_encode(['id' => $id, 'nome' => $nome]);
         exit;
     }
 
-    $id = $Controller->criarColecao($nome, $descricao, $capa ?? '');
+    $id = $Controller->criarColecao($nome, $descricao, $capa ?? '', $destaque);
+    
+    if ($destaque == 1) {
+        $Controller->setColecaoDestaque($id);
+    }
+    
     echo json_encode(['id' => $id, 'nome' => $nome]);
 }
