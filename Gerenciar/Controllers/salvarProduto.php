@@ -37,11 +37,12 @@ $tamanho = $_POST["tamanho"];
 $estoque = $_POST["estoque"];
 $categoria = !empty($_POST["categoria"]) ? (int) $_POST["categoria"] : null;
 $colecao = !empty($_POST["colecao"]) ? (int) $_POST["colecao"] : null;
-$encomenda = 0;
+$status = in_array($_POST['status'] ?? 'disponivel', ['disponivel', 'esgotado', 'sob_encomenda'], true) ? $_POST['status'] : 'disponivel';
+$encomenda = $status === 'sob_encomenda' ? 1 : 0;
 $valor = $_POST["valor"];
 $custo = (float) ($_POST['custo'] ?? 0);
-$totalVendidos = 1;
-$novidade = 1;
+$totalVendidos = $acao === 'editar' ? (int) ($_POST['totalVendidos'] ?? 0) : 0;
+$novidade = isset($_POST['novidade']) ? 1 : 0;
 
 $nomePasta = preg_replace('/[^a-zA-Z0-9_-]/', '_', $nome);
 $pastaPrincipal = __DIR__ . "/../../assets/imgs/$nomePasta";
@@ -79,7 +80,7 @@ if ($acao === 'editar') {
     $Controller = new infosController;
     $Controller->atualizar(
         $produtoId, $nome, $modelo, $descricao, $cor, (int) $tamanho, (int) $estoque,
-        $categoria, $colecao, $jsonImagens, $encomenda, (float) $valor, (float) $custo, $novidade, $capa
+        $categoria, $colecao, $jsonImagens, $encomenda, (float) $valor, (float) $custo, $novidade, $capa, $status
     );
 
     $redirect = '../produtos-lista.php?' . http_build_query([
@@ -98,7 +99,7 @@ $Criar = new infosController;
 $novoId = $Criar->criar(
     (int) $id, $idPDR, $nome, $modelo, $descricao, $cor, (int) $tamanho, (int) $estoque,
     $categoria, $colecao, $jsonImagens ?? json_encode([]), $encomenda, (float) $valor,
-    (float) $custo, $totalVendidos, $novidade, $capa ?? ''
+    (float) $custo, $totalVendidos, $novidade, $capa ?? '', $status
 );
 
 $redirect = '../produtos-lista.php?' . http_build_query([

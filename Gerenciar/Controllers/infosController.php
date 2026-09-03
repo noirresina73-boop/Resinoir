@@ -21,6 +21,9 @@ class infosController
         if (!in_array('custo', $colunas, true)) {
             $BD->exec('ALTER TABLE produtos ADD COLUMN custo DECIMAL(10,2) NOT NULL DEFAULT 0 AFTER valor');
         }
+        if (!in_array('status', $colunas, true)) {
+            $BD->exec("ALTER TABLE produtos ADD COLUMN status ENUM('disponivel','esgotado','sob_encomenda') NOT NULL DEFAULT 'disponivel' AFTER novidade");
+        }
     }
 
     public function buscarPorId(int $id)
@@ -85,8 +88,9 @@ public function listarTodos($pagina = 1, $nome = '', $categoria = 0, $colecao = 
 
     public function criar(
         int $id, string $idPDR, string $nome, string $modelo, string $descricao, string $cor,
-        int $tamanho, int $estoque, int $categoria, int $colecao, string $jsonImagens,
-        int $encomenda, float $valor, float $custo, int $totalVendidos, int $novidade, string $capa
+        int $tamanho, int $estoque, ?int $categoria, ?int $colecao, string $jsonImagens,
+        int $encomenda, float $valor, float $custo, int $totalVendidos, int $novidade, string $capa,
+        string $status = 'disponivel'
     ){
         $this->garantirEstrutura();
         $BD = $this->BDlog();
@@ -94,10 +98,10 @@ public function listarTodos($pagina = 1, $nome = '', $categoria = 0, $colecao = 
         $query = $BD->prepare('
             INSERT INTO produtos (
                 idPDR, nome, modelo, descricao, cor, tamanho, estoque,
-                categoria, colecao, imagem, encomenda, valor, custo, totalVendidos, novidade, capa
+                categoria, colecao, imagem, encomenda, valor, custo, totalVendidos, novidade, status, capa
             ) VALUES (
                 :idPDR, :nome, :modelo, :descricao, :cor, :tamanho, :estoque,
-                :categoria, :colecao, :imagem, :encomenda, :valor, :custo, :totalVendidos, :novidade, :capa
+                :categoria, :colecao, :imagem, :encomenda, :valor, :custo, :totalVendidos, :novidade, :status, :capa
             )
         ');
 
@@ -116,6 +120,7 @@ public function listarTodos($pagina = 1, $nome = '', $categoria = 0, $colecao = 
         $query->bindValue(':custo', $custo, PDO::PARAM_STR);
         $query->bindValue(':totalVendidos', $totalVendidos, PDO::PARAM_INT);
         $query->bindValue(':novidade', $novidade, PDO::PARAM_INT);
+        $query->bindValue(':status', $status, PDO::PARAM_STR);
         $query->bindValue(':capa', $capa, PDO::PARAM_STR);
 
         if (!$query->execute()) {
@@ -128,15 +133,16 @@ public function listarTodos($pagina = 1, $nome = '', $categoria = 0, $colecao = 
 
     public function atualizar(
         int $id, string $nome, string $modelo, string $descricao, string $cor,
-        int $tamanho, int $estoque, int $categoria, int $colecao, ?string $jsonImagens,
-        int $encomenda, float $valor, float $custo, int $novidade, ?string $capa
+        int $tamanho, int $estoque, ?int $categoria, ?int $colecao, ?string $jsonImagens,
+        int $encomenda, float $valor, float $custo, int $novidade, ?string $capa,
+        string $status = 'disponivel'
     ){
         $this->garantirEstrutura();
         $BD = $this->BDlog();
 
         $sql = 'UPDATE produtos SET nome = :nome, modelo = :modelo, descricao = :descricao,
                 cor = :cor, tamanho = :tamanho, estoque = :estoque, categoria = :categoria,
-                colecao = :colecao, encomenda = :encomenda, valor = :valor, custo = :custo, novidade = :novidade';
+                colecao = :colecao, encomenda = :encomenda, valor = :valor, custo = :custo, novidade = :novidade, status = :status';
 
         if ($jsonImagens !== null) $sql .= ', imagem = :imagem';
         if ($capa !== null) $sql .= ', capa = :capa';
@@ -156,6 +162,7 @@ public function listarTodos($pagina = 1, $nome = '', $categoria = 0, $colecao = 
         $query->bindValue(':valor', $valor, PDO::PARAM_STR);
         $query->bindValue(':custo', $custo, PDO::PARAM_STR);
         $query->bindValue(':novidade', $novidade, PDO::PARAM_INT);
+        $query->bindValue(':status', $status, PDO::PARAM_STR);
         if ($jsonImagens !== null) $query->bindValue(':imagem', $jsonImagens, PDO::PARAM_STR);
         if ($capa !== null) $query->bindValue(':capa', $capa, PDO::PARAM_STR);
 

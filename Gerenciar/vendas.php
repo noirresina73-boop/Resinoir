@@ -72,6 +72,7 @@ $garantirEstruturaVendas = function () use ($BD): void {
 };
 
 $garantirEstruturaVendas();
+$BD->exec("CREATE TABLE IF NOT EXISTS clientes (id INT AUTO_INCREMENT PRIMARY KEY, nome VARCHAR(255) NOT NULL UNIQUE) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
 
 $colunasProdutos = $BD->query('SHOW COLUMNS FROM produtos')->fetchAll(PDO::FETCH_COLUMN);
 if (!in_array('custo', $colunasProdutos, true)) {
@@ -79,6 +80,18 @@ if (!in_array('custo', $colunasProdutos, true)) {
 }
 
 $produtos = $BD->query('SELECT id, idPDR, nome, valor, custo, estoque, capa FROM produtos ORDER BY nome ASC')->fetchAll(PDO::FETCH_ASSOC);
+$clientes = $BD->query('SELECT id, nome FROM clientes ORDER BY nome ASC')->fetchAll(PDO::FETCH_ASSOC);
+$vendaEditando = null;
+if (!empty($_GET['editar'])) {
+  $consultaVenda = $BD->prepare('SELECT * FROM vendas WHERE id = :id');
+  $consultaVenda->execute([':id' => (int) $_GET['editar']]);
+  $vendaEditando = $consultaVenda->fetch(PDO::FETCH_ASSOC) ?: null;
+  if ($vendaEditando) {
+    $consultaItens = $BD->prepare('SELECT vi.*, p.capa FROM venda_itens vi LEFT JOIN produtos p ON p.id = vi.produto_id WHERE vi.venda_id = :id');
+    $consultaItens->execute([':id' => (int) $_GET['editar']]);
+    $vendaEditando['itens'] = $consultaItens->fetchAll(PDO::FETCH_ASSOC);
+  }
+}
 $totais = $BD->query('SELECT COUNT(*) AS total_vendas, COALESCE(SUM(valor_total), 0) AS total_recebido, COALESCE(SUM(custo_total), 0) AS total_custo FROM vendas')->fetch(PDO::FETCH_ASSOC);
 $listaVendas = $BD->query('SELECT v.*, GROUP_CONCAT(CONCAT(vi.quantidade, "x ", vi.produto_nome) SEPARATOR ", ") AS itens FROM vendas v LEFT JOIN venda_itens vi ON vi.venda_id = v.id GROUP BY v.id ORDER BY v.data_venda DESC LIMIT 50')->fetchAll(PDO::FETCH_ASSOC);
 
@@ -144,6 +157,8 @@ if (!empty($_GET['msg'])) {
       .item-venda-quantidade-wrap { display:flex; flex-direction:column; gap:0.25rem; }
       .item-venda-quantidade-wrap label { font-size:0.7rem; color:var(--bone-dim); text-transform:uppercase; letter-spacing:0.08rem; }
       .item-venda-quantidade-wrap input { width:100%; min-height:40px; }
+      .item-venda-desconto-wrap { display:flex; flex-direction:column; gap:0.25rem; }
+      .item-venda-desconto-wrap label { font-size:0.7rem; color:var(--bone-dim); text-transform:uppercase; letter-spacing:0.08rem; }
       .selected-product-box { background: rgba(255,255,255,0.04); border:1px solid rgba(176,141,87,.26); border-radius:12px; padding:0.8rem 0.9rem; color:var(--bone); min-height:48px; }
       .produto-card-select { display:block; background:rgba(18,13,16,.82); border:1px solid rgba(176,141,87,.25); border-radius:16px; padding:0.8rem; color:#f4efe8; text-decoration:none; transition:0.2s ease; }
       .produto-card-select:hover { border-color:rgba(176,141,87,.75); transform:translateY(-1px); }
@@ -203,8 +218,9 @@ if (!empty($_GET['msg'])) {
       </div>
 
       <div class="venda-form mb-4">
-        <h2 class="admin-title" style="font-size: 2rem; margin-bottom: 1rem;">Registrar venda</h2>
+        <h2 class="admin-title" style="font-size: 2rem; margin-bottom: 1rem;"><?= $vendaEditando ? 'Editar venda' : 'Registrar venda' ?></h2>
         <form method="post" action="./api/vendas.php" id="formVenda">
+          <input type="hidden" name="venda_id" value="<?= (int) ($vendaEditando['id'] ?? 0) ?>">
           <div class="row g-3">
             <div class="col-12">
               <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
@@ -220,19 +236,24 @@ if (!empty($_GET['msg'])) {
 
             <div class="col-md-4">
               <label class="form-label">Cliente</label>
-              <input type="text" name="cliente" class="form-control" placeholder="Nome do cliente" required>
+              <input type="text" name="cliente" list="clientesCadastrados" class="form-control" placeholder="Nome do cliente" value="<?= htmlspecialchars($vendaEditando['cliente'] ?? '') ?>" required>
+              <datalist id="clientesCadastrados"><?php foreach ($clientes as $cliente): ?><option value="<?= htmlspecialchars($cliente['nome']) ?>"><?php endforeach; ?></datalist>
             </div>
             <div class="col-md-2">
               <label class="form-label">Desconto</label>
-              <input type="number" step="0.01" min="0" name="desconto" class="form-control" value="0">
+              <input type="number" step="0.01" min="0" name="desconto" class="form-control" value="<?= htmlspecialchars((string) ($vendaEditando['desconto'] ?? 0)) ?>">
             </div>
             <div class="col-md-2">
               <label class="form-label">Acréscimo</label>
-              <input type="number" step="0.01" min="0" name="acrescimo" class="form-control" value="0">
+              <input type="number" step="0.01" min="0" name="acrescimo" class="form-control" value="<?= htmlspecialchars((string) ($vendaEditando['acrescimo'] ?? 0)) ?>">
             </div>
             <div class="col-md-4">
               <label class="form-label">Observação</label>
-              <input type="text" name="observacao" class="form-control" placeholder="Obs. da venda">
+              <input type="text" name="observacao" class="form-control" placeholder="Obs. da venda" value="<?= htmlspecialchars($vendaEditando['observacao'] ?? '') ?>">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Data</label>
+              <input type="datetime-local" name="data_venda" class="form-control" value="<?= $vendaEditando ? date('Y-m-d\\TH:i', strtotime($vendaEditando['data_venda'])) : date('Y-m-d\\TH:i') ?>">
             </div>
             <input type="hidden" name="itens_json" id="itens_json" value="[]">
             <div class="col-12 d-flex justify-content-end">
@@ -253,7 +274,7 @@ if (!empty($_GET['msg'])) {
                 <th>Acréscimo</th>
                 <th>Total</th>
                 <th>Data</th>
-                <th></th>
+                <th>Ações</th>
               </tr>
             </thead>
             <tbody>
@@ -263,15 +284,17 @@ if (!empty($_GET['msg'])) {
                 <?php foreach ($listaVendas as $v): ?>
                   <tr>
                     <td><?= htmlspecialchars($v['cliente']) ?></td>
-                    <td><?= htmlspecialchars($v['itens'] ?? '') ?></td>
+                    <td><button type="button" class="btn btn-link text-light p-0" data-bs-toggle="modal" data-bs-target="#detalheVenda<?= (int) $v['id'] ?>"><?= htmlspecialchars($v['itens'] ?? 'Sem itens') ?></button></td>
                     <td>R$ <?= number_format((float) $v['desconto'], 2, ',', '.') ?></td>
                     <td>R$ <?= number_format((float) $v['acrescimo'], 2, ',', '.') ?></td>
                     <td>R$ <?= number_format((float) $v['valor_total'], 2, ',', '.') ?></td>
                     <td><?= date('d/m/Y H:i', strtotime($v['data_venda'])) ?></td>
                     <td>
+                      <a href="./vendas.php?editar=<?= (int) $v['id'] ?>" class="btn btn-sm btn-outline-light btn-acao">Editar</a>
                       <a href="./api/vendas.php?acao=excluir&id=<?= (int) $v['id'] ?>" class="btn btn-sm btn-outline-danger btn-acao" onclick="return confirm('Excluir esta venda?')">Excluir</a>
                     </td>
                   </tr>
+                  <div class="modal fade" id="detalheVenda<?= (int) $v['id'] ?>" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">Venda de <?= htmlspecialchars($v['cliente']) ?></h5></div><div class="modal-body"><p><strong>Observação:</strong> <?= nl2br(htmlspecialchars($v['observacao'] ?? '')) ?: 'Nenhuma' ?></p><p><strong>Desconto:</strong> R$ <?= number_format((float) $v['desconto'], 2, ',', '.') ?></p><p><strong>Total:</strong> R$ <?= number_format((float) $v['valor_total'], 2, ',', '.') ?></p><p><strong>Itens:</strong> <?= htmlspecialchars($v['itens'] ?? '') ?></p></div></div></div></div>
                 <?php endforeach; ?>
               <?php endif; ?>
             </tbody>
@@ -318,7 +341,16 @@ if (!empty($_GET['msg'])) {
     </div>
 
     <script>
-      const itensVenda = [];
+      const itensVenda = <?= json_encode(array_map(static function ($item) {
+        return [
+          'id' => (int) $item['produto_id'],
+          'nome' => $item['produto_nome'],
+          'valor' => (float) $item['valor_unitario'],
+          'desconto' => (float) ($item['desconto'] ?? 0),
+          'quantidade' => (int) $item['quantidade'],
+          'capa' => $item['capa'] ?? '',
+        ];
+      }, $vendaEditando['itens'] ?? []), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
       const listaItensVenda = document.getElementById('listaItensVenda');
       const itensJsonInput = document.getElementById('itens_json');
       const buscaProduto = document.getElementById('buscaProduto');
@@ -362,6 +394,10 @@ if (!empty($_GET['msg'])) {
                 <label>Qtd</label>
                 <input type="number" min="1" value="${item.quantidade}" data-index="${index}" class="item-quantidade">
               </div>
+              <div class="item-venda-desconto-wrap">
+                <label>Desconto R$</label>
+                <input type="number" step="0.01" min="0" value="${item.desconto || 0}" data-index="${index}" class="item-desconto">
+              </div>
               <button type="button" class="btn btn-outline-danger btn-sm" data-remove="${index}">Remover</button>
             </div>
           `;
@@ -375,6 +411,14 @@ if (!empty($_GET['msg'])) {
             const valor = Number(this.value || 1);
             itensVenda[index].quantidade = Math.max(1, valor);
             atualizarItensVenda();
+          });
+        });
+
+        document.querySelectorAll('.item-desconto').forEach((input) => {
+          input.addEventListener('input', function () {
+            const index = Number(this.dataset.index);
+            itensVenda[index].desconto = Math.max(0, Number(this.value || 0));
+            itensJsonInput.value = JSON.stringify(itensVenda);
           });
         });
 
@@ -398,7 +442,7 @@ if (!empty($_GET['msg'])) {
           if (itemExistente) {
             itemExistente.quantidade += 1;
           } else {
-            itensVenda.push({ id, nome, valor, capa, quantidade: 1 });
+            itensVenda.push({ id, nome, valor, capa, quantidade: 1, desconto: 0 });
           }
 
           atualizarItensVenda();

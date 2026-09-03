@@ -11,6 +11,10 @@ $garantirEstruturaVendas = function () use ($pdo): void {
     if (!in_array('cliente', $colunasVendas, true)) {
         $pdo->exec('ALTER TABLE vendas ADD COLUMN cliente VARCHAR(255) NOT NULL DEFAULT ""');
     }
+    if (!in_array('cliente_id', $colunasVendas, true)) {
+        $pdo->exec('ALTER TABLE vendas ADD COLUMN cliente_id INT NULL DEFAULT NULL AFTER cliente');
+    }
+    $pdo->exec("CREATE TABLE IF NOT EXISTS clientes (id INT AUTO_INCREMENT PRIMARY KEY, nome VARCHAR(255) NOT NULL UNIQUE) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
 
     if (in_array('produto_id', $colunasVendas, true)) {
         $pdo->exec('ALTER TABLE vendas MODIFY produto_id INT NULL DEFAULT NULL');
@@ -40,6 +44,9 @@ $garantirEstruturaVendas = function () use ($pdo): void {
     if (!in_array('valor_unitario', $colunasItens, true)) {
         $pdo->exec('ALTER TABLE venda_itens ADD COLUMN valor_unitario DECIMAL(10,2) NOT NULL DEFAULT 0');
     }
+    if (!in_array('desconto', $colunasItens, true)) {
+        $pdo->exec('ALTER TABLE venda_itens ADD COLUMN desconto DECIMAL(10,2) NOT NULL DEFAULT 0 AFTER valor_unitario');
+    }
     if (!in_array('valor_total', $colunasItens, true)) {
         $pdo->exec('ALTER TABLE venda_itens ADD COLUMN valor_total DECIMAL(10,2) NOT NULL DEFAULT 0');
     }
@@ -50,6 +57,7 @@ $garantirEstruturaVendas = function () use ($pdo): void {
     $pdo->exec("CREATE TABLE IF NOT EXISTS vendas (
         id INT AUTO_INCREMENT PRIMARY KEY,
         cliente VARCHAR(255) NOT NULL,
+        cliente_id INT NULL,
         desconto DECIMAL(10,2) NOT NULL DEFAULT 0,
         acrescimo DECIMAL(10,2) NOT NULL DEFAULT 0,
         valor_total DECIMAL(10,2) NOT NULL DEFAULT 0,
@@ -65,6 +73,7 @@ $garantirEstruturaVendas = function () use ($pdo): void {
         produto_nome VARCHAR(255) NOT NULL,
         quantidade INT NOT NULL DEFAULT 1,
         valor_unitario DECIMAL(10,2) NOT NULL DEFAULT 0,
+        desconto DECIMAL(10,2) NOT NULL DEFAULT 0,
         valor_total DECIMAL(10,2) NOT NULL DEFAULT 0,
         custo_total DECIMAL(10,2) NOT NULL DEFAULT 0,
         FOREIGN KEY (venda_id) REFERENCES vendas(id) ON DELETE CASCADE
@@ -89,6 +98,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 $cliente = trim((string) ($_POST['cliente'] ?? ''));
+$clienteId = (int) ($_POST['cliente_id'] ?? 0);
+$vendaId = (int) ($_POST['venda_id'] ?? 0);
 $desconto = (float) ($_POST['desconto'] ?? 0);
 $acrescimo = (float) ($_POST['acrescimo'] ?? 0);
 $observacao = trim((string) ($_POST['observacao'] ?? ''));
@@ -121,6 +132,7 @@ foreach ($itens as $item) {
     }
 
     $valorUnitario = (float) ($item['valor'] ?? $produto['valor'] ?? 0);
+    $descontoItem = max(0, min((float) ($item['desconto'] ?? 0), $valorUnitario * $quantidade));
     $valorLinha = $valorUnitario * $quantidade;
     $custoLinha = ((float) ($produto['custo'] ?? 0)) * $quantidade;
 
@@ -130,11 +142,12 @@ foreach ($itens as $item) {
         'quantidade' => $quantidade,
         'valor_unitario' => $valorUnitario,
         'valor_total' => $valorLinha,
+        'desconto' => $descontoItem,
         'custo_total' => $custoLinha,
         'estoque' => (int) ($produto['estoque'] ?? 0),
     ];
 
-    $totalVenda += $valorLinha;
+    $totalVenda += $valorLinha - $descontoItem;
     $totalCusto += $custoLinha;
 }
 
@@ -143,30 +156,56 @@ if (empty($itensValidos)) {
     exit;
 }
 
-$totalVenda = $totalVenda - $desconto + $acrescimo;
+$totalVenda = max(0, $totalVenda - max(0, $desconto) + max(0, $acrescimo));
 
-$insertVenda = $pdo->prepare('INSERT INTO vendas (cliente, desconto, acrescimo, valor_total, custo_total, observacao, data_venda) VALUES (:cliente, :desconto, :acrescimo, :valor_total, :custo_total, :observacao, NOW())');
-$insertVenda->execute([
+$pdo->beginTransaction();
+if ($clienteId <= 0) {
+    $clienteStmt = $pdo->prepare('INSERT INTO clientes (nome) VALUES (:nome) ON DUPLICATE KEY UPDATE id = LAST_INSERT_ID(id)');
+    $clienteStmt->execute([':nome' => $cliente]);
+    $clienteId = (int) $pdo->lastInsertId();
+}
+
+if ($vendaId > 0) {
+    $antigos = $pdo->prepare('SELECT produto_id, quantidade FROM venda_itens WHERE venda_id = :id');
+    $antigos->execute([':id' => $vendaId]);
+    foreach ($antigos->fetchAll(PDO::FETCH_ASSOC) as $antigo) {
+        $pdo->prepare('UPDATE produtos SET estoque = estoque + :quantidade WHERE id = :id')->execute([
+            ':quantidade' => (int) $antigo['quantidade'], ':id' => (int) $antigo['produto_id'],
+        ]);
+    }
+    $pdo->prepare('DELETE FROM venda_itens WHERE venda_id = :id')->execute([':id' => $vendaId]);
+    $insertVenda = $pdo->prepare('UPDATE vendas SET cliente = :cliente, cliente_id = :cliente_id, desconto = :desconto, acrescimo = :acrescimo, valor_total = :valor_total, custo_total = :custo_total, observacao = :observacao, data_venda = :data_venda WHERE id = :id');
+} else {
+    $insertVenda = $pdo->prepare('INSERT INTO vendas (cliente, cliente_id, desconto, acrescimo, valor_total, custo_total, observacao, data_venda) VALUES (:cliente, :cliente_id, :desconto, :acrescimo, :valor_total, :custo_total, :observacao, NOW())');
+}
+$parametrosVenda = [
     ':cliente' => $cliente,
+    ':cliente_id' => $clienteId > 0 ? $clienteId : null,
     ':desconto' => $desconto,
     ':acrescimo' => $acrescimo,
     ':valor_total' => $totalVenda,
     ':custo_total' => $totalCusto,
     ':observacao' => $observacao,
-]);
-$vendaId = (int) $pdo->lastInsertId();
+];
+if ($vendaId > 0) {
+    $parametrosVenda[':data_venda'] = $_POST['data_venda'] ?? date('Y-m-d H:i:s');
+    $parametrosVenda[':id'] = $vendaId;
+}
+$insertVenda->execute($parametrosVenda);
+if ($vendaId <= 0) $vendaId = (int) $pdo->lastInsertId();
 
 foreach ($itensValidos as $item) {
     $quantidade = max(1, (int) $item['quantidade']);
     $novoEstoque = max(0, (int) $item['estoque'] - $quantidade);
 
-    $pdo->prepare('INSERT INTO venda_itens (venda_id, produto_id, produto_nome, quantidade, valor_unitario, valor_total, custo_total) VALUES (:venda_id, :produto_id, :produto_nome, :quantidade, :valor_unitario, :valor_total, :custo_total)')->execute([
+    $pdo->prepare('INSERT INTO venda_itens (venda_id, produto_id, produto_nome, quantidade, valor_unitario, desconto, valor_total, custo_total) VALUES (:venda_id, :produto_id, :produto_nome, :quantidade, :valor_unitario, :desconto, :valor_total, :custo_total)')->execute([
         ':venda_id' => $vendaId,
         ':produto_id' => (int) $item['id'],
         ':produto_nome' => $item['nome'],
         ':quantidade' => $quantidade,
         ':valor_unitario' => $item['valor_unitario'],
-        ':valor_total' => $item['valor_total'],
+        ':desconto' => $item['desconto'],
+        ':valor_total' => $item['valor_total'] - $item['desconto'],
         ':custo_total' => $item['custo_total'],
     ]);
 
@@ -175,6 +214,8 @@ foreach ($itensValidos as $item) {
         ':id' => (int) $item['id'],
     ]);
 }
+
+$pdo->commit();
 
 header('Location: ../vendas.php?msg=' . urlencode('Venda registrada com sucesso.'));
 exit;

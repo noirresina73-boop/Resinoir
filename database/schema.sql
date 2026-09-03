@@ -45,6 +45,7 @@ CREATE TABLE IF NOT EXISTS `produtos` (
   `custo` DECIMAL(10,2) NOT NULL DEFAULT 0.00,
   `totalVendidos` INT NOT NULL DEFAULT 0,
   `novidade` TINYINT(1) NOT NULL DEFAULT 0,
+  `status` ENUM('disponivel','esgotado','sob_encomenda') NOT NULL DEFAULT 'disponivel',
   `capa` VARCHAR(255) DEFAULT NULL,
   `data_criacao` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
@@ -76,9 +77,17 @@ ON DUPLICATE KEY UPDATE
 -- --------------------------------------------------------
 -- Vendas
 -- --------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `clientes` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `nome` VARCHAR(255) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uniq_cliente_nome` (`nome`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE IF NOT EXISTS `vendas` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `cliente` VARCHAR(255) NOT NULL DEFAULT '',
+  `cliente_id` INT DEFAULT NULL,
   `produto_id` INT DEFAULT NULL,
   `produto_nome` VARCHAR(255) DEFAULT NULL,
   `quantidade` INT NOT NULL DEFAULT 1,
@@ -100,6 +109,7 @@ CREATE TABLE IF NOT EXISTS `venda_itens` (
   `produto_nome` VARCHAR(255) NOT NULL,
   `quantidade` INT NOT NULL DEFAULT 1,
   `valor_unitario` DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+  `desconto` DECIMAL(10,2) NOT NULL DEFAULT 0.00,
   `valor_total` DECIMAL(10,2) NOT NULL DEFAULT 0.00,
   `custo_total` DECIMAL(10,2) NOT NULL DEFAULT 0.00,
   PRIMARY KEY (`id`),
@@ -112,9 +122,12 @@ CREATE TABLE IF NOT EXISTS `venda_itens` (
 -- --------------------------------------------------------
 ALTER TABLE `produtos`
   ADD COLUMN IF NOT EXISTS `custo` DECIMAL(10,2) NOT NULL DEFAULT 0.00 AFTER `valor`;
+ALTER TABLE `produtos`
+  ADD COLUMN IF NOT EXISTS `status` ENUM('disponivel','esgotado','sob_encomenda') NOT NULL DEFAULT 'disponivel' AFTER `novidade`;
 
 ALTER TABLE `vendas`
   ADD COLUMN IF NOT EXISTS `cliente` VARCHAR(255) NOT NULL DEFAULT '' AFTER `id`,
+  ADD COLUMN IF NOT EXISTS `cliente_id` INT DEFAULT NULL AFTER `cliente`,
   ADD COLUMN IF NOT EXISTS `produto_id` INT DEFAULT NULL AFTER `cliente`,
   ADD COLUMN IF NOT EXISTS `produto_nome` VARCHAR(255) DEFAULT NULL AFTER `produto_id`,
   ADD COLUMN IF NOT EXISTS `quantidade` INT NOT NULL DEFAULT 1 AFTER `produto_nome`,
@@ -132,6 +145,7 @@ ALTER TABLE `venda_itens`
   ADD COLUMN IF NOT EXISTS `produto_nome` VARCHAR(255) NOT NULL DEFAULT '' AFTER `produto_id`,
   ADD COLUMN IF NOT EXISTS `quantidade` INT NOT NULL DEFAULT 1 AFTER `produto_nome`,
   ADD COLUMN IF NOT EXISTS `valor_unitario` DECIMAL(10,2) NOT NULL DEFAULT 0.00 AFTER `quantidade`,
+  ADD COLUMN IF NOT EXISTS `desconto` DECIMAL(10,2) NOT NULL DEFAULT 0.00 AFTER `valor_unitario`,
   ADD COLUMN IF NOT EXISTS `valor_total` DECIMAL(10,2) NOT NULL DEFAULT 0.00 AFTER `valor_unitario`,
   ADD COLUMN IF NOT EXISTS `custo_total` DECIMAL(10,2) NOT NULL DEFAULT 0.00 AFTER `valor_total`;
 

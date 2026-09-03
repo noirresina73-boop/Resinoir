@@ -7,6 +7,14 @@ use PDO;
 
     class ListController
     {
+            private function imagemPublica($imagem): string
+            {
+                $imagem = trim((string) $imagem);
+                if ($imagem === '') return './assets/imgs/placeholder.jpg';
+                if (preg_match('#^(https?:)?//#', $imagem) || str_starts_with($imagem, '/')) return $imagem;
+                return './' . ltrim(str_replace(['../', './'], '', $imagem), '/');
+            }
+
         protected function BDlog(){
             try {
                     $BD = new PDO('mysql:host=sql302.infinityfree.com;port=3306;dbname=if0_42359254_resinoir;charset=utf8mb4','if0_42359254','1ZHLF0ZU3S1Rw');
@@ -94,9 +102,9 @@ public function listNovidadesVitral($limite = 3)
         $nome = htmlspecialchars($p['nome']);
         $valor = number_format((float) $p['valor'], 2, ',', '.');
         $estoque = (int) ($p['estoque'] ?? 0);
-        $capa = !empty($p['capa']) ? htmlspecialchars($p['capa']) : './assets/imgs/placeholder.jpg';
-        $semEstoque = $estoque <= 0;
-        $badgeHtml = $semEstoque ? "<div class='tag-esgotado'>Esgotado · Fazer pedido</div>" : '';
+        $status = (string) ($p['status'] ?? ($estoque <= 0 ? 'esgotado' : 'disponivel'));
+        $capa = htmlspecialchars($this->imagemPublica($p['capa'] ?? ''));
+        $badgeHtml = $status === 'sob_encomenda' ? "<div class='tag-esgotado'>Sob encomenda</div>" : ($status === 'esgotado' ? "<div class='tag-esgotado'>Esgotado</div>" : '');
 
         echo "
         <div class='vitral-card' onclick='location.href=\"Infos.php?id=$id\"' style='cursor:pointer;'>
@@ -138,13 +146,13 @@ public function mostraColecaoNova()
     $totalRegistros = $resultado['total'];
     $maxPaginas = ceil($totalRegistros / $limite);
 
-    $sql = "SELECT * FROM colecao WHERE $campo $condicao :parametro order by $order desc LIMIT :inicio, :limite";
+    $sql = "SELECT * FROM colecao WHERE destaque = 1 AND $campo $condicao :parametro ORDER BY $order DESC LIMIT :inicio, :limite";
 
     $query = $BD->prepare($sql);
 
     $query->bindValue(':inicio', $inicio, PDO::PARAM_INT);
     $query->bindValue(':limite', $limite, PDO::PARAM_INT);
-    $query->bindValue(':parametro', $parametro, PDO::PARAM_STR);
+    $query->bindValue(':parametro', $parametro, PDO::PARAM_INT);
     $query->execute();
 
     $colecao = $query->fetchAll(PDO::FETCH_ASSOC);
@@ -161,7 +169,7 @@ public function mostraColecaoNova()
         $nome = $retorno["nome"];
         $descricao = $retorno["descricao"];
         $data_criacao = $retorno["data_criacao"];
-        $capa = $retorno["capa"];
+        $capa = htmlspecialchars($this->imagemPublica($retorno["capa"] ?? ''));
 
         // busca as categorias que essa coleção realmente tem
         $sqlCategorias = "SELECT DISTINCT ca.id, ca.nome
@@ -193,7 +201,7 @@ public function mostraColecaoNova()
         echo "
 <div class='banner-section'>
     <div class='banner-frame'>
-      <img class='img-card' src='$capa' alt=''>
+    <img class='img-card' src='$capa' alt=''>
       <div class='banner-text' style='cursor: pointer;' onclick='location.href=\"catalogoColecao.php?colecao=$id\"'>
         <div class='banner-eyebrow'>Coleção em destaque</div>
         <div class='banner-title'>$nome</div>
@@ -324,7 +332,7 @@ private function iconeCategoria($nome)
                 $valor = $retorno["valor"];
                 $totalVendidos = $retorno["totalVendidos"];
                 $novidade = $retorno["novidade"];
-                $capa = $retorno["capa"];
+                $capa = htmlspecialchars($this->imagemPublica($retorno["capa"] ?? ''));
                 $badgeTexto = $estoque <= 0 ? 'Esgotado · Fazer pedido' : 'Disponível';
                 $badgeClass = $estoque <= 0 ? 'sold-out' : 'available';
 

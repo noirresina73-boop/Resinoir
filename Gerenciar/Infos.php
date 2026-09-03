@@ -84,6 +84,18 @@ if (!$modoEdicao) {
             <span class="input-group-text">Cor</span>
             <input required="true" name="cor" type="text" class="form-control" value="<?= $modoEdicao ? htmlspecialchars($produto['cor']) : '' ?>">
           </div>
+          <div class="input-group mb-3">
+            <span class="input-group-text">Status</span>
+            <select name="status" class="form-select">
+              <?php foreach (['disponivel' => 'Disponível', 'esgotado' => 'Esgotado', 'sob_encomenda' => 'Sob encomenda'] as $valorStatus => $rotuloStatus): ?>
+                <option value="<?= $valorStatus ?>" <?= ($modoEdicao && ($produto['status'] ?? 'disponivel') === $valorStatus) ? 'selected' : '' ?>><?= $rotuloStatus ?></option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+          <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" name="novidade" value="1" id="produtoNovidade" <?= ($modoEdicao && (int) ($produto['novidade'] ?? 0) === 1) ? 'checked' : '' ?>>
+            <label class="form-check-label" for="produtoNovidade">Mostrar como novidade</label>
+          </div>
 
           <!-- CATEGORIA -->
           <div class="input-group mb-3">
