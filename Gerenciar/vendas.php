@@ -238,7 +238,8 @@ if (!empty($_GET['msg'])) {
             <div class="col-md-4">
               <label class="form-label">Cliente</label>
               <input type="text" name="cliente" list="clientesCadastrados" class="form-control" placeholder="Nome do cliente" value="<?= htmlspecialchars($vendaEditando['cliente'] ?? '') ?>" required>
-              <datalist id="clientesCadastrados"><?php foreach ($clientes as $cliente): ?><option value="<?= htmlspecialchars($cliente['nome']) ?>"><?php endforeach; ?></datalist>
+              <datalist id="clientesCadastrados"><?php foreach ($clientes as $cliente): ?><option value="<?= htmlspecialchars($cliente['nome']) ?>" data-id="<?= (int) $cliente['id'] ?>"></option><?php endforeach; ?></datalist>
+              <input type="hidden" name="cliente_id" id="clienteIdVenda" value="<?= (int) ($vendaEditando['cliente_id'] ?? 0) ?>">
             </div>
             <div class="col-md-2">
               <label class="form-label">Desconto</label>
@@ -473,6 +474,9 @@ if (!empty($_GET['msg'])) {
         }
 
         itensJsonInput.value = JSON.stringify(itensVenda);
+        const clienteInput = document.querySelector('input[name="cliente"]');
+        const clienteOption = [...document.querySelectorAll('#clientesCadastrados option')].find((option) => option.value === clienteInput.value);
+        document.getElementById('clienteIdVenda').value = clienteOption?.dataset.id || 0;
       });
 
       atualizarItensVenda();
