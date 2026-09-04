@@ -182,6 +182,7 @@ if (!empty($_GET['msg'])) {
           <a href="./categorias-lista.php" class="btn btn-outline-secondary">Categorias</a>
           <a href="./colecoes-lista.php" class="btn btn-outline-secondary">Coleções</a>
           <a href="./vendas.php" class="btn btn-outline-success">Vendas</a>
+          <a href="./clientes-lista.php" class="btn btn-outline-secondary">Clientes</a>
         </div>
       </div>
     </nav>

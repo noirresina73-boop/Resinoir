@@ -23,6 +23,7 @@ $categorias = $Aux->listarCategorias();
         <div class="topbar-actions">
           <a href="./produtos-lista.php" class="btn btn-outline-secondary">Produtos</a>
           <a href="./colecoes-lista.php" class="btn btn-outline-secondary">Coleções</a>
+          <a href="./clientes-lista.php" class="btn btn-outline-secondary">Clientes</a>
           <button class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#modalItem" onclick="abrirModalCriar()">+ Nova categoria</button>
         </div>
       </div>

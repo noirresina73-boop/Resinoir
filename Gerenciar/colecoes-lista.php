@@ -23,6 +23,7 @@ $colecoes = $Aux->listarColecoes();
         <div class="topbar-actions">
           <a href="./produtos-lista.php" class="btn btn-outline-secondary">Produtos</a>
           <a href="./categorias-lista.php" class="btn btn-outline-secondary">Categorias</a>
+          <a href="./clientes-lista.php" class="btn btn-outline-secondary">Clientes</a>
           <button class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#modalItem" onclick="abrirModalCriar()">+ Nova coleção</button>
         </div>
       </div>

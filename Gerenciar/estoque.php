@@ -34,6 +34,7 @@ $baixoEstoque = array_filter($produtos, fn($produto) => (int)$produto['estoque']
           <a href="./index.php" class="btn btn-outline-secondary">Dashboard</a>
           <a href="./produtos-lista.php" class="btn btn-outline-secondary">Produtos</a>
           <a href="./vendas.php" class="btn btn-outline-success">Vendas</a>
+          <a href="./clientes-lista.php" class="btn btn-outline-secondary">Clientes</a>
         </div>
       </div>
     </nav>

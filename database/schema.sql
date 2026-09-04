@@ -80,6 +80,8 @@ ON DUPLICATE KEY UPDATE
 CREATE TABLE IF NOT EXISTS `clientes` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `nome` VARCHAR(255) NOT NULL,
+  `telefone` VARCHAR(50) DEFAULT NULL,
+  `email` VARCHAR(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uniq_cliente_nome` (`nome`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
