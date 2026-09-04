@@ -237,8 +237,11 @@ if (!empty($_GET['msg'])) {
 
             <div class="col-md-4">
               <label class="form-label">Cliente</label>
-              <input type="text" name="cliente" list="clientesCadastrados" class="form-control" placeholder="Nome do cliente" value="<?= htmlspecialchars($vendaEditando['cliente'] ?? '') ?>" required>
-              <datalist id="clientesCadastrados"><?php foreach ($clientes as $cliente): ?><option value="<?= htmlspecialchars($cliente['nome']) ?>" data-id="<?= (int) $cliente['id'] ?>"></option><?php endforeach; ?></datalist>
+              <div class="input-group">
+                <input type="text" id="clienteSelecionado" class="form-control" placeholder="Selecione um cliente" value="<?= htmlspecialchars($vendaEditando['cliente'] ?? '') ?>" readonly required>
+                <button type="button" class="btn btn-outline-light" data-bs-toggle="modal" data-bs-target="#modalEscolhaCliente">Escolher</button>
+              </div>
+              <input type="hidden" name="cliente" id="clienteNomeVenda" value="<?= htmlspecialchars($vendaEditando['cliente'] ?? '') ?>">
               <input type="hidden" name="cliente_id" id="clienteIdVenda" value="<?= (int) ($vendaEditando['cliente_id'] ?? 0) ?>">
             </div>
             <div class="col-md-2">
@@ -342,6 +345,30 @@ if (!empty($_GET['msg'])) {
       </div>
     </div>
 
+    <div class="modal fade" id="modalEscolhaCliente" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Escolher cliente</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+          </div>
+          <div class="modal-body">
+            <input type="search" id="buscaCliente" class="form-control mb-3" placeholder="Buscar cliente...">
+            <div id="listaClientesModal" class="list-group">
+              <?php foreach ($clientes as $cliente): ?>
+                <button type="button" class="list-group-item list-group-item-action cliente-opcao" data-id="<?= (int) $cliente['id'] ?>" data-nome="<?= htmlspecialchars($cliente['nome']) ?>">
+                  <strong><?= htmlspecialchars($cliente['nome']) ?></strong>
+                  <?php if (!empty($cliente['telefone'])): ?><small class="d-block text-secondary"><?= htmlspecialchars($cliente['telefone']) ?></small><?php endif; ?>
+                </button>
+              <?php endforeach; ?>
+              <?php if (!$clientes): ?><div class="empty-itens">Nenhum cliente cadastrado.</div><?php endif; ?>
+            </div>
+            <a href="./clientes-lista.php" class="btn btn-outline-success w-100 mt-3">Cadastrar novo cliente</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script>
       const itensVenda = <?= json_encode(array_map(static function ($item) {
         return [
@@ -357,6 +384,8 @@ if (!empty($_GET['msg'])) {
       const itensJsonInput = document.getElementById('itens_json');
       const buscaProduto = document.getElementById('buscaProduto');
       const produtosCards = [...document.querySelectorAll('.produto-card-item')];
+      const buscaCliente = document.getElementById('buscaCliente');
+      const clientesOpcoes = [...document.querySelectorAll('.cliente-opcao')];
 
       function normalizarCapa(capa) {
         if (!capa || typeof capa !== 'string') {
@@ -467,6 +496,22 @@ if (!empty($_GET['msg'])) {
         });
       }
 
+      clientesOpcoes.forEach((opcao) => {
+        opcao.addEventListener('click', function () {
+          document.getElementById('clienteSelecionado').value = this.dataset.nome;
+          document.getElementById('clienteNomeVenda').value = this.dataset.nome;
+          document.getElementById('clienteIdVenda').value = this.dataset.id;
+          bootstrap.Modal.getInstance(document.getElementById('modalEscolhaCliente'))?.hide();
+        });
+      });
+
+      buscaCliente?.addEventListener('input', function () {
+        const termo = this.value.trim().toLowerCase();
+        clientesOpcoes.forEach((opcao) => {
+          opcao.hidden = termo !== '' && !opcao.dataset.nome.toLowerCase().includes(termo);
+        });
+      });
+
       document.getElementById('formVenda')?.addEventListener('submit', function () {
         if (!itensVenda.length) {
           alert('Adicione pelo menos um produto para registrar a venda.');
@@ -474,9 +519,12 @@ if (!empty($_GET['msg'])) {
         }
 
         itensJsonInput.value = JSON.stringify(itensVenda);
-        const clienteInput = document.querySelector('input[name="cliente"]');
-        const clienteOption = [...document.querySelectorAll('#clientesCadastrados option')].find((option) => option.value === clienteInput.value);
-        document.getElementById('clienteIdVenda').value = clienteOption?.dataset.id || 0;
+        const clienteNome = document.getElementById('clienteSelecionado').value.trim();
+        if (!clienteNome) {
+          alert('Escolha um cliente para a venda.');
+          return false;
+        }
+        document.getElementById('clienteNomeVenda').value = clienteNome;
       });
 
       atualizarItensVenda();

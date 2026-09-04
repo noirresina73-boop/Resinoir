@@ -603,7 +603,7 @@ private function buscarProdutos($BD, $termo, $semTermo, $categoriaFiltro = 0, $c
     $parametros = [];
 
     if (!$semTermo) {
-        $condicoes[] = '(p.nome LIKE :termo OR p.descricao LIKE :termo OR p.modelo LIKE :termo OR p.cor LIKE :termo OR c.nome LIKE :termo OR co.nome LIKE :termo)';
+        $condicoes[] = '(p.idPDR LIKE :termo OR p.nome LIKE :termo OR p.descricao LIKE :termo OR p.modelo LIKE :termo OR p.cor LIKE :termo OR c.nome LIKE :termo OR co.nome LIKE :termo)';
         $parametros[':termo'] = '%' . $termo . '%';
     }
 
@@ -620,7 +620,7 @@ private function buscarProdutos($BD, $termo, $semTermo, $categoriaFiltro = 0, $c
     $where = $condicoes ? 'WHERE ' . implode(' AND ', $condicoes) : '';
     $limite = $semTermo ? 20 : 40;
 
-    $sql = "SELECT DISTINCT p.id, p.nome, p.descricao, p.valor, p.capa, p.totalVendidos
+    $sql = "SELECT DISTINCT p.id, p.idPDR, p.nome, p.descricao, p.valor, p.capa, p.totalVendidos
             FROM produtos p
             LEFT JOIN categoria c ON p.categoria = c.id
             LEFT JOIN colecao co ON p.colecao = co.id
@@ -638,6 +638,7 @@ private function buscarProdutos($BD, $termo, $semTermo, $categoriaFiltro = 0, $c
     foreach ($query->fetchAll(PDO::FETCH_ASSOC) as $p) {
         $resultado[] = [
             'id'        => (int) $p['id'],
+            'idPDR'     => $p['idPDR'],
             'nome'      => $p['nome'],
             'descricao' => $p['descricao'],
             'valor'     => number_format((float) $p['valor'], 2, ',', '.'),

@@ -208,6 +208,7 @@ function renderizarGrid(produtos) {
       </div>
       <div class="product-info">
         <div class="name">${p.nome}</div>
+        <div class="name">Código: ${p.idPDR}</div>
         <div class="price">R$ ${p.valor}</div>
       </div>
     `;
