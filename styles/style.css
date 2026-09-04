@@ -416,9 +416,74 @@
     margin-top:4px;
     letter-spacing:0.8px;
   }
-    color:var(--gold);
-    margin-top:4px;
-    letter-spacing:0.8px;
+
+  /* ---------------- NOVIDADES DESKTOP (≥768px) ---------------- */
+  @media (min-width: 768px){
+    .novidades-section{ padding:56px 48px 20px; }
+    .novidades-section .eyebrow{ margin-right:0; margin-bottom:22px; text-align:center; justify-content:center; }
+    .novidades-section .eyebrow::before,
+    .novidades-section .eyebrow::after{
+      content:''; flex:1; height:1px;
+      background:linear-gradient(90deg, transparent, rgba(176,141,87,0.6), transparent);
+    }
+    .novidades-section .eyebrow::before{ background:linear-gradient(90deg, transparent, rgba(176,141,87,0.6)); }
+    .novidades-section .eyebrow::after{ background:linear-gradient(90deg, rgba(176,141,87,0.6), transparent); }
+    .vitral-row{
+      overflow:visible;
+      gap:32px;
+      padding:14px 24px 18px;
+      justify-content:center;
+    }
+    .vitral-card{
+      width:240px;
+    }
+    .vitral-frame{
+      width:220px;
+    }
+    .vitral-frame .tag-esgotado{
+      font-size:9px;
+      letter-spacing:1.2px;
+      padding:6px 12px;
+      bottom:14px;
+    }
+    .vitral-caption{ margin-top:14px; }
+    .vitral-caption .name{
+      font-size:20px;
+      line-height:1.15;
+    }
+    .vitral-caption .price{
+      font-size:13px;
+      margin-top:6px;
+    }
+  }
+
+  /* ---------------- NOVIDADES DESKTOP GRANDE (≥1200px) ---------------- */
+  @media (min-width: 1200px){
+    .novidades-section{ padding:72px 64px 28px; }
+    .vitral-row{
+      gap:44px;
+      padding:18px 32px 22px;
+    }
+    .vitral-card{
+      width:300px;
+    }
+    .vitral-frame{
+      width:280px;
+    }
+    .vitral-frame .tag-esgotado{
+      font-size:10px;
+      padding:7px 14px;
+      bottom:16px;
+    }
+    .vitral-caption{ margin-top:18px; }
+    .vitral-caption .name{
+      font-size:24px;
+    }
+    .vitral-caption .price{
+      font-size:14px;
+      margin-top:8px;
+      letter-spacing:1px;
+    }
   }
 
   /* ---------------- CATALOGO GRID ---------------- */
