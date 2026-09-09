@@ -122,6 +122,22 @@ $categorias = $Aux->listarCategorias();
     </div>
 
     <script>
+      <?php
+      $iconesJs = [];
+      foreach (Controllers\ListController::ICONE_BIBLIOTECA as $chave => $dados) {
+          $iconesJs[$chave] = $dados['svg'];
+      }
+      ?>
+      const ICONES_BIBLIOTECA = <?= json_encode($iconesJs) ?>;
+
+      function htmlIconePorChave(chave, modo = 'img-card') {
+          const key = chave.replace('svg:', '');
+          const svg = ICONES_BIBLIOTECA[key];
+          if (!svg) return '';
+          if (modo === 'cat-circle') return svg;
+          return '<div class="svg-img-card">' + svg + '</div>';
+      }
+
       let iconesCategoria = [];
       let iconeSelecionadoCategoria = '';
 
@@ -144,7 +160,7 @@ $categorias = $Aux->listarCategorias();
           btn.type = 'button';
           btn.className = 'icon-option';
           btn.dataset.chave = chave;
-          btn.innerHTML = ListController.htmlIconePorChave('svg:' + chave, 'cat-circle');
+          btn.innerHTML = htmlIconePorChave('svg:' + chave, 'cat-circle');
           btn.onclick = () => selecionarIconeCategoria(chave, btn);
           container.appendChild(btn);
         });
@@ -155,7 +171,7 @@ $categorias = $Aux->listarCategorias();
         document.querySelectorAll('#iconOptionsCategoria .icon-option').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         document.getElementById('itemIcone').value = 'svg:' + chave;
-        document.getElementById('iconPreviewCategoria').innerHTML = ListController.htmlIconePorChave('svg:' + chave, 'img-card');
+        document.getElementById('iconPreviewCategoria').innerHTML = htmlIconePorChave('svg:' + chave, 'img-card');
         document.getElementById('itemCapa').value = '';
       }
 
