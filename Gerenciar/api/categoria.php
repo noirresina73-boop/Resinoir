@@ -1,15 +1,19 @@
 <?php
 use Controllers\CatalogoAuxController;
+use Controllers\ListController;
 
 include __DIR__ . '/../autoloader.php';
-require_once __DIR__ . '/../auth.php'; // se você protegeu o painel admin
+require_once __DIR__ . '/../auth.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
 $Controller = new CatalogoAuxController;
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    echo json_encode($Controller->listarCategorias());
+    echo json_encode([
+        'categorias' => $Controller->listarCategorias(),
+        'icones' => ListController::listarChavesIcones(),
+    ]);
     exit;
 }
 
@@ -40,17 +44,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     $capa = null;
-    if (isset($_FILES['capa']) && $_FILES['capa']['error'] == UPLOAD_ERR_OK) {
+
+    $capaInput = trim((string) ($_POST['capa'] ?? ''));
+    if ($capaInput !== '' && ListController::chaveIconeValida($capaInput)) {
+        $capa = $capaInput;
+    } elseif (isset($_FILES['capa']) && $_FILES['capa']['error'] == UPLOAD_ERR_OK) {
         $capa = $Controller->salvarImagemCapa($nome, $_FILES['capa']);
     }
 
     if ($acao === 'editar') {
         $id = (int) ($_POST['id'] ?? 0);
         $Controller->atualizarCategoria($id, $nome, $descricao, $capa);
-        echo json_encode(['id' => $id, 'nome' => $nome]);
+        echo json_encode(['id' => $id, 'nome' => $nome, 'capa' => $capa]);
         exit;
     }
 
     $id = $Controller->criarCategoria($nome, $descricao, $capa ?? '');
-    echo json_encode(['id' => $id, 'nome' => $nome]);
+    echo json_encode(['id' => $id, 'nome' => $nome, 'capa' => $capa]);
 }

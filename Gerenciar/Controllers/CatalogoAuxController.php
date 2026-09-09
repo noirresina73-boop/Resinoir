@@ -74,14 +74,22 @@ class CatalogoAuxController
     {
         $BD = $this->BDlog();
         $sql = 'UPDATE categoria SET nome = :nome, descricao = :descricao';
-        if ($capa !== null) $sql .= ', capa = :capa';
+        $params = [
+            ':id' => $id,
+            ':nome' => $nome,
+            ':descricao' => $descricao,
+        ];
+        if ($capa !== null) {
+            $sql .= ', capa = :capa';
+            $params[':capa'] = $capa === '' ? null : $capa;
+        }
         $sql .= ' WHERE id = :id';
 
         $query = $BD->prepare($sql);
-        $query->bindValue(':id', $id, PDO::PARAM_INT);
-        $query->bindValue(':nome', $nome, PDO::PARAM_STR);
-        $query->bindValue(':descricao', $descricao, PDO::PARAM_STR);
-        if ($capa !== null) $query->bindValue(':capa', $capa, PDO::PARAM_STR);
+        foreach ($params as $k => $v) {
+            $tipo = is_int($v) ? PDO::PARAM_INT : ($v === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+            $query->bindValue($k, $v, $tipo);
+        }
         $query->execute();
     }
 
@@ -89,16 +97,26 @@ class CatalogoAuxController
     {
         $BD = $this->BDlog();
         $sql = 'UPDATE colecao SET nome = :nome, descricao = :descricao';
-        if ($capa !== null) $sql .= ', capa = :capa';
-        if ($destaque !== null) $sql .= ', destaque = :destaque';
+        $params = [
+            ':id' => $id,
+            ':nome' => $nome,
+            ':descricao' => $descricao,
+        ];
+        if ($capa !== null) {
+            $sql .= ', capa = :capa';
+            $params[':capa'] = $capa === '' ? null : $capa;
+        }
+        if ($destaque !== null) {
+            $sql .= ', destaque = :destaque';
+            $params[':destaque'] = (int)$destaque;
+        }
         $sql .= ' WHERE id = :id';
 
         $query = $BD->prepare($sql);
-        $query->bindValue(':id', $id, PDO::PARAM_INT);
-        $query->bindValue(':nome', $nome, PDO::PARAM_STR);
-        $query->bindValue(':descricao', $descricao, PDO::PARAM_STR);
-        if ($capa !== null) $query->bindValue(':capa', $capa, PDO::PARAM_STR);
-        if ($destaque !== null) $query->bindValue(':destaque', $destaque, PDO::PARAM_INT);
+        foreach ($params as $k => $v) {
+            $tipo = is_int($v) ? PDO::PARAM_INT : ($v === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+            $query->bindValue($k, $v, $tipo);
+        }
         $query->execute();
     }
 

@@ -2,6 +2,7 @@
 require_once __DIR__ . '/auth.php';
 use Controllers\infosController;
 use Controllers\CatalogoAuxController;
+use Controllers\ListController;
 
 include 'autoloader.php';
 
@@ -125,20 +126,87 @@ if (!$modoEdicao) {
             <button type="button" class="btn btn-outline-light" data-bs-toggle="modal" data-bs-target="#modalColecao">+</button>
           </div>
 
+          <div class="mb-3">
+            <label class="form-label">Ícone</label>
+            <div class="icon-selector" id="selectorIconesProduto">
+              <div class="icon-options" id="iconOptionsProduto"></div>
+              <div class="icon-preview" id="iconPreviewProduto"></div>
+            </div>
+            <input type="hidden" name="capa_icone" id="capaIcone" value="">
+            <div class="form-text">Selecione um ícone ou envie uma imagem abaixo.</div>
+          </div>
+
           <div class="input-group mb-3">
-              <span class="input-group-text">Capa</span>
+              <span class="input-group-text">Capa (imagem)</span>
               <input id="inputCapa" name="capa" type="file" accept="image/*" class="form-control" onchange="handleImageUpload(event)" <?= $modoEdicao ? '' : 'required' ?>>
               <button type="button" class="btn btn-danger" onclick="limparCapa()">✕</button>
           </div>
           <?php if ($modoEdicao && $produto['capa']): ?>
             <?php $capaPreview = trim((string) ($produto['capa'] ?? '')); if ($capaPreview !== '' && !preg_match('#^(https?:)?//#', $capaPreview) && !str_starts_with($capaPreview, '../')) { $capaPreview = preg_match('#^assets/#', $capaPreview) ? '../' . $capaPreview : (str_starts_with($capaPreview, './') ? '../' . ltrim($capaPreview, './') : '../' . ltrim($capaPreview, './')); } ?>
-            <div class="mb-3">
-              <img src="<?= htmlspecialchars($capaPreview) ?>" style="max-width:120px;border-radius:8px;">
-              <div class="form-text">Capa atual — só envie um arquivo acima se quiser trocar.</div>
+            <div class="mb-3" id="previewCapaAtual">
+              <?php if (str_starts_with($capaPreview, 'svg:')): ?>
+                <div class="svg-thumb-admin"><?= ListController::htmlIconePorChave($capaPreview, 'thumb-admin') ?></div>
+              <?php else: ?>
+                <img src="<?= htmlspecialchars($capaPreview) ?>" style="max-width:120px;border-radius:8px;">
+              <?php endif; ?>
+              <div class="form-text">Capa atual — envie um arquivo acima ou selecione um ícone para trocar.</div>
             </div>
           <?php endif; ?>
 
           <script>
+          <?php
+          $iconesJs = [];
+          foreach (Controllers\ListController::ICONE_BIBLIOTECA as $chave => $dados) {
+              $iconesJs[$chave] = $dados['svg'];
+          }
+          ?>
+          const ICONES_BIBLIOTECA = <?= json_encode($iconesJs) ?>;
+
+          function htmlIconePorChave(chave, modo = 'img-card') {
+              const key = chave.replace('svg:', '');
+              const svg = ICONES_BIBLIOTECA[key];
+              if (!svg) return '';
+              if (modo === 'cat-circle') return svg;
+              return '<div class="svg-img-card">' + svg + '</div>';
+          }
+
+          let iconesProduto = [];
+          let iconeSelecionadoProduto = '';
+
+          async function carregarIconesProduto() {
+            try {
+              const resp = await fetch('./api/categoria.php');
+              const dados = await resp.json();
+              iconesProduto = dados.icones || [];
+              renderizarOpcoesIconesProduto(iconesProduto);
+            } catch (e) {
+              console.error('Erro ao carregar ícones', e);
+            }
+          }
+
+          function renderizarOpcoesIconesProduto(icones) {
+            const container = document.getElementById('iconOptionsProduto');
+            container.innerHTML = '';
+            icones.forEach(chave => {
+              const btn = document.createElement('button');
+              btn.type = 'button';
+              btn.className = 'icon-option';
+              btn.dataset.chave = chave;
+              btn.innerHTML = htmlIconePorChave('svg:' + chave, 'cat-circle');
+              btn.onclick = () => selecionarIconeProduto(chave, btn);
+              container.appendChild(btn);
+            });
+          }
+
+          function selecionarIconeProduto(chave, btn) {
+            iconeSelecionadoProduto = chave;
+            document.querySelectorAll('#iconOptionsProduto .icon-option').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('capaIcone').value = 'svg:' + chave;
+            document.getElementById('iconPreviewProduto').innerHTML = htmlIconePorChave('svg:' + chave, 'img-card');
+            document.getElementById('inputCapa').value = '';
+          }
+
           function gerarCodigoProduto(nome, id) {
               const texto = (nome || '')
                   .normalize('NFD')
@@ -181,6 +249,14 @@ if (!$modoEdicao) {
               if (nomeInput) {
                   nomeInput.addEventListener('input', atualizarIdProduto);
               }
+
+              <?php if ($modoEdicao && !empty($produto['capa']) && str_starts_with($produto['capa'], 'svg:')): ?>
+              const chaveIcone = <?= json_encode(substr($produto['capa'], 4)) ?>;
+              carregarIconesProduto().then(() => {
+                const btn = document.querySelector(`#iconOptionsProduto .icon-option[data-chave="${chaveIcone}"]`);
+                if (btn) selecionarIconeProduto(chaveIcone, btn);
+              });
+              <?php endif; ?>
           });
           </script>
 

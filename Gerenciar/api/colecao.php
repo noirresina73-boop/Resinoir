@@ -1,5 +1,6 @@
 <?php
 use Controllers\CatalogoAuxController;
+use Controllers\ListController;
 
 include __DIR__ . '/../autoloader.php';
 require_once __DIR__ . '/../auth.php';
@@ -9,7 +10,10 @@ header('Content-Type: application/json; charset=utf-8');
 $Controller = new CatalogoAuxController;
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    echo json_encode($Controller->listarColecoes());
+    echo json_encode([
+        'colecoes' => $Controller->listarColecoes(),
+        'icones' => ListController::listarChavesIcones(),
+    ]);
     exit;
 }
 
@@ -41,7 +45,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     $capa = null;
-    if (isset($_FILES['capa']) && $_FILES['capa']['error'] == UPLOAD_ERR_OK) {
+
+    $capaInput = trim((string) ($_POST['capa'] ?? ''));
+    if ($capaInput !== '' && ListController::chaveIconeValida($capaInput)) {
+        $capa = $capaInput;
+    } elseif (isset($_FILES['capa']) && $_FILES['capa']['error'] == UPLOAD_ERR_OK) {
         $capa = $Controller->salvarImagemCapa($nome, $_FILES['capa']);
     }
 
@@ -53,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $Controller->setColecaoDestaque($id);
         }
         
-        echo json_encode(['id' => $id, 'nome' => $nome]);
+        echo json_encode(['id' => $id, 'nome' => $nome, 'capa' => $capa]);
         exit;
     }
 
@@ -63,5 +71,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $Controller->setColecaoDestaque($id);
     }
     
-    echo json_encode(['id' => $id, 'nome' => $nome]);
+    echo json_encode(['id' => $id, 'nome' => $nome, 'capa' => $capa]);
 }

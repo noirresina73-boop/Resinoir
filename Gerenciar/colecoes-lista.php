@@ -2,6 +2,7 @@
 require_once __DIR__ . '/auth.php';
 
 use Controllers\CatalogoAuxController;
+use Controllers\ListController;
 include 'autoloader.php';
 
 $Aux = new CatalogoAuxController;
@@ -60,7 +61,9 @@ $colecoes = $Aux->listarColecoes();
                     <input type="checkbox" <?= ($c['destaque'] ?? 0) == 1 ? 'checked' : '' ?> onchange="definirDestaque(<?= (int) $c['id'] ?>, this.checked)">
                   </td>
                   <td>
-                    <?php if ($c['capa']): ?>
+                    <?php if ($c['capa'] && str_starts_with($c['capa'], 'svg:')): ?>
+                      <?= ListController::htmlIconePorChave($c['capa'], 'thumb-admin') ?>
+                    <?php elseif ($c['capa']): ?>
                       <img class="card-thumb" src="<?= htmlspecialchars($capaColecao) ?>" alt="<?= htmlspecialchars($c['nome']) ?>">
                     <?php else: ?>
                       <span class="text-secondary">—</span>
@@ -99,6 +102,15 @@ $colecoes = $Aux->listarColecoes();
               <textarea class="form-control" id="itemDescricao" rows="2"></textarea>
             </div>
             <div class="mb-3">
+              <label class="form-label">Ícone</label>
+              <div class="icon-selector" id="selectorIconesColecao">
+                <div class="icon-options" id="iconOptionsColecao"></div>
+                <div class="icon-preview" id="iconPreviewColecao"></div>
+              </div>
+              <input type="hidden" id="itemIcone" value="">
+              <div class="form-text">Selecione um ícone ou envie uma imagem abaixo.</div>
+            </div>
+            <div class="mb-3">
               <label class="form-label">Capa</label>
               <input type="file" accept="image/*" class="form-control" id="itemCapa">
               <div class="form-text" id="capaAtualTexto"></div>
@@ -122,6 +134,43 @@ $colecoes = $Aux->listarColecoes();
     </div>
 
     <script>
+      let iconesColecao = [];
+      let iconeSelecionadoColecao = '';
+
+      async function carregarIconesColecao() {
+        try {
+          const resp = await fetch('./api/colecao.php');
+          const dados = await resp.json();
+          iconesColecao = dados.icones || [];
+          renderizarOpcoesIconesColecao(iconesColecao);
+        } catch (e) {
+          console.error('Erro ao carregar ícones', e);
+        }
+      }
+
+      function renderizarOpcoesIconesColecao(icones) {
+        const container = document.getElementById('iconOptionsColecao');
+        container.innerHTML = '';
+        icones.forEach(chave => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'icon-option';
+          btn.dataset.chave = chave;
+          btn.innerHTML = ListController.htmlIconePorChave('svg:' + chave, 'cat-circle');
+          btn.onclick = () => selecionarIconeColecao(chave, btn);
+          container.appendChild(btn);
+        });
+      }
+
+      function selecionarIconeColecao(chave, btn) {
+        iconeSelecionadoColecao = chave;
+        document.querySelectorAll('#iconOptionsColecao .icon-option').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('itemIcone').value = 'svg:' + chave;
+        document.getElementById('iconPreviewColecao').innerHTML = ListController.htmlIconePorChave('svg:' + chave, 'img-card');
+        document.getElementById('itemCapa').value = '';
+      }
+
       function abrirModalCriar() {
         document.getElementById('modalTitulo').textContent = 'Nova coleção';
         document.getElementById('itemId').value = '';
@@ -129,8 +178,13 @@ $colecoes = $Aux->listarColecoes();
         document.getElementById('itemDescricao').value = '';
         document.getElementById('itemCapa').value = '';
         document.getElementById('itemDestaque').checked = false;
+        document.getElementById('itemIcone').value = '';
+        document.getElementById('iconPreviewColecao').innerHTML = '';
         document.getElementById('capaAtualTexto').textContent = '';
         document.getElementById('erroItem').textContent = '';
+        iconeSelecionadoColecao = '';
+        document.querySelectorAll('#iconOptionsColecao .icon-option').forEach(b => b.classList.remove('active'));
+        carregarIconesColecao();
       }
 
       function abrirModalEditar(colecao) {
@@ -140,8 +194,22 @@ $colecoes = $Aux->listarColecoes();
         document.getElementById('itemDescricao').value = colecao.descricao;
         document.getElementById('itemCapa').value = '';
         document.getElementById('itemDestaque').checked = colecao.destaque == 1;
+        document.getElementById('itemIcone').value = colecao.capa || '';
         document.getElementById('capaAtualTexto').textContent = colecao.capa ? 'Já tem uma capa — envie um arquivo só se quiser trocar.' : '';
         document.getElementById('erroItem').textContent = '';
+        iconeSelecionadoColecao = '';
+        document.querySelectorAll('#iconOptionsColecao .icon-option').forEach(b => b.classList.remove('active'));
+        carregarIconesColecao().then(() => {
+          const capa = colecao.capa || '';
+          if (capa.startsWith('svg:')) {
+            const chave = capa.replace('svg:', '');
+            const btn = document.querySelector(`#iconOptionsColecao .icon-option[data-chave="${chave}"]`);
+            if (btn) selecionarIconeColecao(chave, btn);
+          }
+          if (capa && !capa.startsWith('svg:')) {
+            document.getElementById('iconPreviewColecao').innerHTML = '<img src="' + colecao.capa + '" style="max-width:80px;border-radius:8px;">';
+          }
+        });
       }
 
       async function salvar() {
@@ -150,6 +218,7 @@ $colecoes = $Aux->listarColecoes();
         const descricao = document.getElementById('itemDescricao').value.trim();
         const destaque = document.getElementById('itemDestaque').checked ? 1 : 0;
         const arquivoCapa = document.getElementById('itemCapa').files[0];
+        const icone = document.getElementById('itemIcone').value;
         const erro = document.getElementById('erroItem');
 
         if (!nome) { erro.textContent = 'Digite um nome.'; return; }
@@ -160,6 +229,7 @@ $colecoes = $Aux->listarColecoes();
         form.append('nome', nome);
         form.append('descricao', descricao);
         form.append('destaque', destaque);
+        if (icone) form.append('capa', icone);
         if (arquivoCapa) form.append('capa', arquivoCapa);
 
         const resp = await fetch('./api/colecao.php', { method: 'POST', body: form });

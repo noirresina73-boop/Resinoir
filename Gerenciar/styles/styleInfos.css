@@ -152,3 +152,105 @@ main{
 .none{
     display: none;
 }
+
+/* ---------------- SELETOR DE ÍCONES ---------------- */
+.icon-selector {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.icon-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.icon-option {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    border: 1px solid rgba(176, 141, 87, 0.3);
+    background: rgba(255, 255, 255, 0.03);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    padding: 6px;
+}
+
+.icon-option:hover {
+    border-color: var(--gold-bright, #d4b077);
+    background: rgba(176, 141, 87, 0.08);
+}
+
+.icon-option.active {
+    border-color: var(--gold-bright, #d4b077);
+    background: rgba(176, 141, 87, 0.15);
+    box-shadow: 0 0 0 2px rgba(212, 176, 119, 0.25);
+}
+
+.icon-option svg {
+    width: 22px;
+    height: 22px;
+    stroke: var(--bone, #e9e0c9);
+    stroke-width: 1.5;
+}
+
+.icon-preview {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    border: 1px solid rgba(176, 141, 87, 0.25);
+    background: rgba(255, 255, 255, 0.03);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.icon-preview svg,
+.icon-preview img {
+    width: 70%;
+    height: 70%;
+}
+
+.svg-thumb-admin {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    border: 1px solid rgba(176, 141, 87, 0.25);
+    background: rgba(255, 255, 255, 0.03);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    padding: 6px;
+}
+
+.svg-thumb-admin svg {
+    width: 100%;
+    height: 100%;
+    stroke: var(--bone, #e9e0c9);
+}
+
+.btnLogo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 100%;
+}
+
+.btnLogo:not(img) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20%;
+}
+
+.btnLogo:not(img) svg {
+    width: 100%;
+    height: 100%;
+    stroke: var(--bone, #e9e0c9);
+}

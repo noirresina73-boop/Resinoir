@@ -2,6 +2,7 @@
 require_once __DIR__ . '/auth.php';
 
 use Controllers\CatalogoAuxController;
+use Controllers\ListController;
 include 'autoloader.php';
 
 $Aux = new CatalogoAuxController;
@@ -56,7 +57,9 @@ $categorias = $Aux->listarCategorias();
                 <?php $capaCategoria = trim((string) ($c['capa'] ?? '')); if ($capaCategoria !== '' && !preg_match('#^(https?:)?//#', $capaCategoria) && !str_starts_with($capaCategoria, '../')) { $capaCategoria = preg_match('#^assets/#', $capaCategoria) ? '../' . $capaCategoria : (str_starts_with($capaCategoria, './') ? '../' . ltrim($capaCategoria, './') : '../' . ltrim($capaCategoria, './')); } ?>
                 <tr>
                   <td>
-                    <?php if ($c['capa']): ?>
+                    <?php if ($c['capa'] && str_starts_with($c['capa'], 'svg:')): ?>
+                      <?= ListController::htmlIconePorChave($c['capa'], 'thumb-admin') ?>
+                    <?php elseif ($c['capa']): ?>
                       <img class="card-thumb" src="<?= htmlspecialchars($capaCategoria) ?>" alt="<?= htmlspecialchars($c['nome']) ?>">
                     <?php else: ?>
                       <span class="text-secondary">—</span>
@@ -95,7 +98,16 @@ $categorias = $Aux->listarCategorias();
               <textarea class="form-control" id="itemDescricao" rows="2"></textarea>
             </div>
             <div class="mb-3">
-              <label class="form-label">Capa</label>
+              <label class="form-label">Ícone</label>
+              <div class="icon-selector" id="selectorIconesCategoria">
+                <div class="icon-options" id="iconOptionsCategoria"></div>
+                <div class="icon-preview" id="iconPreviewCategoria"></div>
+              </div>
+              <input type="hidden" id="itemIcone" value="">
+              <div class="form-text">Selecione um ícone ou envie uma imagem abaixo.</div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Capa (imagem)</label>
               <input type="file" accept="image/*" class="form-control" id="itemCapa">
               <div class="form-text" id="capaAtualTexto"></div>
             </div>
@@ -110,14 +122,56 @@ $categorias = $Aux->listarCategorias();
     </div>
 
     <script>
+      let iconesCategoria = [];
+      let iconeSelecionadoCategoria = '';
+
+      async function carregarIconesCategoria() {
+        try {
+          const resp = await fetch('./api/categoria.php');
+          const dados = await resp.json();
+          iconesCategoria = dados.icones || [];
+          renderizarOpcoesIconesCategoria(iconesCategoria);
+        } catch (e) {
+          console.error('Erro ao carregar ícones', e);
+        }
+      }
+
+      function renderizarOpcoesIconesCategoria(icones) {
+        const container = document.getElementById('iconOptionsCategoria');
+        container.innerHTML = '';
+        icones.forEach(chave => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'icon-option';
+          btn.dataset.chave = chave;
+          btn.innerHTML = ListController.htmlIconePorChave('svg:' + chave, 'cat-circle');
+          btn.onclick = () => selecionarIconeCategoria(chave, btn);
+          container.appendChild(btn);
+        });
+      }
+
+      function selecionarIconeCategoria(chave, btn) {
+        iconeSelecionadoCategoria = chave;
+        document.querySelectorAll('#iconOptionsCategoria .icon-option').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('itemIcone').value = 'svg:' + chave;
+        document.getElementById('iconPreviewCategoria').innerHTML = ListController.htmlIconePorChave('svg:' + chave, 'img-card');
+        document.getElementById('itemCapa').value = '';
+      }
+
       function abrirModalCriar() {
         document.getElementById('modalTitulo').textContent = 'Nova categoria';
         document.getElementById('itemId').value = '';
         document.getElementById('itemNome').value = '';
         document.getElementById('itemDescricao').value = '';
         document.getElementById('itemCapa').value = '';
+        document.getElementById('itemIcone').value = '';
+        document.getElementById('iconPreviewCategoria').innerHTML = '';
         document.getElementById('capaAtualTexto').textContent = '';
         document.getElementById('erroItem').textContent = '';
+        iconeSelecionadoCategoria = '';
+        document.querySelectorAll('#iconOptionsCategoria .icon-option').forEach(b => b.classList.remove('active'));
+        carregarIconesCategoria();
       }
 
       function abrirModalEditar(categoria) {
@@ -126,8 +180,22 @@ $categorias = $Aux->listarCategorias();
         document.getElementById('itemNome').value = categoria.nome;
         document.getElementById('itemDescricao').value = categoria.descricao;
         document.getElementById('itemCapa').value = '';
+        document.getElementById('itemIcone').value = categoria.capa || '';
         document.getElementById('capaAtualTexto').textContent = categoria.capa ? 'Já tem uma capa — envie um arquivo só se quiser trocar.' : '';
         document.getElementById('erroItem').textContent = '';
+        iconeSelecionadoCategoria = '';
+        document.querySelectorAll('#iconOptionsCategoria .icon-option').forEach(b => b.classList.remove('active'));
+        carregarIconesCategoria().then(() => {
+          const capa = categoria.capa || '';
+          if (capa.startsWith('svg:')) {
+            const chave = capa.replace('svg:', '');
+            const btn = document.querySelector(`#iconOptionsCategoria .icon-option[data-chave="${chave}"]`);
+            if (btn) selecionarIconeCategoria(chave, btn);
+          }
+          if (capa && !capa.startsWith('svg:')) {
+            document.getElementById('iconPreviewCategoria').innerHTML = '<img src="' + categoria.capa + '" style="max-width:80px;border-radius:8px;">';
+          }
+        });
       }
 
       async function salvar() {
@@ -135,6 +203,7 @@ $categorias = $Aux->listarCategorias();
         const nome = document.getElementById('itemNome').value.trim();
         const descricao = document.getElementById('itemDescricao').value.trim();
         const arquivoCapa = document.getElementById('itemCapa').files[0];
+        const icone = document.getElementById('itemIcone').value;
         const erro = document.getElementById('erroItem');
 
         if (!nome) { erro.textContent = 'Digite um nome.'; return; }
@@ -144,6 +213,7 @@ $categorias = $Aux->listarCategorias();
         if (id) form.append('id', id);
         form.append('nome', nome);
         form.append('descricao', descricao);
+        if (icone) form.append('capa', icone);
         if (arquivoCapa) form.append('capa', arquivoCapa);
 
         const resp = await fetch('./api/categoria.php', { method: 'POST', body: form });

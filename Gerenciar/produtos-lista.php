@@ -3,6 +3,7 @@ require_once __DIR__ . '/auth.php';
 
 use Controllers\infosController;
 use Controllers\CatalogoAuxController;
+use Controllers\ListController;
 include 'autoloader.php';
 
 $nome = trim($_GET['nome'] ?? '');
@@ -103,9 +104,17 @@ $colecoes = $Aux->listarColecoes();
                 <tr><td colspan="6" class="empty-state">Nenhum produto encontrado.</td></tr>
               <?php endif; ?>
               <?php foreach ($produtos as $p): ?>
-                <?php $capaProduto = $p['capa'] ?? ''; $capaProduto = trim((string) $capaProduto); if ($capaProduto !== '' && !preg_match('#^(https?:)?//#', $capaProduto) && !str_starts_with($capaProduto, '../')) { $capaProduto = preg_match('#^assets/#', $capaProduto) ? '../' . $capaProduto : (str_starts_with($capaProduto, './') ? '../' . ltrim($capaProduto, './') : '../' . ltrim($capaProduto, './')); } ?>
+                <?php $capaProduto = trim((string) ($p['capa'] ?? '')); if ($capaProduto !== '' && !preg_match('#^(https?:)?//#', $capaProduto) && !str_starts_with($capaProduto, '../')) { $capaProduto = preg_match('#^assets/#', $capaProduto) ? '../' . $capaProduto : (str_starts_with($capaProduto, './') ? '../' . ltrim($capaProduto, './') : '../' . ltrim($capaProduto, './')); } ?>
                 <tr>
-                  <td><img class="card-thumb" src="<?= htmlspecialchars($capaProduto) ?>" alt="<?= htmlspecialchars($p['nome']) ?>"></td>
+                  <td>
+                    <?php if ($p['capa'] && str_starts_with($p['capa'], 'svg:')): ?>
+                      <?= ListController::htmlIconePorChave($p['capa'], 'thumb-admin') ?>
+                    <?php elseif ($p['capa']): ?>
+                      <img class="card-thumb" src="<?= htmlspecialchars($capaProduto) ?>" alt="<?= htmlspecialchars($p['nome']) ?>">
+                    <?php else: ?>
+                      <span class="text-secondary">—</span>
+                    <?php endif; ?>
+                  </td>
                   <td><?= htmlspecialchars($p['nome']) ?></td>
                   <td>R$ <?= htmlspecialchars($p['valor']) ?></td>
                   <td>R$ <?= htmlspecialchars($p['custo'] ?? 0) ?></td>

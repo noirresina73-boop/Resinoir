@@ -1,6 +1,7 @@
 <?php
 use Controllers\infosController;
 use Controllers\CatalogoAuxController;
+use Controllers\ListController;
 
 include __DIR__ . '/../autoloader.php';
 
@@ -44,19 +45,23 @@ $custo = (float) ($_POST['custo'] ?? 0);
 $totalVendidos = $acao === 'editar' ? (int) ($_POST['totalVendidos'] ?? 0) : 0;
 $novidade = isset($_POST['novidade']) ? 1 : 0;
 
-$nomePasta = preg_replace('/[^a-zA-Z0-9_-]/', '_', $nome);
-$pastaPrincipal = __DIR__ . "/../../assets/imgs/$nomePasta";
-$pastaCapa = "$pastaPrincipal/capa";
-$pastaImagens = "$pastaPrincipal/imagens";
-
-foreach ([$pastaPrincipal, $pastaCapa, $pastaImagens] as $pasta) {
-    if (!is_dir($pasta)) {
-        mkdir($pasta, 0777, true);
-    }
-}
-
 $capa = null;
-if (isset($_FILES["capa"]) && $_FILES["capa"]["error"] == UPLOAD_ERR_OK) {
+
+$capaInput = trim((string) ($_POST['capa'] ?? ''));
+$capaIconeInput = trim((string) ($_POST['capa_icone'] ?? ''));
+
+if ($capaIconeInput !== '' && ListController::chaveIconeValida($capaIconeInput)) {
+    $capa = $capaIconeInput;
+} elseif ($capaInput !== '' && ListController::chaveIconeValida($capaInput)) {
+    $capa = $capaInput;
+} elseif (isset($_FILES["capa"]) && $_FILES["capa"]["error"] == UPLOAD_ERR_OK) {
+    $nomePasta = preg_replace('/[^a-zA-Z0-9_-]/', '_', $nome);
+    $pastaCapa = __DIR__ . "/../../assets/imgs/$nomePasta/capa";
+
+    if (!is_dir($pastaCapa)) {
+        mkdir($pastaCapa, 0777, true);
+    }
+
     $nomeCapa = basename($_FILES["capa"]["name"]);
     move_uploaded_file($_FILES["capa"]["tmp_name"], "$pastaCapa/$nomeCapa");
     $capa = "./assets/imgs/$nomePasta/capa/$nomeCapa";
@@ -64,6 +69,13 @@ if (isset($_FILES["capa"]) && $_FILES["capa"]["error"] == UPLOAD_ERR_OK) {
 
 $jsonImagens = null;
 if (isset($_FILES["imagens"]) && !empty(array_filter($_FILES["imagens"]["tmp_name"]))) {
+    $nomePasta = preg_replace('/[^a-zA-Z0-9_-]/', '_', $nome);
+    $pastaImagens = __DIR__ . "/../../assets/imgs/$nomePasta/imagens";
+
+    if (!is_dir($pastaImagens)) {
+        mkdir($pastaImagens, 0777, true);
+    }
+
     $imagens = [];
     foreach ($_FILES["imagens"]["tmp_name"] as $i => $tmp) {
         if ($_FILES["imagens"]["error"][$i] == UPLOAD_ERR_OK) {

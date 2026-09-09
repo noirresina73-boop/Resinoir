@@ -23,6 +23,17 @@ if (is_array($imagens)) {
     $todasImagens = array_merge($todasImagens, $imagens);
 }
 
+function capaParaInfo(string $capa): string {
+    if ($capa === '') return './assets/imgs/placeholder.jpg';
+    if (str_starts_with($capa, 'svg:')) {
+        return ''; 
+    }
+    if (preg_match('#^(https?:)?//#', $capa) || str_starts_with($capa, '/')) {
+        return $capa;
+    }
+    return './' . ltrim(str_replace(['../', './'], '', $capa), '/');
+}
+
 // Seções de descrição. Cada chave vira um bloco fixo na página; se o
 // campo não existir em $anuncio, o bloco mostra um aviso em vez de dar erro.
 $secoes = [
@@ -69,11 +80,17 @@ $secoes = [
             <div class="fotos">
 
                 <div class="imagemPrincipal">
-                    <img
-                        id="imagemGrande"
-                        src="<?= $todasImagens[0] ?>"
-                        class="imgGrande"
-                        onclick="abrirImagem()">
+                    <?php if (str_starts_with($todasImagens[0], 'svg:')): ?>
+                        <div id="imagemGrande" class="imgGrande" onclick="abrirImagem()" style="cursor:pointer;">
+                            <?= ListController::htmlIconePorChave($todasImagens[0], 'img-card') ?>
+                        </div>
+                    <?php else: ?>
+                        <img
+                            id="imagemGrande"
+                            src="<?= capaParaInfo($todasImagens[0]) ?>"
+                            class="imgGrande"
+                            onclick="abrirImagem()">
+                    <?php endif; ?>
                     <div class="zoom" onclick="abrirImagem()">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
                             <circle cx="10" cy="10" r="7"/>
@@ -88,11 +105,16 @@ $secoes = [
                         <div id="listaMiniaturas" class="lista">
 
                             <?php foreach ($todasImagens as $i => $imagem) { ?>
-
-                                <img
-                                    src="<?= $imagem ?>"
-                                    class="btnLogo <?= $i === 0 ? 'selecionada' : '' ?>"
-                                    onclick="trocarImagem('<?= $imagem ?>', this)">
+                                <?php if (str_starts_with($imagem, 'svg:')): ?>
+                                    <div class="btnLogo <?= $i === 0 ? 'selecionada' : '' ?>" onclick="trocarImagem('<?= $imagem ?>', this)" style="cursor:pointer;">
+                                        <?= ListController::htmlIconePorChave($imagem, 'img-card') ?>
+                                    </div>
+                                <?php else: ?>
+                                    <img
+                                        src="<?= $imagem ?>"
+                                        class="btnLogo <?= $i === 0 ? 'selecionada' : '' ?>"
+                                        onclick="trocarImagem('<?= $imagem ?>', this)">
+                                <?php endif; ?>
 
                             <?php } ?>
 
@@ -205,9 +227,25 @@ $secoes = [
 
     <script>
 
-const whatsappNumero = String.fromCharCode(
-    53, 53, 52, 54, 56, 56, 48, 52, 50, 52, 49, 53
-);
+    <?php
+    $iconesJs = [];
+    foreach (Controllers\ListController::ICONE_BIBLIOTECA as $chave => $dados) {
+        $iconesJs[$chave] = $dados['svg'];
+    }
+    ?>
+    const ICONES_BIBLIOTECA = <?= json_encode($iconesJs) ?>;
+
+    function htmlIconePorChave(chave, modo = 'img-card') {
+        const key = chave.replace('svg:', '');
+        const svg = ICONES_BIBLIOTECA[key];
+        if (!svg) return '';
+        if (modo === 'cat-circle') return svg;
+        return '<div class="svg-img-card">' + svg + '</div>';
+    }
+
+    const whatsappNumero = String.fromCharCode(
+        53, 53, 52, 54, 56, 56, 48, 52, 50, 52, 49, 53
+    );
 
 const produtoNome = <?= json_encode((string) ($anuncio['nome'] ?? 'Produto')) ?>;
 const produtoId = <?= json_encode((string) ($anuncio['id'] ?? '')) ?>;
@@ -236,15 +274,45 @@ function atualizarEstadoProduto() {
 }
 
 function trocarImagem(src, elemento){
-    document.getElementById("imagemGrande").src = src;
-    document.querySelectorAll(".btnLogo").forEach(function(img){
-        img.classList.remove("selecionada");
+    const imgGrande = document.getElementById("imagemGrande");
+    if (!imgGrande) return;
+    
+    if (src && src.startsWith('svg:')) {
+        const svgHtml = ListController.htmlIconePorChave(src, 'img-card');
+        if (imgGrande.tagName === 'IMG') {
+            const wrapper = document.createElement('div');
+            wrapper.innerHTML = svgHtml;
+            const svgContainer = wrapper.firstElementChild;
+            svgContainer.id = 'imagemGrande';
+            svgContainer.className = 'imgGrande';
+            svgContainer.onclick = abrirImagem;
+            svgContainer.style.cursor = 'pointer';
+            imgGrande.parentNode.replaceChild(svgContainer, imgGrande);
+        } else {
+            imgGrande.innerHTML = svgHtml;
+        }
+    } else {
+        if (imgGrande.tagName !== 'IMG') {
+            const novaImg = document.createElement('img');
+            novaImg.id = 'imagemGrande';
+            novaImg.src = src;
+            novaImg.className = 'imgGrande';
+            novaImg.onclick = abrirImagem;
+            imgGrande.parentNode.replaceChild(novaImg, imgGrande);
+        } else {
+            imgGrande.src = src;
+        }
+    }
+    document.querySelectorAll(".btnLogo").forEach(function(el){
+      el.classList.remove("selecionada");
     });
     elemento.classList.add("selecionada");
 }
 
 function abrirImagem(){
-    const img = document.getElementById("imagemGrande").src;
+    const imgGrande = document.getElementById("imagemGrande");
+    if (!imgGrande || imgGrande.tagName !== 'IMG') return;
+    const img = imgGrande.src;
     document.getElementById("imagemExpandida").src = img;
     document.getElementById("overlayImagem").classList.add("ativo");
 }

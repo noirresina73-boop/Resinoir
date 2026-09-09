@@ -87,6 +87,22 @@ include 'autoloader.php';
 </div>
 
 <script>
+<?php
+$iconesJs = [];
+foreach (Controllers\ListController::ICONE_BIBLIOTECA as $chave => $dados) {
+    $iconesJs[$chave] = $dados['svg'];
+}
+?>
+const ICONES_BIBLIOTECA = <?= json_encode($iconesJs) ?>;
+
+function htmlIconePorChave(chave, modo = 'img-card') {
+    const key = chave.replace('svg:', '');
+    const svg = ICONES_BIBLIOTECA[key];
+    if (!svg) return '';
+    if (modo === 'cat-circle') return svg;
+    return '<div class="svg-img-card">' + svg + '</div>';
+}
+
 const input = document.getElementById('searchInput');
 const grid = document.getElementById('pinterestGrid');
 const status = document.getElementById('searchStatus');
@@ -202,9 +218,17 @@ function renderizarGrid(produtos) {
     const item = document.createElement('div');
     item.className = 'product-card';
     item.onclick = () => location.href = 'Infos.php?id=' + p.id;
+
+    let capaHtml = '';
+    if (p.capa && typeof p.capa === 'string' && p.capa.startsWith('svg:')) {
+      capaHtml = htmlIconePorChave(p.capa, 'img-card');
+    } else {
+      capaHtml = '<img class="img-card" src="' + (p.capa || '') + '" alt="' + p.nome + '">';
+    }
+
     item.innerHTML = `
       <div class="product-photo">
-        <img class="img-card" src="${p.capa}" alt="${p.nome}">
+        ${capaHtml}
       </div>
       <div class="product-info">
         <div class="name">${p.nome}</div>
