@@ -166,8 +166,10 @@ if (!$modoEdicao) {
               const key = chave.replace('svg:', '');
               const svg = ICONES_BIBLIOTECA[key];
               if (!svg) return '';
-              if (modo === 'cat-circle') return svg;
-              return '<div class="svg-img-card">' + svg + '</div>';
+              if (modo === 'cat-circle') {
+                  return svg.replace('<svg ', '<svg style="width:24px;height:24px;stroke:#e9e0c9;stroke-width:1.5;fill:none;" ');
+              }
+              return '<div class="svg-img-card">' + svg.replace('<svg ', '<svg style="width:100%;height:100%;stroke:#e9e0c9;stroke-width:1;fill:none;" ') + '</div>';
           }
 
           let iconesProduto = [];
