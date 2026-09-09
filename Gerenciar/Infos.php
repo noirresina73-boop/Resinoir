@@ -441,6 +441,11 @@ if (!$modoEdicao) {
         form.append('nome', nome);
         form.append('descricao', descricao);
 
+        const arquivoCapa = document.getElementById('novaCategoriaCapa').files[0];
+        if (arquivoCapa) {
+          form.append('capa', arquivoCapa);
+        }
+
         const resp = await fetch('./api/categoria.php', { method: 'POST', body: form });
         const dados = await resp.json();
 
@@ -469,6 +474,11 @@ if (!$modoEdicao) {
         const form = new FormData();
         form.append('nome', nome);
         form.append('descricao', descricao);
+
+        const arquivoCapa = document.getElementById('novaColecaoCapa').files[0];
+        if (arquivoCapa) {
+          form.append('capa', arquivoCapa);
+        }
 
         const resp = await fetch('./api/colecao.php', { method: 'POST', body: form });
         const dados = await resp.json();

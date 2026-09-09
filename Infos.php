@@ -323,6 +323,7 @@ function abrirImagem(){
         const expandida = document.createElement('img');
         expandida.id = 'imagemExpandida';
         expandida.src = imgGrande.src;
+        expandida.onclick = function(event) { event.stopPropagation(); };
         overlay.appendChild(expandida);
     } else {
         const svgHtml = htmlIconePorChave(imgGrande.getAttribute('data-icone') || '', 'img-card');
@@ -331,6 +332,7 @@ function abrirImagem(){
         wrapper.style.display = 'flex';
         wrapper.style.alignItems = 'center';
         wrapper.style.justifyContent = 'center';
+        wrapper.onclick = function(event) { event.stopPropagation(); };
         wrapper.innerHTML = svgHtml;
         overlay.appendChild(wrapper);
     }
