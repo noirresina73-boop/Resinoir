@@ -81,7 +81,7 @@ $secoes = [
 
                 <div class="imagemPrincipal">
                     <?php if (str_starts_with($todasImagens[0], 'svg:')): ?>
-                        <div id="imagemGrande" class="imgGrande" onclick="abrirImagem()" style="cursor:pointer;">
+                        <div id="imagemGrande" class="imgGrande" onclick="abrirImagem()" style="cursor:pointer;" data-icone="<?= htmlspecialchars($todasImagens[0]) ?>">
                             <?= ListController::htmlIconePorChave($todasImagens[0], 'img-card') ?>
                         </div>
                     <?php else: ?>
@@ -106,7 +106,7 @@ $secoes = [
 
                             <?php foreach ($todasImagens as $i => $imagem) { ?>
                                 <?php if (str_starts_with($imagem, 'svg:')): ?>
-                                    <div class="btnLogo <?= $i === 0 ? 'selecionada' : '' ?>" onclick="trocarImagem('<?= $imagem ?>', this)" style="cursor:pointer;">
+                                    <div class="btnLogo <?= $i === 0 ? 'selecionada' : '' ?>" onclick="trocarImagem('<?= $imagem ?>', this)" style="cursor:pointer;" data-icone="<?= htmlspecialchars($imagem) ?>">
                                         <?= ListController::htmlIconePorChave($imagem, 'img-card') ?>
                                     </div>
                                 <?php else: ?>
@@ -239,8 +239,10 @@ $secoes = [
         const key = chave.replace('svg:', '');
         const svg = ICONES_BIBLIOTECA[key];
         if (!svg) return '';
-        if (modo === 'cat-circle') return svg;
-        return '<div class="svg-img-card">' + svg + '</div>';
+        if (modo === 'cat-circle') {
+            return svg.replace('<svg ', '<svg style="width:24px;height:24px;stroke:#e9e0c9;stroke-width:1.5;fill:none;" ');
+        }
+        return '<div class="svg-img-card">' + svg.replace('<svg ', '<svg style="width:100%;height:100%;stroke:#e9e0c9;stroke-width:1;fill:none;" ') + '</div>';
     }
 
     const whatsappNumero = String.fromCharCode(
@@ -278,7 +280,7 @@ function trocarImagem(src, elemento){
     if (!imgGrande) return;
     
     if (src && src.startsWith('svg:')) {
-        const svgHtml = ListController.htmlIconePorChave(src, 'img-card');
+        const svgHtml = htmlIconePorChave(src, 'img-card');
         if (imgGrande.tagName === 'IMG') {
             const wrapper = document.createElement('div');
             wrapper.innerHTML = svgHtml;
@@ -287,8 +289,10 @@ function trocarImagem(src, elemento){
             svgContainer.className = 'imgGrande';
             svgContainer.onclick = abrirImagem;
             svgContainer.style.cursor = 'pointer';
+            svgContainer.setAttribute('data-icone', src);
             imgGrande.parentNode.replaceChild(svgContainer, imgGrande);
         } else {
+            imgGrande.setAttribute('data-icone', src);
             imgGrande.innerHTML = svgHtml;
         }
     } else {
@@ -311,10 +315,26 @@ function trocarImagem(src, elemento){
 
 function abrirImagem(){
     const imgGrande = document.getElementById("imagemGrande");
-    if (!imgGrande || imgGrande.tagName !== 'IMG') return;
-    const img = imgGrande.src;
-    document.getElementById("imagemExpandida").src = img;
-    document.getElementById("overlayImagem").classList.add("ativo");
+    if (!imgGrande) return;
+    const overlay = document.getElementById("overlayImagem");
+    overlay.innerHTML = '';
+
+    if (imgGrande.tagName === 'IMG') {
+        const expandida = document.createElement('img');
+        expandida.id = 'imagemExpandida';
+        expandida.src = imgGrande.src;
+        overlay.appendChild(expandida);
+    } else {
+        const svgHtml = htmlIconePorChave(imgGrande.getAttribute('data-icone') || '', 'img-card');
+        const wrapper = document.createElement('div');
+        wrapper.style.width = 'min(92vw, 420px)';
+        wrapper.style.display = 'flex';
+        wrapper.style.alignItems = 'center';
+        wrapper.style.justifyContent = 'center';
+        wrapper.innerHTML = svgHtml;
+        overlay.appendChild(wrapper);
+    }
+    overlay.classList.add("ativo");
 }
 
 function fecharImagem(){
@@ -516,111 +536,5 @@ document.getElementById('formFrete')?.addEventListener('submit', async function(
 
     </script>
 
-    <style>
-      .modal-frete {
-        position: fixed;
-        inset: 0;
-        display: none;
-        align-items: center;
-        justify-content: center;
-        z-index: 1200;
-      }
-
-      .modal-frete.ativo {
-        display: flex;
-      }
-
-      .modal-frete-backdrop {
-        position: absolute;
-        inset: 0;
-        background: rgba(8, 8, 10, 0.72);
-      }
-
-      .modal-frete-content {
-        position: relative;
-        width: min(92vw, 420px);
-        background: #17171a;
-        border: 1px solid rgba(212, 176, 119, 0.32);
-        border-radius: 18px;
-        padding: 1.5rem;
-        box-shadow: 0 18px 50px rgba(0, 0, 0, 0.38);
-        color: #f5efe6;
-      }
-
-      .modal-fechar {
-        position: absolute;
-        top: 0.8rem;
-        right: 0.9rem;
-        background: transparent;
-        border: 0;
-        color: #f5efe6;
-        font-size: 1.8rem;
-        line-height: 1;
-        cursor: pointer;
-      }
-
-      .form-frete {
-        display: flex;
-        flex-direction: column;
-        gap: 0.8rem;
-        margin-top: 1rem;
-      }
-
-      .form-frete input {
-        width: 100%;
-        border-radius: 10px;
-        border: 1px solid rgba(212, 176, 119, 0.35);
-        background: rgba(255, 255, 255, 0.02);
-        color: #fff;
-        padding: 0.8rem 0.9rem;
-      }
-
-      .btn-frete-submit {
-        border: 0;
-        border-radius: 10px;
-        background: linear-gradient(135deg, #d4b077, #b98d44);
-        color: #17171a;
-        font-weight: 700;
-        padding: 0.85rem 1rem;
-        cursor: pointer;
-      }
-
-      .resultado-frete {
-        margin-top: 1rem;
-        min-height: 24px;
-        font-size: 0.95rem;
-      }
-
-      .resultado-frete.ok {
-        color: #9de3a6;
-      }
-
-      .resultado-frete.erro {
-        color: #ffb7b7;
-      }
-
-      .texto-modal-cep {
-        margin-top: 1rem;
-        color: #d9d0bf;
-        line-height: 1.5;
-        font-size: 0.96rem;
-      }
-
-      .modal-frete-acao-row {
-        display: flex;
-        gap: 0.75rem;
-        margin-top: 1.25rem;
-      }
-
-      .btn-frete-secundario {
-        flex: 1;
-        border: 1px solid rgba(212, 176, 119, 0.4);
-        background: transparent;
-        color: #f5efe6;
-        border-radius: 10px;
-        padding: 0.8rem 0.9rem;
-        cursor: pointer;
-      }
-    </style>
   </body>
 </html>
