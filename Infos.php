@@ -536,5 +536,112 @@ document.getElementById('formFrete')?.addEventListener('submit', async function(
 
     </script>
 
+    <style>
+      .modal-frete {
+        position: fixed !important;
+        inset: 0 !important;
+        display: none !important;
+        align-items: center !important;
+        justify-content: center !important;
+        z-index: 9999 !important;
+      }
+
+      .modal-frete.ativo {
+        display: flex !important;
+      }
+
+      .modal-frete-backdrop {
+        position: absolute !important;
+        inset: 0 !important;
+        background: rgba(8, 8, 10, 0.72) !important;
+      }
+
+      .modal-frete-content {
+        position: relative !important;
+        width: min(92vw, 420px) !important;
+        max-width: 92vw !important;
+        background: #17171a !important;
+        border: 1px solid rgba(212, 176, 119, 0.32) !important;
+        border-radius: 18px !important;
+        padding: 1.5rem !important;
+        box-shadow: 0 18px 50px rgba(0, 0, 0, 0.38) !important;
+        color: #f5efe6 !important;
+      }
+
+      .modal-fechar {
+        position: absolute !important;
+        top: 0.8rem !important;
+        right: 0.9rem !important;
+        background: transparent !important;
+        border: 0 !important;
+        color: #f5efe6 !important;
+        font-size: 1.8rem !important;
+        line-height: 1 !important;
+        cursor: pointer !important;
+      }
+
+      .form-frete {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 0.8rem !important;
+        margin-top: 1rem !important;
+      }
+
+      .form-frete input {
+        width: 100% !important;
+        border-radius: 10px !important;
+        border: 1px solid rgba(212, 176, 119, 0.35) !important;
+        background: rgba(255, 255, 255, 0.02) !important;
+        color: #fff !important;
+        padding: 0.8rem 0.9rem !important;
+      }
+
+      .btn-frete-submit {
+        border: 0 !important;
+        border-radius: 10px !important;
+        background: linear-gradient(135deg, #d4b077, #b98d44) !important;
+        color: #17171a !important;
+        font-weight: 700 !important;
+        padding: 0.85rem 1rem !important;
+        cursor: pointer !important;
+      }
+
+      .resultado-frete {
+        margin-top: 1rem !important;
+        min-height: 24px !important;
+        font-size: 0.95rem !important;
+      }
+
+      .resultado-frete.ok {
+        color: #9de3a6 !important;
+      }
+
+      .resultado-frete.erro {
+        color: #ffb7b7 !important;
+      }
+
+      .texto-modal-cep {
+        margin-top: 1rem !important;
+        color: #d9d0bf !important;
+        line-height: 1.5 !important;
+        font-size: 0.96rem !important;
+      }
+
+      .modal-frete-acao-row {
+        display: flex !important;
+        gap: 0.75rem !important;
+        margin-top: 1.25rem !important;
+      }
+
+      .btn-frete-secundario {
+        flex: 1 !important;
+        border: 1px solid rgba(212, 176, 119, 0.4) !important;
+        background: transparent !important;
+        color: #f5efe6 !important;
+        border-radius: 10px !important;
+        padding: 0.8rem 0.9rem !important;
+        cursor: pointer !important;
+      }
+    </style>
   </body>
 </html>
