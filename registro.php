@@ -23,18 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $erro = 'A senha deve ter pelo menos 6 caracteres.';
     } else {
         try {
-            $foto = null;
-            if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
-                $pasta = __DIR__ . '/assets/usuarios';
-                if (!is_dir($pasta)) {
-                    mkdir($pasta, 0777, true);
-                }
-                $extensao = strtolower(pathinfo($_FILES['foto']['name'], PATHINFO_EXTENSION));
-                $nomeArquivo = uniqid('foto_') . '.' . $extensao;
-                move_uploaded_file($_FILES['foto']['tmp_name'], $pasta . '/' . $nomeArquivo);
-                $foto = './assets/usuarios/' . $nomeArquivo;
-            }
-            $controller->registrar($nome, $telefone !== '' ? $telefone : null, $email, $senha, $foto);
+            $controller->registrar($nome, $telefone !== '' ? $telefone : null, $email, $senha);
             $sucesso = 'Conta criada com sucesso! Você já pode fazer login.';
         } catch (\Exception $e) {
             $erro = 'Erro ao criar conta. Email já cadastrado?';
@@ -109,19 +98,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     outline:none;
   }
   input:focus{border-color:var(--gold-bright);}
-  input[type="file"]{
-    color:var(--bone-dim);
-    font-size:13px;
-  }
-  .foto-preview{
-    width:80px;
-    height:80px;
-    border-radius:50%;
-    border:1px solid rgba(176,141,87,0.35);
-    margin-top:8px;
-    object-fit:cover;
-    display:none;
-  }
   button.btn-registrar{
     width:100%;
     margin-top:20px;
@@ -178,14 +154,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php if ($sucesso): ?>
       <div class="sucesso"><?= htmlspecialchars($sucesso) ?></div>
     <?php endif; ?>
-    <form method="post" enctype="multipart/form-data">
+    <form method="post">
       <label>Nome</label>
       <input type="text" name="nome" required autofocus>
       <label>Telefone <span style="opacity:.6;">(opcional)</span></label>
       <input type="tel" name="telefone">
-      <label>Foto de perfil <span style="opacity:.6;">(opcional)</span></label>
-      <input type="file" name="foto" accept="image/*" onchange="previewFoto(this)">
-      <img id="previewFoto" class="foto-preview" alt="">
       <label>Email</label>
       <input type="email" name="email" required>
       <label>Senha</label>
@@ -198,21 +171,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       Já tem conta? <a href="login.php">Entrar</a>
     </div>
   </div>
-
-  <script>
-    function previewFoto(input){
-      const preview = document.getElementById('previewFoto');
-      if (input.files && input.files[0]) {
-        const reader = new FileReader();
-        reader.onload = function(e){
-          preview.src = e.target.result;
-          preview.style.display = 'block';
-        };
-        reader.readAsDataURL(input.files[0]);
-      } else {
-        preview.style.display = 'none';
-      }
-    }
-  </script>
 </body>
 </html>

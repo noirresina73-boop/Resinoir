@@ -72,6 +72,22 @@ class AuthController
         $query->execute();
     }
 
+    public function alterarSenha(int $id, string $senhaAtual, string $novaSenha): bool{
+        $BD = $this->BDlog();
+        $query = $BD->prepare('SELECT senha FROM usuarios WHERE id = :id LIMIT 1');
+        $query->bindValue(':id', $id, PDO::PARAM_INT);
+        $query->execute();
+        $usuario = $query->fetch(PDO::FETCH_ASSOC);
+        if (!$usuario || !password_verify($senhaAtual, $usuario['senha'])) {
+            return false;
+        }
+        $hash = password_hash($novaSenha, PASSWORD_DEFAULT);
+        $query = $BD->prepare('UPDATE usuarios SET senha = :senha WHERE id = :id');
+        $query->bindValue(':senha', $hash, PDO::PARAM_STR);
+        $query->bindValue(':id', $id, PDO::PARAM_INT);
+        return $query->execute();
+    }
+
     public function criarAdminSeNecessario(){
         $this->criarTabelaUsuario();
         $BD = $this->BDlog();
@@ -79,7 +95,8 @@ class AuthController
         $query->execute([':tipo' => 'admin']);
         $total = (int) $query->fetch(PDO::FETCH_ASSOC)['total'];
         if ($total === 0) {
-            $hash = password_hash('admin123', PASSWORD_DEFAULT);
+            $senha = 'AdminResinoir#2026';
+            $hash = password_hash($senha, PASSWORD_DEFAULT);
             $query = $BD->prepare('INSERT INTO usuarios (nome, email, senha, tipo) VALUES (:nome, :email, :senha, :tipo)');
             $query->execute([
                 ':nome' => 'Administrador',
@@ -87,6 +104,7 @@ class AuthController
                 ':senha' => $hash,
                 ':tipo' => 'admin'
             ]);
+            echo "Admin criado: admin@resinoir.com / senha: $senha";
         }
     }
 }
