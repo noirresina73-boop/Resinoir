@@ -19,6 +19,7 @@ if (!$usuario) {
 
 $erro = '';
 $sucesso = '';
+$editando = $_GET['editar'] ?? '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $acao = $_POST['acao'] ?? '';
@@ -36,6 +37,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['usuario_foto'] = $caminho;
         $usuario['foto'] = $caminho;
         $sucesso = 'Foto atualizada com sucesso!';
+    } elseif ($acao === 'telefone') {
+        $telefone = trim((string) ($_POST['telefone'] ?? ''));
+        $controller->atualizarTelefone((int) $_SESSION['usuario_id'], $telefone !== '' ? $telefone : null);
+        $usuario['telefone'] = $telefone !== '' ? $telefone : null;
+        $sucesso = 'Telefone atualizado com sucesso!';
+        $editando = '';
     } elseif ($acao === 'senha') {
         $senhaAtual = (string) ($_POST['senha_atual'] ?? '');
         $novaSenha = (string) ($_POST['nova_senha'] ?? '');
@@ -51,15 +58,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $ok = $controller->alterarSenha((int) $_SESSION['usuario_id'], $senhaAtual, $novaSenha);
             if ($ok) {
                 $sucesso = 'Senha alterada com sucesso!';
+                $editando = '';
             } else {
                 $erro = 'Senha atual incorreta.';
             }
         }
+    } elseif ($acao === 'excluir') {
+        $controller->excluirConta((int) $_SESSION['usuario_id']);
+        session_destroy();
+        header('Location: index.php');
+        exit;
     }
 }
 
 $fotoAtual = $usuario['foto'] ?? null;
 $inicial = strtoupper(mb_substr($usuario['nome'] ?? 'U', 0, 1));
+$telefoneAtual = $usuario['telefone'] ?? '';
 ?>
 <!doctype html>
 <html lang="pt-BR">
@@ -151,6 +165,46 @@ $inicial = strtoupper(mb_substr($usuario['nome'] ?? 'U', 0, 1));
     color:var(--gold-bright);
     margin-bottom:10px;
   }
+  .info-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    margin-bottom:10px;
+  }
+  .info-valor{
+    font-size:14px;
+    color:var(--bone);
+    word-break:break-word;
+  }
+  .info-vazio{
+    font-size:13px;
+    color:var(--bone-dim);
+    font-style:italic;
+  }
+  .btn-editar{
+    padding:6px 12px;
+    border:1px solid rgba(176,141,87,0.5);
+    border-radius:20px;
+    background:transparent;
+    color:#d4b077;
+    font-family:'Jost',sans-serif;
+    font-size:10px;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  .btn-editar:hover{
+    background:rgba(176,141,87,0.12);
+  }
+  .form-edicao{
+    margin-top:10px;
+    padding:12px;
+    background:rgba(255,255,255,0.02);
+    border:1px solid rgba(176,141,87,0.25);
+    border-radius:12px;
+  }
   label{
     font-size:11px;
     letter-spacing:1.5px;
@@ -158,11 +212,11 @@ $inicial = strtoupper(mb_substr($usuario['nome'] ?? 'U', 0, 1));
     color:var(--bone-dim);
     display:block;
     margin-bottom:6px;
-    margin-top:12px;
+    margin-top:10px;
   }
-  input[type="file"], input[type="password"]{
+  input[type="text"], input[type="email"], input[type="password"], input[type="tel"]{
     width:100%;
-    padding:12px 14px;
+    padding:10px 12px;
     border-radius:10px;
     border:1px solid rgba(176,141,87,0.35);
     background:rgba(255,255,255,0.03);
@@ -172,6 +226,10 @@ $inicial = strtoupper(mb_substr($usuario['nome'] ?? 'U', 0, 1));
     outline:none;
   }
   input:focus{border-color:var(--gold-bright);}
+  input[type="file"]{
+    color:var(--bone-dim);
+    font-size:13px;
+  }
   .foto-preview{
     width:80px;
     height:80px;
@@ -181,17 +239,47 @@ $inicial = strtoupper(mb_substr($usuario['nome'] ?? 'U', 0, 1));
     object-fit:cover;
     display:none;
   }
-  button.btn-salvar{
-    width:100%;
-    margin-top:18px;
-    padding:13px;
+  .botoes-edicao{
+    display:flex;
+    gap:8px;
+    margin-top:12px;
+  }
+  .btn-salvar{
+    flex:1;
+    padding:10px;
     border:1px solid var(--gold);
     border-radius:10px;
     background:linear-gradient(180deg,var(--gold-bright),var(--gold));
     color:#17171a;
     font-weight:700;
-    font-size:12px;
-    letter-spacing:2px;
+    font-size:11px;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    cursor:pointer;
+  }
+  .btn-cancelar{
+    flex:1;
+    padding:10px;
+    border:1px solid rgba(176,141,87,0.5);
+    border-radius:10px;
+    background:transparent;
+    color:var(--bone-dim);
+    font-size:11px;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    cursor:pointer;
+  }
+  .btn-excluir{
+    width:100%;
+    margin-top:18px;
+    padding:10px;
+    border:1px solid rgba(255,120,120,0.5);
+    border-radius:10px;
+    background:rgba(255,120,120,0.08);
+    color:#ffb7b7;
+    font-weight:700;
+    font-size:11px;
+    letter-spacing:1.5px;
     text-transform:uppercase;
     cursor:pointer;
   }
@@ -249,30 +337,77 @@ $inicial = strtoupper(mb_substr($usuario['nome'] ?? 'U', 0, 1));
       <div class="perfil-email"><?= htmlspecialchars($usuario['email']) ?></div>
     </div>
 
-    <form method="post" enctype="multipart/form-data">
-      <input type="hidden" name="acao" value="foto">
-      <div class="secao">
-        <h3>Alterar foto</h3>
+    <div class="secao">
+      <h3>Foto de perfil</h3>
+      <form method="post" enctype="multipart/form-data">
+        <input type="hidden" name="acao" value="foto">
         <label>Nova foto</label>
         <input type="file" name="foto" accept="image/*" required onchange="previewFoto(this)">
         <img id="previewFoto" class="foto-preview" alt="">
-      </div>
-      <button type="submit" class="btn-salvar">Salvar foto</button>
-    </form>
+        <div class="botoes-edicao">
+          <button type="submit" class="btn-salvar">Salvar foto</button>
+        </div>
+      </form>
+    </div>
 
-    <form method="post">
-      <input type="hidden" name="acao" value="senha">
-      <div class="secao">
-        <h3>Alterar senha</h3>
-        <label>Senha atual</label>
-        <input type="password" name="senha_atual" required autocomplete="current-password">
-        <label>Nova senha</label>
-        <input type="password" name="nova_senha" required autocomplete="new-password">
-        <label>Confirmar nova senha</label>
-        <input type="password" name="confirmar_senha" required autocomplete="new-password">
-      </div>
-      <button type="submit" class="btn-salvar">Salvar senha</button>
-    </form>
+    <div class="secao">
+      <h3>Telefone</h3>
+      <?php if ($editando === 'telefone'): ?>
+        <form method="post">
+          <input type="hidden" name="acao" value="telefone">
+          <div class="form-edicao">
+            <label>Novo telefone</label>
+            <input type="tel" name="telefone" value="<?= htmlspecialchars($telefoneAtual) ?>" autocomplete="off">
+            <div class="botoes-edicao">
+              <button type="submit" class="btn-salvar">Salvar</button>
+              <a href="perfil.php" class="btn-cancelar" style="text-align:center;text-decoration:none;">Cancelar</a>
+            </div>
+          </div>
+        </form>
+      <?php else: ?>
+        <div class="info-row">
+          <span class="info-valor <?= $telefoneAtual === '' ? 'info-vazio' : '' ?>">
+            <?= $telefoneAtual !== '' ? htmlspecialchars($telefoneAtual) : 'Nenhum telefone cadastrado' ?>
+          </span>
+          <button class="btn-editar" onclick="window.location.href='perfil.php?editar=telefone'">Editar telefone</button>
+        </div>
+      <?php endif; ?>
+    </div>
+
+    <div class="secao">
+      <h3>Senha</h3>
+      <?php if ($editando === 'senha'): ?>
+        <form method="post">
+          <input type="hidden" name="acao" value="senha">
+          <div class="form-edicao">
+            <label>Senha atual</label>
+            <input type="password" name="senha_atual" required autocomplete="current-password">
+            <label>Nova senha</label>
+            <input type="password" name="nova_senha" required autocomplete="new-password">
+            <label>Confirmar nova senha</label>
+            <input type="password" name="confirmar_senha" required autocomplete="new-password">
+            <div class="botoes-edicao">
+              <button type="submit" class="btn-salvar">Salvar senha</button>
+              <a href="perfil.php" class="btn-cancelar" style="text-align:center;text-decoration:none;">Cancelar</a>
+            </div>
+          </div>
+        </form>
+      <?php else: ?>
+        <div class="info-row">
+          <span class="info-valor info-vazio">••••••••</span>
+          <button class="btn-editar" onclick="window.location.href='perfil.php?editar=senha'">Editar senha</button>
+        </div>
+      <?php endif; ?>
+    </div>
+
+    <div class="secao">
+      <h3>Excluir conta</h3>
+      <p style="font-size:12px;color:var(--bone-dim);margin-bottom:10px;">Ao excluir, todos os seus dados serão removidos permanentemente.</p>
+      <form method="post" onsubmit="return confirm('Tem certeza que deseja excluir sua conta? Esta ação não pode ser desfeita.');">
+        <input type="hidden" name="acao" value="excluir">
+        <button type="submit" class="btn-excluir">Excluir minha conta</button>
+      </form>
+    </div>
 
     <div class="voltar">
       <a href="index.php">Voltar para a loja</a>

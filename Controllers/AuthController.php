@@ -88,6 +88,21 @@ class AuthController
         return $query->execute();
     }
 
+    public function atualizarTelefone(int $id, ?string $telefone): void{
+        $BD = $this->BDlog();
+        $query = $BD->prepare('UPDATE usuarios SET telefone = :telefone WHERE id = :id');
+        $query->bindValue(':telefone', $telefone, PDO::PARAM_STR);
+        $query->bindValue(':id', $id, PDO::PARAM_INT);
+        $query->execute();
+    }
+
+    public function excluirConta(int $id): void{
+        $BD = $this->BDlog();
+        $query = $BD->prepare('DELETE FROM usuarios WHERE id = :id');
+        $query->bindValue(':id', $id, PDO::PARAM_INT);
+        $query->execute();
+    }
+
     public function criarAdminSeNecessario(){
         $this->criarTabelaUsuario();
         $BD = $this->BDlog();

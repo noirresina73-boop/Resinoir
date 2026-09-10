@@ -24,7 +24,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         try {
             $controller->registrar($nome, $telefone !== '' ? $telefone : null, $email, $senha);
-            $sucesso = 'Conta criada com sucesso! Você já pode fazer login.';
+            $usuario = $controller->login($email, $senha);
+            if ($usuario) {
+                session_start();
+                $_SESSION['usuario_id'] = (int) $usuario['id'];
+                $_SESSION['usuario_nome'] = (string) $usuario['nome'];
+                $_SESSION['usuario_tipo'] = (string) $usuario['tipo'];
+                $_SESSION['usuario_foto'] = $usuario['foto'] ?: null;
+                header('Location: index.php');
+                exit;
+            }
         } catch (\Exception $e) {
             $erro = 'Erro ao criar conta. Email já cadastrado?';
         }
