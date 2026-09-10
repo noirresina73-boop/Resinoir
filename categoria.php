@@ -16,6 +16,8 @@ include 'autoloader.php';
 </head>
 <body>
 
+<?php include 'topo_usuario.php'; ?>
+
 <svg width="0" height="0" style="position:absolute">
   <defs>
     <clipPath id="gothicArch" clipPathUnits="objectBoundingBox">

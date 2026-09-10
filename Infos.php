@@ -53,6 +53,8 @@ $secoes = [
   </head>
   <body>
 
+    <?php include 'topo_usuario.php'; ?>
+
     <div class="device">
 
         <navbar class="topnav">

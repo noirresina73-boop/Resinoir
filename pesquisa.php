@@ -13,6 +13,8 @@ include 'autoloader.php';
 </head>
 <body>
 
+<?php include 'topo_usuario.php'; ?>
+
 <div class="device">
 
   <!-- BARRA DE PESQUISA -->
