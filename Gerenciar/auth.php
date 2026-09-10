@@ -44,9 +44,9 @@ if (!isset($_SESSION['usuario_id']) || $_SESSION['usuario_tipo'] !== 'admin') {
     <body>
       <div class="card">
         <h1>Acesso restrito</h1>
-        <form method="post">
-          <input type="email" name="email" placeholder="Email" required autofocus>
-          <input type="password" name="senha" placeholder="Senha" required>
+        <form method="post" autocomplete="off">
+          <input type="email" name="email" placeholder="Email" required autofocus autocomplete="off">
+          <input type="password" name="senha" placeholder="Senha" required autocomplete="new-password">
           <button type="submit">Entrar</button>
         </form>
         <?php if (isset($erro)) echo "<div class='erro'>$erro</div>"; ?>

@@ -265,11 +265,11 @@ $inicial = strtoupper(mb_substr($usuario['nome'] ?? 'U', 0, 1));
       <div class="secao">
         <h3>Alterar senha</h3>
         <label>Senha atual</label>
-        <input type="password" name="senha_atual" required>
+        <input type="password" name="senha_atual" required autocomplete="current-password">
         <label>Nova senha</label>
-        <input type="password" name="nova_senha" required>
+        <input type="password" name="nova_senha" required autocomplete="new-password">
         <label>Confirmar nova senha</label>
-        <input type="password" name="confirmar_senha" required>
+        <input type="password" name="confirmar_senha" required autocomplete="new-password">
       </div>
       <button type="submit" class="btn-salvar">Salvar senha</button>
     </form>

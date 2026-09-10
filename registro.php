@@ -156,15 +156,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php endif; ?>
     <form method="post">
       <label>Nome</label>
-      <input type="text" name="nome" required autofocus>
+      <input type="text" name="nome" required autofocus autocomplete="off">
       <label>Telefone <span style="opacity:.6;">(opcional)</span></label>
-      <input type="tel" name="telefone">
+      <input type="tel" name="telefone" autocomplete="off">
       <label>Email</label>
-      <input type="email" name="email" required>
+      <input type="email" name="email" required autocomplete="off">
       <label>Senha</label>
-      <input type="password" name="senha" required>
+      <input type="password" name="senha" required autocomplete="new-password">
       <label>Confirmar senha</label>
-      <input type="password" name="confirmar_senha" required>
+      <input type="password" name="confirmar_senha" required autocomplete="new-password">
       <button type="submit" class="btn-registrar">Registrar</button>
     </form>
     <div class="rodape">

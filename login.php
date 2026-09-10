@@ -140,11 +140,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php if ($erro): ?>
       <div class="erro"><?= htmlspecialchars($erro) ?></div>
     <?php endif; ?>
-    <form method="post">
+    <form method="post" autocomplete="off">
       <label>Email</label>
-      <input type="email" name="email" required autofocus>
+      <input type="email" name="email" required autofocus autocomplete="off">
       <label>Senha</label>
-      <input type="password" name="senha" required>
+      <input type="password" name="senha" required autocomplete="new-password">
       <button type="submit" class="btn-entrar">Entrar</button>
     </form>
     <div class="rodape">
