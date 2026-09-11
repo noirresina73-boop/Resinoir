@@ -639,7 +639,7 @@
     align-items:center;
     justify-content:space-between;
     padding:16px 20px;
-    background:rgba(10,9,8,0.85);
+    padding:14px 16px;
     backdrop-filter:blur(6px);
     border-bottom:1px solid rgba(176,141,87,0.2);
     min-width: 100%;
@@ -659,7 +659,7 @@
   .topnav .side{
     display:flex;
     gap:16px;
-    align-items:center;
+    gap:10px;
   }
 
   /* ---------------- BOTTOM NAV ---------------- */

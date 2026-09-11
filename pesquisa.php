@@ -13,8 +13,6 @@ include 'autoloader.php';
 </head>
 <body>
 
-<?php include 'topo_usuario.php'; ?>
-
 <div class="device">
 
   <!-- BARRA DE PESQUISA -->
@@ -23,6 +21,7 @@ include 'autoloader.php';
         <svg viewBox="0 0 24 24" fill="none" stroke="#e9e0c9" stroke-width="1.4"><path d="M15 18l-6-6 6-6"/></svg>
     </div>
     <input type="text" id="searchInput" placeholder="Buscar peças, coleções..." autocomplete="off">
+    <?php include 'topo_usuario.php'; ?>
   </div>
 
   <!-- BARRA DE FILTRO RÁPIDO -->

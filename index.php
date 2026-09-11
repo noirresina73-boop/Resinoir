@@ -16,7 +16,6 @@ include 'autoloader.php';
 </head>
 <body>
 
-<?php include 'topo_usuario.php'; ?>
 
 <svg width="0" height="0" style="position:absolute">
   <defs>
@@ -33,7 +32,8 @@ include 'autoloader.php';
     <div class="icon-btn">
     </div>
     <div class="wordmark">Resinoir</div>
-    <div class="icon-btn">
+    <div class="side">
+      <?php include 'topo_usuario.php'; ?>
     </div>
   </navbar>
 

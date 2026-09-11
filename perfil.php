@@ -68,12 +68,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         session_destroy();
         header('Location: index.php');
         exit;
+    } elseif ($acao === 'cep') {
+        $cep = trim((string) ($_POST['cep'] ?? ''));
+        $controller->atualizarCep((int) $_SESSION['usuario_id'], $cep !== '' ? $cep : null);
+        $usuario['cep'] = $cep !== '' ? $cep : null;
+        $sucesso = 'CEP atualizado com sucesso!';
+        $editando = '';
     }
 }
 
 $fotoAtual = $usuario['foto'] ?? null;
 $inicial = strtoupper(mb_substr($usuario['nome'] ?? 'U', 0, 1));
 $telefoneAtual = $usuario['telefone'] ?? '';
+$cepAtual = $usuario['cep'] ?? '';
 ?>
 <!doctype html>
 <html lang="pt-BR">
@@ -407,6 +414,30 @@ $telefoneAtual = $usuario['telefone'] ?? '';
             <?= $telefoneAtual !== '' ? htmlspecialchars($telefoneAtual) : 'Nenhum telefone cadastrado' ?>
           </span>
           <button class="btn-editar" onclick="window.location.href='perfil.php?editar=telefone'">Editar telefone</button>
+        </div>
+      <?php endif; ?>
+    </div>
+
+    <div class="secao">
+      <h3>CEP</h3>
+      <?php if ($editando === 'cep'): ?>
+        <form method="post">
+          <input type="hidden" name="acao" value="cep">
+          <div class="form-edicao">
+            <label>CEP</label>
+            <input type="text" name="cep" value="<?= htmlspecialchars($cepAtual) ?>" autocomplete="off">
+            <div class="botoes-edicao">
+              <button type="submit" class="btn-salvar">Salvar</button>
+              <a href="perfil.php" class="btn-cancelar" style="text-align:center;text-decoration:none;">Cancelar</a>
+            </div>
+          </div>
+        </form>
+      <?php else: ?>
+        <div class="info-row">
+          <span class="info-valor <?= $cepAtual === '' ? 'info-vazio' : '' ?>">
+            <?= $cepAtual !== '' ? htmlspecialchars($cepAtual) : 'Nenhum CEP cadastrado' ?>
+          </span>
+          <button class="btn-editar" onclick="window.location.href='perfil.php?editar=cep'">Editar CEP</button>
         </div>
       <?php endif; ?>
     </div>

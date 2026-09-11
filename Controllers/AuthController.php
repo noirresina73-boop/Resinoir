@@ -23,6 +23,7 @@ class AuthController
             senha VARCHAR(255) NOT NULL,
             foto VARCHAR(255) DEFAULT NULL,
             tipo ENUM('admin','cliente') NOT NULL DEFAULT 'cliente',
+            cep VARCHAR(20) DEFAULT NULL,
             criado_em DATETIME DEFAULT CURRENT_TIMESTAMP
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
         $BD->exec($sql);
@@ -99,6 +100,14 @@ class AuthController
     public function excluirConta(int $id): void{
         $BD = $this->BDlog();
         $query = $BD->prepare('DELETE FROM usuarios WHERE id = :id');
+        $query->bindValue(':id', $id, PDO::PARAM_INT);
+        $query->execute();
+    }
+
+    public function atualizarCep(int $id, ?string $cep): void{
+        $BD = $this->BDlog();
+        $query = $BD->prepare('UPDATE usuarios SET cep = :cep WHERE id = :id');
+        $query->bindValue(':cep', $cep, PDO::PARAM_STR);
         $query->bindValue(':id', $id, PDO::PARAM_INT);
         $query->execute();
     }

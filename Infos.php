@@ -53,8 +53,6 @@ $secoes = [
   </head>
   <body>
 
-    <?php include 'topo_usuario.php'; ?>
-
     <div class="device">
 
         <navbar class="topnav">
@@ -66,6 +64,7 @@ $secoes = [
                 <div class="icon-btn"  onclick="window.location.href='./pesquisa.php'">
                     <svg viewBox="0 0 24 24" fill="none" stroke="#e9e0c9" stroke-width="1.4"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
                 </div>
+                <?php include 'topo_usuario.php'; ?>
             </div>
         </navbar>
 
@@ -139,8 +138,9 @@ $secoes = [
                     </div>
                 </div>
 
-                <div class="frete">
-                    <!-- Frete -->
+                <div class="frete" id="freteContainer">
+                    <div id="freteInfo" style="font-size:12px;color:var(--bone-dim);margin-top:4px;"></div>
+                    <button type="button" id="btnTrocarEndereco" style="display:none;margin-top:8px;padding:6px 12px;border:1px solid rgba(176,141,87,0.5);border-radius:20px;background:transparent;color:#d4b077;font-family:'Jost',sans-serif;font-size:10px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;">Trocar endereço</button>
                 </div>
 
                 <?php if (!empty($anuncio['cor']) || !empty($anuncio['tamanho'])) { ?>
@@ -169,7 +169,6 @@ $secoes = [
 
                 <div class="botao">
                     <button class="btn-comprar" id="btnComprarWhatsApp" type="button">Comprar</button>
-                    <button class="btn-carrinho" id="btnCalcularFrete" type="button">Calcular Frete</button>
                 </div>
 
             </div>
@@ -248,6 +247,7 @@ const produtoId = <?= json_encode((string) ($anuncio['id'] ?? '')) ?>;
 const produtoCapa = <?= json_encode((string) ($capa ?? '')) ?>;
 const valorProduto = Number(<?= json_encode((float) ($anuncio['valor'] ?? 0)) ?>) || 0;
 const produtoEstoque = Number(<?= json_encode((int) ($anuncio['estoque'] ?? 0)) ?>) || 0;
+const usuarioCep = <?= json_encode((string) ($_SESSION['usuario_cep'] ?? '')) ?>;
 
 function atualizarEstadoProduto() {
     const botaoCompra = document.getElementById('btnComprarWhatsApp');
@@ -478,6 +478,22 @@ function prepararLinkCompra() {
     const ultimoFrete = getFreteCache();
 
     if (!ultimoFrete || !ultimoFrete.cep) {
+        if (usuarioCep) {
+            calcularFreteAutomatico().then(() => {
+                const novoCache = getFreteCache();
+                if (novoCache && novoCache.cep) {
+                    const enderecoTexto = `%0A%0AEndereço salvo:%20${encodeURIComponent((novoCache.rua || 'Rua não informada') + ', ' + (novoCache.bairro || 'bairro não informado'))}%0ACEP:%20${encodeURIComponent(novoCache.cep)}`;
+                    const texto = produtoEstoque <= 0
+                        ? `Olá! Gostaria de fazer o pedido do produto ${produtoNome} (ID: ${produtoId}).%0A%0AQuero%20confirmar%20a%20disponibilidade%20e%20o%20valor%20final.${enderecoTexto}`
+                        : `Olá! Gostaria de comprar o produto ${produtoNome} (ID: ${produtoId}).%0A%0AQuero%20mais%20informações%20sobre%20a%20entrega%20e%20pagamento.${enderecoTexto}`;
+                    const url = `https://wa.me/${whatsappNumero}?text=${texto}`;
+                    window.open(url, '_blank');
+                } else {
+                    abrirModalCepOpcional();
+                }
+            });
+            return;
+        }
         abrirModalCepOpcional();
         return;
     }
@@ -490,9 +506,34 @@ function prepararLinkCompra() {
     window.open(url, '_blank');
 }
 
+function atualizarFreteTexto(mensagem, ok = true) {
+    const freteInfo = document.getElementById('freteInfo');
+    const btnTrocar = document.getElementById('btnTrocarEndereco');
+    if (!freteInfo) return;
+    freteInfo.textContent = mensagem;
+    freteInfo.style.color = ok ? '#9de3a6' : '#ffb7b7';
+    if (btnTrocar) btnTrocar.style.display = 'inline-block';
+}
+
+async function calcularFreteAutomatico() {
+    if (!usuarioCep) {
+        atualizarFreteTexto('Informe seu CEP para calcular o frete.', false);
+        return;
+    }
+    atualizarFreteTexto('Calculando frete...');
+    const calculo = await calcularFrete(usuarioCep);
+    if (calculo.valid) {
+        const valorFormatado = `R$ ${calculo.valor.toFixed(2).replace('.', ',')}`;
+        atualizarFreteTexto(`Frete para ${usuarioCep.replace(/(\d{5})(\d{3})/, '$1-$2')}: ${valorFormatado}. ${calculo.mensagem}`);
+        setFreteCache(calculo);
+    } else {
+        atualizarFreteTexto(calculo.mensagem, false);
+    }
+}
+
 atualizarEstadoProduto();
 document.getElementById('btnComprarWhatsApp')?.addEventListener('click', prepararLinkCompra);
-document.getElementById('btnCalcularFrete')?.addEventListener('click', abrirModalFrete);
+document.getElementById('btnTrocarEndereco')?.addEventListener('click', abrirModalFrete);
 document.querySelectorAll('[data-fechar-frete]').forEach(function(botao){
     botao.addEventListener('click', fecharModalFrete);
 });
@@ -507,6 +548,10 @@ document.getElementById('btnContinuarSemCep')?.addEventListener('click', functio
     fecharModalCepOpcional();
     continuarCompraSemCep();
 });
+
+if (usuarioCep) {
+    calcularFreteAutomatico();
+}
 
 document.getElementById('formFrete')?.addEventListener('submit', async function(event){
     event.preventDefault();

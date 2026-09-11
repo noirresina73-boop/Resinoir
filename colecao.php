@@ -16,7 +16,6 @@ include 'autoloader.php';
 </head>
 <body>
 
-<?php include 'topo_usuario.php'; ?>
 
 <svg width="0" height="0" style="position:absolute">
   <defs>
@@ -29,15 +28,14 @@ include 'autoloader.php';
 <div class="device">
 
   <!-- TOP NAV -->
-<navbar class="topnav">
+  <navbar class="topnav">
             <div class="icon-btn" onclick="window.history.back()">
                 <svg viewBox="0 0 24 24" fill="none" stroke="#e9e0c9" stroke-width="1.4"><path d="M15 18l-6-6 6-6"/></svg>
             </div>
-            <div class="wordmark">Resinoir</div>
-            <div class="side">
-                <div class="icon-btn">
-                    </div>
-            </div>
+    <div class="wordmark">Resinoir</div>
+    <div class="side">
+        <?php include 'topo_usuario.php'; ?>
+    </div>
         </navbar>
 
   <!-- HEADER -->

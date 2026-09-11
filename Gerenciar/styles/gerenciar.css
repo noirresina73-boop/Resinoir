@@ -320,6 +320,7 @@ textarea.form-control {
   .topbar-actions {
     width: 100%;
     justify-content: flex-start;
+    gap: 0.4rem;
   }
 
   .admin-header {
@@ -337,40 +338,28 @@ textarea.form-control {
     overflow: auto;
   }
 
-  .formulario {
-    flex: 1 1 auto;
-    width: 100%;
-    padding: 0 16px 40px;
+  .navbar {
+    padding-top: 0.35rem !important;
+    padding-bottom: 0.35rem !important;
+    min-height: 48px;
   }
 
-  .postagem.fixed {
-    position: static;
-    top: auto;
-  }
-
-  .anuncio {
-    flex-direction: column;
-    gap: 16px;
-    padding: 16px;
-  }
-
-  .fotos {
-    flex: 1 1 auto;
-    width: 100%;
-  }
-
-  .container-fluid {
-    padding-left: 1rem;
-    padding-right: 1rem;
+  .navbar-brand {
+    font-size: 1rem;
   }
 
   .btn {
-    font-size: 0.72rem;
-    padding: 0.65rem 0.9rem;
+    font-size: 0.62rem;
+    padding: 0.45rem 0.7rem;
+    letter-spacing: 0.08rem;
   }
 
-  .modal-dialog {
-    margin: 0.5rem;
+  .btn-form {
+    margin-inline: 2px;
+  }
+
+  .container-fluid {
+    flex-wrap: wrap;
   }
 }
 
