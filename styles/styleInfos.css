@@ -263,10 +263,10 @@
 }
 
 .btn-carrinho{
-    background:linear-gradient(180deg, rgba(176,141,87,0.08), transparent);
-    color:var(--bone);
+    background:linear-gradient(180deg, var(--gold-bright), var(--gold));
+    color:var(--void);
 }
-.btn-carrinho:hover{ background:rgba(176,141,87,0.18); }
+.btn-carrinho:hover{ opacity:.9; }
 
 /* ---------------- DESCRIÇÃO (seções fixas, sem abas) ---------------- */
 

@@ -142,10 +142,9 @@ $secoes = [
                     <div id="freteInfo" style="font-size:12px;color:var(--bone-dim);margin-top:4px;"></div>
                     <button type="button" id="btnTrocarEndereco" style="display:none;margin-top:8px;padding:6px 12px;border:1px solid rgba(176,141,87,0.5);border-radius:20px;background:transparent;color:#d4b077;font-family:'Jost',sans-serif;font-size:10px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;">Trocar endereço</button>
                     <button type="button" id="btnCalcularFrete" class="btn-carrinho">Calcular Frete</button>
-                </div>
-
-                <?php if (!empty($anuncio['cor']) || !empty($anuncio['tamanho'])) { ?>
-                <div class="detalhes">
+            </div>
+            <?php if (!empty($anuncio['cor']) || !empty($anuncio['tamanho'])) { ?>
+            <div class="detalhes">
 
                     <?php if (!empty($anuncio['cor'])) { ?>
                     <div class="cor">
@@ -204,11 +203,11 @@ $secoes = [
             <button type="button" class="modal-fechar" aria-label="Fechar" data-fechar-frete="true">×</button>
             <div class="eyebrow">Frete</div>
             <h3 id="modalFreteTitulo">Calcular frete</h3>
-            <form id="formFrete" class="form-frete">
-                <label for="cepFrete">Digite seu CEP</label>
-                <input id="cepFrete" name="cep" type="text" inputmode="numeric" maxlength="9" placeholder="Ex.: 88000-000" required>
-                <button type="submit" class="btn-frete-submit">Calcular</button>
-            </form>
+    <form id="formFrete" class="form-frete" onsubmit="return false;">
+        <label for="cepFrete">Digite seu CEP</label>
+        <input id="cepFrete" name="cep" type="text" inputmode="numeric" maxlength="9" placeholder="Ex.: 00000-000" required>
+        <button type="submit" class="btn-frete-submit">Calcular</button>
+    </form>
             <div id="resultadoFrete" class="resultado-frete" aria-live="polite"></div>
         </div>
     </div>
@@ -223,6 +222,20 @@ $secoes = [
             <div class="modal-frete-acao-row">
                 <button type="button" id="btnContinuarSemCep" class="btn-frete-secundario">Continuar sem CEP</button>
                 <button type="button" id="btnInformarCep" class="btn-frete-submit">Informar CEP</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalConfirmarSalvarCep" class="modal-frete" aria-hidden="true">
+        <div class="modal-frete-backdrop" data-fechar-confirmar-cep="true"></div>
+        <div class="modal-frete-content" role="dialog" aria-modal="true" aria-labelledby="modalConfirmarSalvarCepTitulo">
+            <button type="button" class="modal-fechar" aria-label="Fechar" data-fechar-confirmar-cep="true">×</button>
+            <div class="eyebrow">Salvar CEP</div>
+            <h3 id="modalConfirmarSalvarCepTitulo">Deseja salvar este CEP no seu perfil?</h3>
+            <p class="texto-modal-cep">Assim ele será usado automaticamente para calcular o frete.</p>
+            <div class="modal-frete-acao-row">
+                <button type="button" id="btnNaoSalvarCep" class="btn-frete-secundario">Não</button>
+                <button type="button" id="btnSimSalvarCep" class="btn-frete-submit">Sim</button>
             </div>
         </div>
     </div>
@@ -250,8 +263,21 @@ const valorProduto = Number(<?= json_encode((float) ($anuncio['valor'] ?? 0)) ?>
 const produtoEstoque = Number(<?= json_encode((int) ($anuncio['estoque'] ?? 0)) ?>) || 0;
 const usuarioCep = <?= json_encode((string) ($_SESSION['usuario_cep'] ?? '')) ?>;
 const usuarioLogado = <?= json_encode((bool) isset($_SESSION['usuario_id'])) ?>;
+    let cepParaSalvar = '';
 
-function atualizarEstadoProduto() {
+    function aplicarMascaraCep(input) {
+        if (!input) return;
+        input.addEventListener('input', function(e) {
+            let v = e.target.value.replace(/\D/g, '');
+            if (v.length > 8) v = v.slice(0, 8);
+            if (v.length > 5) {
+                v = v.slice(0, 5) + '-' + v.slice(5, 8);
+            }
+            if (e.target.value !== v) e.target.value = v;
+        });
+    }
+
+    function atualizarEstadoProduto() {
     const botaoCompra = document.getElementById('btnComprarWhatsApp');
     const statusEstoque = document.getElementById('statusEstoque');
 
@@ -395,11 +421,25 @@ function abrirModalCepOpcional() {
     modal.setAttribute('aria-hidden', 'false');
 }
 
-function fecharModalCepOpcional() {
-    const modal = document.getElementById('modalCepOpcional');
+function fecharModalConfirmarCep() {
+    const modal = document.getElementById('modalConfirmarSalvarCep');
     if (!modal) return;
     modal.classList.remove('ativo');
     modal.setAttribute('aria-hidden', 'true');
+}
+
+function abrirModalConfirmarCep() {
+    const modal = document.getElementById('modalConfirmarSalvarCep');
+    if (!modal) return;
+    modal.classList.add('ativo');
+    modal.setAttribute('aria-hidden', 'false');
+}
+
+function salvarCepConfirmado() {
+    if (!cepParaSalvar) return;
+    salvarCepNoPerfil(cepParaSalvar).then(function(resp) {
+        fecharModalConfirmarCep();
+    });
 }
 
 async function calcularFrete(cep) {
@@ -477,18 +517,20 @@ function prepararLinkCompra() {
 function atualizarFreteTexto(mensagem, ok = true) {
     const freteInfo = document.getElementById('freteInfo');
     const btnTrocar = document.getElementById('btnTrocarEndereco');
+    const btnCalcular = document.getElementById('btnCalcularFrete');
     if (!freteInfo) return;
     freteInfo.textContent = mensagem;
     freteInfo.style.color = ok ? '#9de3a6' : '#ffb7b7';
+    if (btnCalcular) btnCalcular.style.display = 'none';
     if (btnTrocar) btnTrocar.style.display = 'inline-block';
 }
 
 function salvarCepNoPerfil(cep) {
-    return fetch('atualizar_cep.php', {
+    return fetch('./atualizar_cep.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: 'cep=' + encodeURIComponent(cep)
-    }).then(function(r) { return r.json(); });
+    }).then(function(r) { return r.json(); }).catch(function() { return { sucesso: false }; });
 }
 
 async function calcularFreteAutomatico() {
@@ -500,13 +542,15 @@ async function calcularFreteAutomatico() {
     const calculo = await calcularFrete(usuarioCep);
     if (calculo.valid) {
         const valorFormatado = `R$ ${calculo.valor.toFixed(2).replace('.', ',')}`;
-        atualizarFreteTexto(`Frete para ${usuarioCep.replace(/(\d{5})(\d{3})/, '$1-$2')}: ${valorFormatado}. ${calculo.mensagem}`);
+        const cepExibicao = usuarioCep.replace(/(\d{5})(\d{3})/, '$1-$2');
+        atualizarFreteTexto(`Frete para ${cepExibicao}: ${valorFormatado}. ${calculo.mensagem}`, true);
     } else {
         atualizarFreteTexto(calculo.mensagem, false);
     }
 }
 
 atualizarEstadoProduto();
+aplicarMascaraCep(document.getElementById('cepFrete'));
 document.getElementById('btnComprarWhatsApp')?.addEventListener('click', prepararLinkCompra);
 document.getElementById('btnCalcularFrete')?.addEventListener('click', abrirModalFrete);
 document.getElementById('btnTrocarEndereco')?.addEventListener('click', abrirModalFrete);
@@ -516,6 +560,11 @@ document.querySelectorAll('[data-fechar-frete]').forEach(function(botao){
 document.querySelectorAll('[data-fechar-cep-opcional]').forEach(function(botao){
     botao.addEventListener('click', fecharModalCepOpcional);
 });
+document.querySelectorAll('[data-fechar-confirmar-cep]').forEach(function(botao){
+    botao.addEventListener('click', fecharModalConfirmarCep);
+});
+document.getElementById('btnSimSalvarCep')?.addEventListener('click', salvarCepConfirmado);
+document.getElementById('btnNaoSalvarCep')?.addEventListener('click', fecharModalConfirmarCep);
 document.getElementById('btnInformarCep')?.addEventListener('click', function(){
     fecharModalCepOpcional();
     abrirModalFrete();
@@ -550,8 +599,9 @@ document.getElementById('formFrete')?.addEventListener('submit', async function(
     resultado.classList.remove('erro');
     resultado.classList.add('ok');
 
-    if (usuarioLogado && confirm('Deseja salvar este CEP no seu perfil para cálculos automáticos?')) {
-        await salvarCepNoPerfil(calculo.cep);
+    if (usuarioLogado) {
+        cepParaSalvar = calculo.cep;
+        abrirModalConfirmarCep();
     }
 });
 
@@ -658,9 +708,9 @@ document.getElementById('formFrete')?.addEventListener('submit', async function(
         width: 100% !important;
         padding: 10px !important;
         border-radius: 10px !important;
-        border: 1px solid rgba(212, 176, 119, 0.35) !important;
-        background: linear-gradient(135deg, #d4b077, #b98d44) !important;
-        color: #17171a !important;
+        border: 1px solid var(--gold) !important;
+        background: linear-gradient(180deg, var(--gold-bright), var(--gold)) !important;
+        color: var(--void) !important;
         font-weight: 700 !important;
         font-size: 12px !important;
         letter-spacing: 1.5px !important;
