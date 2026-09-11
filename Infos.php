@@ -203,10 +203,10 @@ $secoes = [
             <button type="button" class="modal-fechar" aria-label="Fechar" data-fechar-frete="true">×</button>
             <div class="eyebrow">Frete</div>
             <h3 id="modalFreteTitulo">Calcular frete</h3>
-    <form id="formFrete" class="form-frete" onsubmit="return false;">
+    <form id="formFrete" class="form-frete">
         <label for="cepFrete">Digite seu CEP</label>
         <input id="cepFrete" name="cep" type="text" inputmode="numeric" maxlength="9" placeholder="Ex.: 00000-000" required>
-        <button type="submit" class="btn-frete-submit">Calcular</button>
+        <button type="button" id="btnCalcularSubmit" class="btn-frete-submit">Calcular</button>
     </form>
             <div id="resultadoFrete" class="resultado-frete" aria-live="polite"></div>
         </div>
@@ -263,7 +263,7 @@ const valorProduto = Number(<?= json_encode((float) ($anuncio['valor'] ?? 0)) ?>
 const produtoEstoque = Number(<?= json_encode((int) ($anuncio['estoque'] ?? 0)) ?>) || 0;
 const usuarioCep = <?= json_encode((string) ($_SESSION['usuario_cep'] ?? '')) ?>;
 const usuarioLogado = <?= json_encode((bool) isset($_SESSION['usuario_id'])) ?>;
-    let cepParaSalvar = '';
+let cepParaSalvar = '';
 
     function aplicarMascaraCep(input) {
         if (!input) return;
@@ -421,6 +421,13 @@ function abrirModalCepOpcional() {
     modal.setAttribute('aria-hidden', 'false');
 }
 
+function fecharModalCepOpcional() {
+    const modal = document.getElementById('modalCepOpcional');
+    if (!modal) return;
+    modal.classList.remove('ativo');
+    modal.setAttribute('aria-hidden', 'true');
+}
+
 function fecharModalConfirmarCep() {
     const modal = document.getElementById('modalConfirmarSalvarCep');
     if (!modal) return;
@@ -438,6 +445,8 @@ function abrirModalConfirmarCep() {
 function salvarCepConfirmado() {
     if (!cepParaSalvar) return;
     salvarCepNoPerfil(cepParaSalvar).then(function(resp) {
+        fecharModalConfirmarCep();
+    }).catch(function() {
         fecharModalConfirmarCep();
     });
 }
@@ -526,11 +535,11 @@ function atualizarFreteTexto(mensagem, ok = true) {
 }
 
 function salvarCepNoPerfil(cep) {
-    return fetch('./atualizar_cep.php', {
+    return fetch('atualizar_cep.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: 'cep=' + encodeURIComponent(cep)
-    }).then(function(r) { return r.json(); }).catch(function() { return { sucesso: false }; });
+    }).then(function(r) { return r.json(); });
 }
 
 async function calcularFreteAutomatico() {
@@ -550,7 +559,6 @@ async function calcularFreteAutomatico() {
 }
 
 atualizarEstadoProduto();
-aplicarMascaraCep(document.getElementById('cepFrete'));
 document.getElementById('btnComprarWhatsApp')?.addEventListener('click', prepararLinkCompra);
 document.getElementById('btnCalcularFrete')?.addEventListener('click', abrirModalFrete);
 document.getElementById('btnTrocarEndereco')?.addEventListener('click', abrirModalFrete);
@@ -578,8 +586,7 @@ if (usuarioCep) {
     calcularFreteAutomatico();
 }
 
-document.getElementById('formFrete')?.addEventListener('submit', async function(event){
-    event.preventDefault();
+document.getElementById('btnCalcularSubmit')?.addEventListener('click', async function(){
     const cepInput = document.getElementById('cepFrete');
     const resultado = document.getElementById('resultadoFrete');
     resultado.textContent = 'Calculando frete...';
@@ -604,6 +611,8 @@ document.getElementById('formFrete')?.addEventListener('submit', async function(
         abrirModalConfirmarCep();
     }
 });
+
+aplicarMascaraCep(document.getElementById('cepFrete'));
 
     </script>
 
