@@ -102,3 +102,51 @@ body{
     border-radius: 10px;
     border: 1px solid rgba(176, 141, 87, 0.25);
 }
+
+@media (max-width: 768px) {
+    .icon-option {
+        width: 42px;
+        height: 42px;
+        padding: 6px;
+    }
+
+    .icon-preview {
+        width: 56px;
+        height: 56px;
+    }
+
+    .svg-thumb-admin {
+        width: 42px;
+        height: 42px;
+        padding: 6px;
+    }
+
+    .card-thumb {
+        width: 40px;
+        height: 40px;
+    }
+}
+
+@media (max-width: 480px) {
+    .icon-option {
+        width: 38px;
+        height: 38px;
+        padding: 5px;
+    }
+
+    .icon-preview {
+        width: 48px;
+        height: 48px;
+    }
+
+    .svg-thumb-admin {
+        width: 38px;
+        height: 38px;
+        padding: 5px;
+    }
+
+    .card-thumb {
+        width: 36px;
+        height: 36px;
+    }
+}

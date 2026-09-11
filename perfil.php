@@ -226,9 +226,43 @@ $telefoneAtual = $usuario['telefone'] ?? '';
     outline:none;
   }
   input:focus{border-color:var(--gold-bright);}
-  input[type="file"]{
+  .file-input-wrapper{
+    position:relative;
+    overflow:hidden;
+    display:inline-block;
+    width:100%;
+    margin-top:10px;
+  }
+  .file-input-wrapper input[type="file"]{
+    position:absolute;
+    inset:0;
+    opacity:0;
+    cursor:pointer;
+    padding:0;
+    border:none;
+    background:transparent;
+    width:100%;
+    height:100%;
+  }
+  .file-input-label{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    width:100%;
+    padding:12px 14px;
+    border-radius:10px;
+    border:1px dashed rgba(176,141,87,0.55);
+    background:rgba(176,141,87,0.06);
     color:var(--bone-dim);
     font-size:13px;
+    cursor:pointer;
+    transition:.2s;
+  }
+  .file-input-wrapper:hover .file-input-label{
+    border-color:var(--gold-bright);
+    color:var(--gold-bright);
+    background:rgba(176,141,87,0.12);
   }
   .foto-preview{
     width:80px;
@@ -342,7 +376,10 @@ $telefoneAtual = $usuario['telefone'] ?? '';
       <form method="post" enctype="multipart/form-data">
         <input type="hidden" name="acao" value="foto">
         <label>Nova foto</label>
-        <input type="file" name="foto" accept="image/*" required onchange="previewFoto(this)">
+        <div class="file-input-wrapper">
+          <input type="file" name="foto" accept="image/*" required onchange="previewFoto(this)">
+          <div class="file-input-label">Escolher arquivo</div>
+        </div>
         <img id="previewFoto" class="foto-preview" alt="">
         <div class="botoes-edicao">
           <button type="submit" class="btn-salvar">Salvar foto</button>

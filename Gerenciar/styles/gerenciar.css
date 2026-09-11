@@ -336,6 +336,77 @@ textarea.form-control {
     border-radius: 18px;
     overflow: auto;
   }
+
+  .formulario {
+    flex: 1 1 auto;
+    width: 100%;
+    padding: 0 16px 40px;
+  }
+
+  .postagem.fixed {
+    position: static;
+    top: auto;
+  }
+
+  .anuncio {
+    flex-direction: column;
+    gap: 16px;
+    padding: 16px;
+  }
+
+  .fotos {
+    flex: 1 1 auto;
+    width: 100%;
+  }
+
+  .container-fluid {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .btn {
+    font-size: 0.72rem;
+    padding: 0.65rem 0.9rem;
+  }
+
+  .modal-dialog {
+    margin: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-title {
+    font-size: 1.8rem;
+  }
+
+  .page-shell {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+
+  .formulario {
+    padding: 0 12px 32px;
+  }
+
+  .anuncio {
+    padding: 12px;
+    border-radius: 8px;
+  }
+
+  .btn {
+    font-size: 0.7rem;
+    padding: 0.6rem 0.8rem;
+    letter-spacing: 0.08rem;
+  }
+
+  .table {
+    font-size: 0.8rem;
+  }
+
+  .card-thumb {
+    width: 40px;
+    height: 40px;
+  }
 }
 
 /* ---------------- SELETOR DE ÍCONES ---------------- */
