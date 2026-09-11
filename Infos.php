@@ -141,6 +141,7 @@ $secoes = [
                 <div class="frete" id="freteContainer">
                     <div id="freteInfo" style="font-size:12px;color:var(--bone-dim);margin-top:4px;"></div>
                     <button type="button" id="btnTrocarEndereco" style="display:none;margin-top:8px;padding:6px 12px;border:1px solid rgba(176,141,87,0.5);border-radius:20px;background:transparent;color:#d4b077;font-family:'Jost',sans-serif;font-size:10px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;">Trocar endereço</button>
+                    <button type="button" id="btnCalcularFrete" class="btn-carrinho">Calcular Frete</button>
                 </div>
 
                 <?php if (!empty($anuncio['cor']) || !empty($anuncio['tamanho'])) { ?>
@@ -248,6 +249,7 @@ const produtoCapa = <?= json_encode((string) ($capa ?? '')) ?>;
 const valorProduto = Number(<?= json_encode((float) ($anuncio['valor'] ?? 0)) ?>) || 0;
 const produtoEstoque = Number(<?= json_encode((int) ($anuncio['estoque'] ?? 0)) ?>) || 0;
 const usuarioCep = <?= json_encode((string) ($_SESSION['usuario_cep'] ?? '')) ?>;
+const usuarioLogado = <?= json_encode((bool) isset($_SESSION['usuario_id'])) ?>;
 
 function atualizarEstadoProduto() {
     const botaoCompra = document.getElementById('btnComprarWhatsApp');
@@ -337,25 +339,6 @@ function fecharImagem(){
     document.getElementById("overlayImagem").classList.remove("ativo");
 }
 
-const FRETE_CACHE_KEY = 'resinoir_ultimo_frete';
-
-function getFreteCache() {
-    try {
-        const valor = localStorage.getItem(FRETE_CACHE_KEY);
-        return valor ? JSON.parse(valor) : {};
-    } catch (erro) {
-        return {};
-    }
-}
-
-function setFreteCache(dados) {
-    try {
-        localStorage.setItem(FRETE_CACHE_KEY, JSON.stringify(dados));
-    } catch (erro) {
-        console.warn('Não foi possível salvar o cache do frete.', erro);
-    }
-}
-
 function getEnderecoResumo(dados) {
     const rua = dados?.rua || '';
     const bairro = dados?.bairro || '';
@@ -379,16 +362,14 @@ function abrirModalFrete() {
     modal.classList.add('ativo');
     modal.setAttribute('aria-hidden', 'false');
 
-    const cache = getFreteCache();
     const input = document.getElementById('cepFrete');
-    if (input && cache.cep) {
-        input.value = cache.cep;
+    if (input && usuarioCep) {
+        input.value = usuarioCep;
     }
 
     const resultado = document.getElementById('resultadoFrete');
-    if (resultado && cache.cep && cache.rua) {
-        const resumo = getEnderecoResumo(cache);
-        resultado.textContent = `Último endereço salvo: ${resumo || cache.cep}.`;
+    if (resultado && usuarioCep) {
+        resultado.textContent = `CEP salvo: ${usuarioCep}`;
         resultado.classList.add('ok');
     } else if (resultado) {
         resultado.textContent = '';
@@ -458,7 +439,6 @@ async function calcularFrete(cep) {
             estado: dados.estado || ''
         };
 
-        setFreteCache(retorno);
         return retorno;
     } catch (erro) {
         console.error(erro);
@@ -475,35 +455,23 @@ function continuarCompraSemCep() {
 }
 
 function prepararLinkCompra() {
-    const ultimoFrete = getFreteCache();
-
-    if (!ultimoFrete || !ultimoFrete.cep) {
-        if (usuarioCep) {
-            calcularFreteAutomatico().then(() => {
-                const novoCache = getFreteCache();
-                if (novoCache && novoCache.cep) {
-                    const enderecoTexto = `%0A%0AEndereço salvo:%20${encodeURIComponent((novoCache.rua || 'Rua não informada') + ', ' + (novoCache.bairro || 'bairro não informado'))}%0ACEP:%20${encodeURIComponent(novoCache.cep)}`;
-                    const texto = produtoEstoque <= 0
-                        ? `Olá! Gostaria de fazer o pedido do produto ${produtoNome} (ID: ${produtoId}).%0A%0AQuero%20confirmar%20a%20disponibilidade%20e%20o%20valor%20final.${enderecoTexto}`
-                        : `Olá! Gostaria de comprar o produto ${produtoNome} (ID: ${produtoId}).%0A%0AQuero%20mais%20informações%20sobre%20a%20entrega%20e%20pagamento.${enderecoTexto}`;
-                    const url = `https://wa.me/${whatsappNumero}?text=${texto}`;
-                    window.open(url, '_blank');
-                } else {
-                    abrirModalCepOpcional();
-                }
-            });
-            return;
-        }
+    if (!usuarioCep) {
         abrirModalCepOpcional();
         return;
     }
 
-    const enderecoTexto = `%0A%0AEndereço salvo:%20${encodeURIComponent((ultimoFrete.rua || 'Rua não informada') + ', ' + (ultimoFrete.bairro || 'bairro não informado'))}%0ACEP:%20${encodeURIComponent(ultimoFrete.cep)}`;
-    const texto = produtoEstoque <= 0
-        ? `Olá! Gostaria de fazer o pedido do produto ${produtoNome} (ID: ${produtoId}).%0A%0AQuero%20confirmar%20a%20disponibilidade%20e%20o%20valor%20final.${enderecoTexto}`
-        : `Olá! Gostaria de comprar o produto ${produtoNome} (ID: ${produtoId}).%0A%0AQuero%20mais%20informações%20sobre%20a%20entrega%20e%20pagamento.${enderecoTexto}`;
-    const url = `https://wa.me/${whatsappNumero}?text=${texto}`;
-    window.open(url, '_blank');
+    calcularFrete(usuarioCep).then(function(calculo) {
+        if (calculo.valid) {
+            const enderecoTexto = `%0A%0AEndereço salvo:%20${encodeURIComponent((calculo.rua || 'Rua não informada') + ', ' + (calculo.bairro || 'bairro não informado'))}%0ACEP:%20${encodeURIComponent(calculo.cep)}`;
+            const texto = produtoEstoque <= 0
+                ? `Olá! Gostaria de fazer o pedido do produto ${produtoNome} (ID: ${produtoId}).%0A%0AQuero%20confirmar%20a%20disponibilidade%20e%20o%20valor%20final.${enderecoTexto}`
+                : `Olá! Gostaria de comprar o produto ${produtoNome} (ID: ${produtoId}).%0A%0AQuero%20mais%20informações%20sobre%20a%20entrega%20e%20pagamento.${enderecoTexto}`;
+            const url = `https://wa.me/${whatsappNumero}?text=${texto}`;
+            window.open(url, '_blank');
+        } else {
+            abrirModalCepOpcional();
+        }
+    });
 }
 
 function atualizarFreteTexto(mensagem, ok = true) {
@@ -513,6 +481,14 @@ function atualizarFreteTexto(mensagem, ok = true) {
     freteInfo.textContent = mensagem;
     freteInfo.style.color = ok ? '#9de3a6' : '#ffb7b7';
     if (btnTrocar) btnTrocar.style.display = 'inline-block';
+}
+
+function salvarCepNoPerfil(cep) {
+    return fetch('atualizar_cep.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'cep=' + encodeURIComponent(cep)
+    }).then(function(r) { return r.json(); });
 }
 
 async function calcularFreteAutomatico() {
@@ -525,7 +501,6 @@ async function calcularFreteAutomatico() {
     if (calculo.valid) {
         const valorFormatado = `R$ ${calculo.valor.toFixed(2).replace('.', ',')}`;
         atualizarFreteTexto(`Frete para ${usuarioCep.replace(/(\d{5})(\d{3})/, '$1-$2')}: ${valorFormatado}. ${calculo.mensagem}`);
-        setFreteCache(calculo);
     } else {
         atualizarFreteTexto(calculo.mensagem, false);
     }
@@ -533,6 +508,7 @@ async function calcularFreteAutomatico() {
 
 atualizarEstadoProduto();
 document.getElementById('btnComprarWhatsApp')?.addEventListener('click', prepararLinkCompra);
+document.getElementById('btnCalcularFrete')?.addEventListener('click', abrirModalFrete);
 document.getElementById('btnTrocarEndereco')?.addEventListener('click', abrirModalFrete);
 document.querySelectorAll('[data-fechar-frete]').forEach(function(botao){
     botao.addEventListener('click', fecharModalFrete);
@@ -573,6 +549,10 @@ document.getElementById('formFrete')?.addEventListener('submit', async function(
     resultado.textContent = resumo ? `${calculo.mensagem} Endereço: ${resumo}.` : calculo.mensagem;
     resultado.classList.remove('erro');
     resultado.classList.add('ok');
+
+    if (usuarioLogado && confirm('Deseja salvar este CEP no seu perfil para cálculos automáticos?')) {
+        await salvarCepNoPerfil(calculo.cep);
+    }
 });
 
     </script>
@@ -671,6 +651,36 @@ document.getElementById('formFrete')?.addEventListener('submit', async function(
         margin-top: 1rem !important;
         min-height: 24px !important;
         font-size: 0.95rem !important;
+      }
+
+      #btnCalcularFrete {
+        margin-top: 10px !important;
+        width: 100% !important;
+        padding: 10px !important;
+        border-radius: 10px !important;
+        border: 1px solid rgba(212, 176, 119, 0.35) !important;
+        background: linear-gradient(135deg, #d4b077, #b98d44) !important;
+        color: #17171a !important;
+        font-weight: 700 !important;
+        font-size: 12px !important;
+        letter-spacing: 1.5px !important;
+        text-transform: uppercase !important;
+        cursor: pointer !important;
+      }
+
+      #btnTrocarEndereco {
+        margin-top: 8px !important;
+        width: 100% !important;
+        padding: 10px !important;
+        border-radius: 10px !important;
+        border: 1px solid rgba(176, 141, 87, 0.5) !important;
+        background: transparent !important;
+        color: #d4b077 !important;
+        font-weight: 700 !important;
+        font-size: 12px !important;
+        letter-spacing: 1.5px !important;
+        text-transform: uppercase !important;
+        cursor: pointer !important;
       }
 
       .resultado-frete.ok {
