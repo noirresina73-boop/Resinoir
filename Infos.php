@@ -445,6 +445,10 @@ function abrirModalConfirmarCep() {
 function salvarCepConfirmado() {
     if (!cepParaSalvar) return;
     salvarCepNoPerfil(cepParaSalvar).then(function(resp) {
+        if (resp && resp.sucesso) {
+            usuarioCep = cepParaSalvar;
+            calcularFreteAutomatico();
+        }
         fecharModalConfirmarCep();
     }).catch(function() {
         fecharModalConfirmarCep();
