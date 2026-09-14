@@ -261,7 +261,7 @@ const produtoId = <?= json_encode((string) ($anuncio['id'] ?? '')) ?>;
 const produtoCapa = <?= json_encode((string) ($capa ?? '')) ?>;
 const valorProduto = Number(<?= json_encode((float) ($anuncio['valor'] ?? 0)) ?>) || 0;
 const produtoEstoque = Number(<?= json_encode((int) ($anuncio['estoque'] ?? 0)) ?>) || 0;
-const usuarioCep = <?= json_encode((string) ($_SESSION['usuario_cep'] ?? '')) ?>;
+let usuarioCep = <?= json_encode((string) ($_SESSION['usuario_cep'] ?? '')) ?>;
 const usuarioLogado = <?= json_encode((bool) isset($_SESSION['usuario_id'])) ?>;
 let cepParaSalvar = '';
 
