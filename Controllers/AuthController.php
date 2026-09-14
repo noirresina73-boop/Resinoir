@@ -58,7 +58,7 @@ class AuthController
 
     public function buscarPorId(int $id): ?array{
         $BD = $this->BDlog();
-        $query = $BD->prepare('SELECT id, nome, telefone, email, foto, tipo FROM usuarios WHERE id = :id LIMIT 1');
+        $query = $BD->prepare('SELECT id, nome, telefone, email, foto, tipo, cep FROM usuarios WHERE id = :id LIMIT 1');
         $query->bindValue(':id', $id, PDO::PARAM_INT);
         $query->execute();
         $usuario = $query->fetch(PDO::FETCH_ASSOC);

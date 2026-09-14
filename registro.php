@@ -31,6 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['usuario_nome'] = (string) $usuario['nome'];
                 $_SESSION['usuario_tipo'] = (string) $usuario['tipo'];
                 $_SESSION['usuario_foto'] = $usuario['foto'] ?: null;
+                $_SESSION['usuario_cep'] = (string) ($usuario['cep'] ?: '');
                 header('Location: index.php');
                 exit;
             }

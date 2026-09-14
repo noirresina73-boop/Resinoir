@@ -72,6 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $cep = trim((string) ($_POST['cep'] ?? ''));
         $controller->atualizarCep((int) $_SESSION['usuario_id'], $cep !== '' ? $cep : null);
         $usuario['cep'] = $cep !== '' ? $cep : null;
+        $_SESSION['usuario_cep'] = $cep !== '' ? $cep : '';
         $sucesso = 'CEP atualizado com sucesso!';
         $editando = '';
     }
@@ -81,6 +82,9 @@ $fotoAtual = $usuario['foto'] ?? null;
 $inicial = strtoupper(mb_substr($usuario['nome'] ?? 'U', 0, 1));
 $telefoneAtual = $usuario['telefone'] ?? '';
 $cepAtual = $usuario['cep'] ?? '';
+$_SESSION['usuario_cep'] = $cepAtual !== '' ? $cepAtual : '';
+$_SESSION['usuario_foto'] = $usuario['foto'] ?? null;
+$_SESSION['usuario_nome'] = $usuario['nome'] ?? '';
 ?>
 <!doctype html>
 <html lang="pt-BR">
