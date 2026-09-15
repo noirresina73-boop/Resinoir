@@ -33,6 +33,7 @@ $colecoes = $Aux->listarColecoes();
         <div class="topbar-actions">
           <a href="./categorias-lista.php" class="btn btn-outline-secondary">Categorias</a>
           <a href="./colecoes-lista.php" class="btn btn-outline-secondary">Coleções</a>
+          <a href="./home-layout.php" class="btn btn-outline-secondary">Home</a>
           <a href="./Infos.php" class="btn btn-outline-success">+ Novo produto</a>
         </div>
       </div>

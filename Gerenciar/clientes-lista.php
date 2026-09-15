@@ -24,6 +24,7 @@ $clientes = $pdo->query('SELECT id, nome, telefone, email FROM clientes ORDER BY
       <a class="navbar-brand">Clientes</a>
       <div class="topbar-actions">
         <a href="./index.php" class="btn btn-outline-light">Administração</a>
+        <a href="./home-layout.php" class="btn btn-outline-secondary">Home</a>
         <a href="./vendas.php" class="btn btn-outline-secondary">Vendas</a>
         <button class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#modalCliente" onclick="abrirModalCriar()">+ Novo cliente</button>
       </div>

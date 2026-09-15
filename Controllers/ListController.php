@@ -186,7 +186,37 @@ use PDO;
                     echo "</li>";
                 }
 
-                return $BD;
+                 return $BD;
+         }
+
+        public function getConfig(string $chave, string $padrao = ''): string
+        {
+            try {
+                $BD = $this->BDlog();
+                if (!$BD) return $padrao;
+                $query = $BD->prepare('SELECT valor FROM configuracoes WHERE chave = :chave LIMIT 1');
+                $query->bindValue(':chave', $chave, PDO::PARAM_STR);
+                $query->execute();
+                $valor = $query->fetchColumn();
+                return $valor !== false && $valor !== null ? (string) $valor : $padrao;
+            } catch (\Exception $e) {
+                return $padrao;
+            }
+        }
+
+        public static function getConfigStatic(string $chave, string $padrao = ''): string
+        {
+            try {
+                $BD = new PDO('mysql:host=sql302.infinityfree.com;port=3306;dbname=if0_42359254_resinoir;charset=utf8mb4', 'if0_42359254', '1ZHLF0ZU3S1Rw');
+                $BD->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                $query = $BD->prepare('SELECT valor FROM configuracoes WHERE chave = :chave LIMIT 1');
+                $query->bindValue(':chave', $chave, PDO::PARAM_STR);
+                $query->execute();
+                $valor = $query->fetchColumn();
+                return $valor !== false && $valor !== null ? (string) $valor : $padrao;
+            } catch (\Exception $e) {
+                return $padrao;
+            }
         }
 
         public function Banner($tela = null)
@@ -240,18 +270,48 @@ public function listNovidadesVitral($limite = 3)
 {
     $BD = new ListController;
     $BD = $BD->BDlog();
+    if (!$BD) {
+        return;
+    }
 
-    $sql = "SELECT id, nome, valor, capa, estoque
-            FROM produtos
-            WHERE novidade = 1
-            ORDER BY id DESC
-            LIMIT :limite";
+    $novidadesJson = $this->getConfig('home_novidades', '');
+    $idsOrdenados = [];
 
-    $query = $BD->prepare($sql);
-    $query->bindValue(':limite', $limite, PDO::PARAM_INT);
-    $query->execute();
+    if ($novidadesJson !== '') {
+        $decoded = json_decode($novidadesJson, true);
+        if (is_array($decoded)) {
+            $idsOrdenados = array_values(array_filter($decoded, 'is_numeric'));
+        }
+    }
 
-    $produtos = $query->fetchAll(PDO::FETCH_ASSOC);
+    if (!empty($idsOrdenados)) {
+        $placeholders = implode(', ', $idsOrdenados);
+        $sql = "SELECT id, nome, valor, capa, estoque, status
+                FROM produtos
+                WHERE id IN ($placeholders)";
+
+        $query = $BD->prepare($sql);
+        $query->execute();
+        $produtos = $query->fetchAll(PDO::FETCH_ASSOC);
+
+        $orderMap = array_flip($idsOrdenados);
+        usort($produtos, function($a, $b) use ($orderMap) {
+            $posA = $orderMap[(int)$a['id']] ?? 999;
+            $posB = $orderMap[(int)$b['id']] ?? 999;
+            return $posA <=> $posB;
+        });
+    } else {
+        $sql = "SELECT id, nome, valor, capa, estoque, status
+                FROM produtos
+                WHERE novidade = 1
+                ORDER BY id DESC
+                LIMIT :limite";
+
+        $query = $BD->prepare($sql);
+        $query->bindValue(':limite', $limite, PDO::PARAM_INT);
+        $query->execute();
+        $produtos = $query->fetchAll(PDO::FETCH_ASSOC);
+    }
 
     if (empty($produtos)) {
         echo "<p style='padding: 0 24px; color: var(--bone-dim); font-size: 12px;'>Nenhuma novidade no momento.</p>";
@@ -284,39 +344,46 @@ public function listNovidadesVitral($limite = 3)
 
 public function mostraColecaoNova()
 {
-    $campo = 'id';
-    $condicao = '>';
-    $parametro = 0;
-
-    $pagina = 1;
-    $limite = 1;
-    $inicio = ($pagina - 1) * $limite;
-    $order = 'id';
-
     $BD = new ListController;
     $BD = $BD->BDlog();
+    if (!$BD) {
+        return;
+    }
 
-    $sql = "SELECT COUNT(*) AS total FROM colecao WHERE $campo $condicao :parametro";
+    $bannerProdutoId = (int) $this->getConfig('home_banner_produto_id', '0');
 
-    $query = $BD->prepare($sql);
-    $query->bindValue(':parametro', $parametro, PDO::PARAM_INT);
-    $query->execute();
+    $colecaoId = 0;
 
-    $resultado = $query->fetch(PDO::FETCH_ASSOC);
+    if ($bannerProdutoId > 0) {
+        $queryProduto = $BD->prepare('SELECT colecao FROM produtos WHERE id = :id LIMIT 1');
+        $queryProduto->bindValue(':id', $bannerProdutoId, PDO::PARAM_INT);
+        $queryProduto->execute();
+        $produto = $queryProduto->fetch(PDO::FETCH_ASSOC);
 
-    $totalRegistros = $resultado['total'];
-    $maxPaginas = ceil($totalRegistros / $limite);
+        if ($produto && (int) ($produto['colecao'] ?? 0) > 0) {
+            $colecaoId = (int) $produto['colecao'];
+        }
+    }
 
-    $sql = "SELECT * FROM colecao WHERE destaque = 1 AND $campo $condicao :parametro ORDER BY $order DESC LIMIT :inicio, :limite";
+    if ($colecaoId > 0) {
+        $sql = "SELECT * FROM colecao WHERE id = :colecaoId LIMIT 1";
+        $query = $BD->prepare($sql);
+        $query->bindValue(':colecaoId', $colecaoId, PDO::PARAM_INT);
+        $query->execute();
+        $colecao = $query->fetchAll(PDO::FETCH_ASSOC);
+    } else {
+        $campo = 'id';
+        $condicao = '>';
+        $parametro = 0;
+        $order = 'id';
 
-    $query = $BD->prepare($sql);
+        $sql = "SELECT * FROM colecao WHERE destaque = 1 AND $campo $condicao :parametro ORDER BY $order DESC LIMIT 1";
 
-    $query->bindValue(':inicio', $inicio, PDO::PARAM_INT);
-    $query->bindValue(':limite', $limite, PDO::PARAM_INT);
-    $query->bindValue(':parametro', $parametro, PDO::PARAM_INT);
-    $query->execute();
-
-    $colecao = $query->fetchAll(PDO::FETCH_ASSOC);
+        $query = $BD->prepare($sql);
+        $query->bindValue(':parametro', $parametro, PDO::PARAM_INT);
+        $query->execute();
+        $colecao = $query->fetchAll(PDO::FETCH_ASSOC);
+    }
 
     $limite = count($colecao);
 

@@ -43,6 +43,7 @@ if (!$modoEdicao) {
           <a class="navbar-brand"><?= $modoEdicao ? 'Editar produto' : 'Criar post' ?></a>
           <div class="topbar-actions">
             <a href="./produtos-lista.php" class="btn btn-outline-secondary btn-form">Ver todos</a>
+            <a href="./home-layout.php" class="btn btn-outline-secondary btn-form">Home</a>
             <button class="btn btn-outline-danger btn-form" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Descartar o post</button>
             <button class="btn btn-outline-success btn-form" form="formAnum" type="submit">Salvar</button>
           </div>
