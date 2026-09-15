@@ -353,15 +353,19 @@ public function mostraColecaoNova()
     $bannerProdutoId = (int) $this->getConfig('home_banner_produto_id', '0');
 
     $colecaoId = 0;
+    $capaProdutoBanner = '';
 
     if ($bannerProdutoId > 0) {
-        $queryProduto = $BD->prepare('SELECT colecao FROM produtos WHERE id = :id LIMIT 1');
+        $queryProduto = $BD->prepare('SELECT id, nome, colecao, capa FROM produtos WHERE id = :id LIMIT 1');
         $queryProduto->bindValue(':id', $bannerProdutoId, PDO::PARAM_INT);
         $queryProduto->execute();
         $produto = $queryProduto->fetch(PDO::FETCH_ASSOC);
 
-        if ($produto && (int) ($produto['colecao'] ?? 0) > 0) {
-            $colecaoId = (int) $produto['colecao'];
+        if ($produto) {
+            $capaProdutoBanner = $produto['capa'] ?? '';
+            if ((int) ($produto['colecao'] ?? 0) > 0) {
+                $colecaoId = (int) $produto['colecao'];
+            }
         }
     }
 
@@ -413,7 +417,7 @@ public function mostraColecaoNova()
 
         $totalCategorias = count($categorias);
         $catRowHtml = '';
-        $capaColecaoBruta = $retorno["capa"] ?? '';
+        $capaColecaoBruta = $capaProdutoBanner !== '' ? $capaProdutoBanner : ($retorno["capa"] ?? '');
         $capaColecaoHtml = self::capaParaHtml($capaColecaoBruta, 'banner-img');
 
         if ($totalCategorias <= 3) {

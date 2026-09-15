@@ -122,7 +122,7 @@ $mensagem = !empty($_GET['msg']) ? htmlspecialchars($_GET['msg']) : '';
       }
       .search-results {
         position: absolute;
-        z-index: 10;
+        z-index: 2050;
         width: 100%;
         max-height: 240px;
         overflow-y: auto;
@@ -130,6 +130,14 @@ $mensagem = !empty($_GET['msg']) ? htmlspecialchars($_GET['msg']) : '';
         border: 1px solid rgba(176, 141, 87, 0.3);
         border-radius: 10px;
         display: none;
+        pointer-events: auto;
+      }
+      .search-results.show {
+        display: block;
+      }
+      .input-group-busca {
+        position: relative;
+      }
       }
       .search-results.show {
         display: block;
@@ -300,7 +308,7 @@ $mensagem = !empty($_GET['msg']) ? htmlspecialchars($_GET['msg']) : '';
               }
               ?>
               <div class="col-12" data-slot="<?= $i ?>">
-                <div class="input-group mb-2">
+                <div class="input-group input-group-busca mb-2">
                   <span class="input-group-text">Slot <?= $i + 1 ?></span>
                   <input type="text" class="form-control buscar-slot" placeholder="Buscar produto..." data-slot="<?= $i ?>" autocomplete="off">
                   <div class="search-results slot-results-<?= $i ?>"></div>
@@ -410,9 +418,10 @@ $mensagem = !empty($_GET['msg']) ? htmlspecialchars($_GET['msg']) : '';
 
       function montarItemResultado(p, targetType, targetId) {
         const capaHtml = gerarCapaPreview(p.capa, p.nome, 'thumb-admin');
+        const jsonStr = JSON.stringify(p).replace(/"/g, '&quot;');
         const onclick = targetType === 'banner'
-          ? "selecionarProdutoBanner(" + JSON.stringify(p) + ")"
-          : "selecionarProdutoSlot(" + JSON.stringify(p) + ", " + targetId + ")";
+          ? 'selecionarProdutoBanner(' + jsonStr + ')'
+          : 'selecionarProdutoSlot(' + jsonStr + ', ' + targetId + ')';
         return '<div class="search-result-item" onclick="' + onclick + '">' +
           capaHtml +
           '<div><div class="nome">' + p.nome + '</div><div class="detalhe">R$ ' + p.valor + ' · ID: ' + p.id + '</div></div>' +
