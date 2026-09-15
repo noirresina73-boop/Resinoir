@@ -19,6 +19,7 @@ $acao = $_POST['acao'] ?? '';
 
 if ($acao === 'salvar_home_layout') {
     $bannerProdutoId = isset($_POST['banner_produto_id']) ? (int) $_POST['banner_produto_id'] : 0;
+    $usarCapaProduto = isset($_POST['usar_capa_produto']) ? (int) $_POST['usar_capa_produto'] : 0;
     $novidadesJson = $_POST['novidades'] ?? '';
 
     $novidadesIds = [];
@@ -37,6 +38,7 @@ if ($acao === 'salvar_home_layout') {
     $stmt = $pdo->prepare('INSERT INTO configuracoes (chave, valor, atualizado_em) VALUES (:chave, :valor, NOW()) ON DUPLICATE KEY UPDATE valor = VALUES(valor), atualizado_em = NOW()');
     $stmt->execute([':chave' => 'home_banner_produto_id', ':valor' => (string) $bannerProdutoId]);
     $stmt->execute([':chave' => 'home_novidades', ':valor' => $novidadesJson]);
+    $stmt->execute([':chave' => 'home_banner_usar_produto_capa', ':valor' => (string) $usarCapaProduto]);
 
     header('Content-Type: application/json');
     echo json_encode(['sucesso' => true, 'novidades' => $novidadesIds]);

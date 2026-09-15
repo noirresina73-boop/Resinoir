@@ -417,7 +417,8 @@ public function mostraColecaoNova()
 
         $totalCategorias = count($categorias);
         $catRowHtml = '';
-        $capaColecaoBruta = $capaProdutoBanner !== '' ? $capaProdutoBanner : ($retorno["capa"] ?? '');
+        $usarCapaProduto = (int) $this->getConfig('home_banner_usar_produto_capa', '0');
+        $capaColecaoBruta = ($usarCapaProduto === 1 && $capaProdutoBanner !== '') ? $capaProdutoBanner : ($retorno["capa"] ?? '');
         $capaColecaoHtml = self::capaParaHtml($capaColecaoBruta, 'banner-img');
 
         if ($totalCategorias <= 3) {

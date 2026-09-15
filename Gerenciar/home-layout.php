@@ -288,6 +288,12 @@ $mensagem = !empty($_GET['msg']) ? htmlspecialchars($_GET['msg']) : '';
         <?php endif; ?>
 
         <input type="hidden" id="bannerProdutoId" value="<?= $bannerProdutoId ?>">
+        <div class="mt-3">
+          <div class="form-check">
+            <input type="checkbox" class="form-check-input" id="usarCapaProduto" <?= (int) $pdo->query("SELECT valor FROM configuracoes WHERE chave = 'home_banner_usar_produto_capa' LIMIT 1")->fetchColumn() === 1 ? 'checked' : '' ?>>
+            <label class="form-check-label" for="usarCapaProduto">Usar capa do produto no banner (não da coleção)</label>
+          </div>
+        </div>
       </div>
 
       <!-- NOVIDADES SECTION -->
@@ -594,11 +600,13 @@ $mensagem = !empty($_GET['msg']) ? htmlspecialchars($_GET['msg']) : '';
 
       document.getElementById('salvarLayout')?.addEventListener('click', async () => {
         const bannerId = document.getElementById('bannerProdutoId').value;
+        const usarCapaProduto = document.getElementById('usarCapaProduto').checked ? 1 : 0;
         const novidadesFilter = novidadesOrdenadas.filter(x => x !== null && x !== undefined && x !== '').map(x => parseInt(x));
 
         const form = new FormData();
         form.append('acao', 'salvar_home_layout');
         form.append('banner_produto_id', bannerId);
+        form.append('usar_capa_produto', usarCapaProduto);
         form.append('novidades', JSON.stringify(novidadesFilter));
 
         const resp = await fetch('./api/home_layout.php', { method: 'POST', body: form });
