@@ -271,6 +271,21 @@ if (!$modoEdicao) {
             <span class="input-group-text">R$</span>
             <input required="true" id="inputValor" oninput="updatePost();" name="valor" step="0.01" type="number" class="form-control" value="<?= $modoEdicao ? htmlspecialchars($produto['valor']) : '' ?>">
           </div>
+          <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" name="preco_personalizado" value="1" id="produtoPrecoPersonalizado" onchange="toggleCamposPrecoPersonalizado()" <?= ($modoEdicao && (int) ($produto['preco_personalizado'] ?? 0) === 1) ? 'checked' : '' ?>>
+            <label class="form-check-label" for="produtoPrecoPersonalizado">Preço personalizado (faixa de valores)</label>
+          </div>
+          <div id="camposPrecoPersonalizado" style="<?= ($modoEdicao && (int) ($produto['preco_personalizado'] ?? 0) === 1) ? '' : 'display: none;' ?>">
+            <div class="input-group mb-3">
+              <span class="input-group-text">De R$</span>
+              <input name="preco_minimo" step="0.01" type="number" class="form-control" value="<?= $modoEdicao ? htmlspecialchars((string) ($produto['preco_minimo'] ?? 0)) : '0' ?>">
+            </div>
+            <div class="input-group mb-3">
+              <span class="input-group-text">Até R$</span>
+              <input name="preco_maximo" step="0.01" type="number" class="form-control" value="<?= $modoEdicao ? htmlspecialchars((string) ($produto['preco_maximo'] ?? 0)) : '0' ?>">
+            </div>
+            <p class="form-text">Quando marcado, o produto mostrará "De R$ X a R$ Y — Fazer orçamento" em vez do preço fixo.</p>
+          </div>
           <div class="input-group mb-3">
             <span class="input-group-text">Estoque</span>
             <input required="true" name="estoque" type="number" class="form-control" value="<?= $modoEdicao ? htmlspecialchars($produto['estoque']) : '' ?>">
@@ -314,6 +329,18 @@ if (!$modoEdicao) {
               </script>
             </div>
           </div>
+
+          <script>
+            function toggleCamposPrecoPersonalizado() {
+              const checkbox = document.getElementById('produtoPrecoPersonalizado');
+              const campos = document.getElementById('camposPrecoPersonalizado');
+              if (checkbox.checked) {
+                campos.style.display = 'block';
+              } else {
+                campos.style.display = 'none';
+              }
+            }
+          </script>
       </form>
       </div>
 

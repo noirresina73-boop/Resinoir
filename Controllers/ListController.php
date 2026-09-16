@@ -286,7 +286,7 @@ public function listNovidadesVitral($limite = 3)
 
     if (!empty($idsOrdenados)) {
         $placeholders = implode(', ', $idsOrdenados);
-        $sql = "SELECT id, nome, valor, capa, estoque, status
+        $sql = "SELECT id, nome, valor, capa, estoque, status, preco_personalizado, preco_minimo, preco_maximo
                 FROM produtos
                 WHERE id IN ($placeholders)";
 
@@ -301,7 +301,7 @@ public function listNovidadesVitral($limite = 3)
             return $posA <=> $posB;
         });
     } else {
-        $sql = "SELECT id, nome, valor, capa, estoque, status
+        $sql = "SELECT id, nome, valor, capa, estoque, status, preco_personalizado, preco_minimo, preco_maximo
                 FROM produtos
                 WHERE novidade = 1
                 ORDER BY id DESC
@@ -321,11 +321,21 @@ public function listNovidadesVitral($limite = 3)
         foreach ($produtos as $p) {
             $id = (int) $p['id'];
             $nome = htmlspecialchars($p['nome']);
-            $valor = number_format((float) $p['valor'], 2, ',', '.');
             $estoque = (int) ($p['estoque'] ?? 0);
             $status = (string) ($p['status'] ?? ($estoque <= 0 ? 'esgotado' : 'disponivel'));
             $capa = self::capaParaHtml($p['capa'] ?? '', 'img-card');
             $badgeHtml = $status === 'sob_encomenda' ? "<div class='tag-esgotado'>Sob encomenda</div>" : ($status === 'esgotado' ? "<div class='tag-esgotado'>Esgotado</div>" : '');
+
+            $precoPersonalizado = (int) ($p['preco_personalizado'] ?? 0);
+            $precoHtml = '';
+            if ($precoPersonalizado === 1) {
+                $precoMin = number_format((float) ($p['preco_minimo'] ?? 0), 2, ',', '.');
+                $precoMax = number_format((float) ($p['preco_maximo'] ?? 0), 2, ',', '.');
+                $precoHtml = "De R\$ $precoMin a R\$ $precoMax — Fazer orçamento";
+            } else {
+                $valor = number_format((float) $p['valor'], 2, ',', '.');
+                $precoHtml = "R\$ $valor";
+            }
 
             echo "
             <div class='vitral-card' onclick='location.href=\"Infos.php?id=$id\"' style='cursor:pointer;'>
@@ -335,7 +345,7 @@ public function listNovidadesVitral($limite = 3)
               </div>
               <div class='vitral-caption'>
                 <div class='name'>$nome</div>
-                <div class='price'>R\$ $valor</div>
+                 <div class='price'>$precoHtml</div>
               </div>
             </div>
             ";
@@ -588,6 +598,15 @@ private function iconeCategoria($nome, $capaDoBanco = '')
                 $badgeTexto = $estoque <= 0 ? 'Esgotado · Fazer pedido' : 'Disponível';
                 $badgeClass = $estoque <= 0 ? 'sold-out' : 'available';
 
+                $precoPersonalizado = (int) ($retorno["preco_personalizado"] ?? 0);
+                if ($precoPersonalizado === 1) {
+                    $precoMin = number_format((float) ($retorno["preco_minimo"] ?? 0), 2, ',', '.');
+                    $precoMax = number_format((float) ($retorno["preco_maximo"] ?? 0), 2, ',', '.');
+                    $priceHtml = "De R\$ $precoMin a R\$ $precoMax — Fazer orçamento";
+                } else {
+                    $priceHtml = "R\$ " . number_format((float) $valor, 2, ',', '.');
+                }
+
                 echo "
                         <div onclick='location.href=\"Infos.php?id=$id\"' class='product-card'>
                         <div class='product-photo'>
@@ -596,7 +615,7 @@ private function iconeCategoria($nome, $capaDoBanco = '')
                         </div>
                         <div class='product-info'>
                         <div class='name'>$nome</div>
-                        <div class='price'>R$ " . number_format((float) $valor, 2, ',', '.') . "</div>
+                        <div class='price'>$priceHtml</div>
                         </div>
                     </div>
                 ";

@@ -132,7 +132,12 @@ $secoes = [
             <div class="infosAnuncio">
 
                 <div class="Preco">
-                    <h6 id="anuncioValor">R$ <?= number_format((float) $anuncio['valor'], 2, ',', '.') ?></h6>
+                    <?php if ((int) ($anuncio['preco_personalizado'] ?? 0) === 1): ?>
+                        <h6 id="anuncioValor">De R$ <?= number_format((float) ($anuncio['preco_minimo'] ?? 0), 2, ',', '.') ?> a R$ <?= number_format((float) ($anuncio['preco_maximo'] ?? 0), 2, ',', '.') ?></h6>
+                        <div class="personalizado-badge" style="font-size:10px;color:var(--bone-dim);margin-top:2px;">Fazer orçamento</div>
+                    <?php else: ?>
+                        <h6 id="anuncioValor">R$ <?= number_format((float) $anuncio['valor'], 2, ',', '.') ?></h6>
+                    <?php endif; ?>
                     <div class="estoque-status" id="statusEstoque">
                         <?= ((int) ($anuncio['estoque'] ?? 0)) <= 0 ? 'Esgotado' : 'Disponível' ?>
                     </div>

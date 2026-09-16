@@ -15,6 +15,7 @@ class infosController
 
     public function buscarPorId(int $id)
     {
+        $this->garantirEstrutura();
         $BD = $this->BDlog();
         $query = $BD->prepare('SELECT * FROM produtos WHERE id = :id');
         $query->bindValue(':id', $id, PDO::PARAM_INT);
@@ -23,9 +24,38 @@ class infosController
     }
 
     public function pageInfo(int $id)
-{
-    return $this->buscarPorId($id);
-}
+    {
+        return $this->buscarPorId($id);
+    }
+
+    public function garantirEstrutura(): void
+    {
+        $BD = $this->BDlog();
+        if (!$BD) return;
+
+        $colunas = [];
+        try {
+            $colunas = $BD->query('SHOW COLUMNS FROM produtos')->fetchAll(PDO::FETCH_COLUMN);
+        } catch (\Exception $e) {
+            return;
+        }
+
+        if (!in_array('custo', $colunas, true)) {
+            $BD->exec('ALTER TABLE produtos ADD COLUMN custo DECIMAL(10,2) NOT NULL DEFAULT 0 AFTER valor');
+        }
+        if (!in_array('status', $colunas, true)) {
+            $BD->exec("ALTER TABLE produtos ADD COLUMN status ENUM('disponivel','esgotado','sob_encomenda') NOT NULL DEFAULT 'disponivel' AFTER novidade");
+        }
+        if (!in_array('preco_personalizado', $colunas, true)) {
+            $BD->exec('ALTER TABLE produtos ADD COLUMN preco_personalizado TINYINT(1) NOT NULL DEFAULT 0 AFTER status');
+        }
+        if (!in_array('preco_minimo', $colunas, true)) {
+            $BD->exec('ALTER TABLE produtos ADD COLUMN preco_minimo DECIMAL(10,2) NOT NULL DEFAULT 0 AFTER preco_personalizado');
+        }
+        if (!in_array('preco_maximo', $colunas, true)) {
+            $BD->exec('ALTER TABLE produtos ADD COLUMN preco_maximo DECIMAL(10,2) NOT NULL DEFAULT 0 AFTER preco_minimo');
+        }
+    }
 
     public function listarTodos($pagina = 1, $nome = '', $categoria = 0, $colecao = 0)
     {

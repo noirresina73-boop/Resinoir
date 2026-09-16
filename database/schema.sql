@@ -46,6 +46,9 @@ CREATE TABLE IF NOT EXISTS `produtos` (
   `totalVendidos` INT NOT NULL DEFAULT 0,
   `novidade` TINYINT(1) NOT NULL DEFAULT 0,
   `status` ENUM('disponivel','esgotado','sob_encomenda') NOT NULL DEFAULT 'disponivel',
+  `preco_personalizado` TINYINT(1) NOT NULL DEFAULT 0,
+  `preco_minimo` DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+  `preco_maximo` DECIMAL(10,2) NOT NULL DEFAULT 0.00,
   `capa` VARCHAR(255) DEFAULT NULL,
   `data_criacao` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
@@ -126,6 +129,12 @@ ALTER TABLE `produtos`
   ADD COLUMN IF NOT EXISTS `custo` DECIMAL(10,2) NOT NULL DEFAULT 0.00 AFTER `valor`;
 ALTER TABLE `produtos`
   ADD COLUMN IF NOT EXISTS `status` ENUM('disponivel','esgotado','sob_encomenda') NOT NULL DEFAULT 'disponivel' AFTER `novidade`;
+ALTER TABLE `produtos`
+  ADD COLUMN IF NOT EXISTS `preco_personalizado` TINYINT(1) NOT NULL DEFAULT 0 AFTER `status`;
+ALTER TABLE `produtos`
+  ADD COLUMN IF NOT EXISTS `preco_minimo` DECIMAL(10,2) NOT NULL DEFAULT 0.00 AFTER `preco_personalizado`;
+ALTER TABLE `produtos`
+  ADD COLUMN IF NOT EXISTS `preco_maximo` DECIMAL(10,2) NOT NULL DEFAULT 0.00 AFTER `preco_minimo`;
 
 ALTER TABLE `vendas`
   ADD COLUMN IF NOT EXISTS `cliente` VARCHAR(255) NOT NULL DEFAULT '' AFTER `id`,

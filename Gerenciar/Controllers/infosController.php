@@ -24,6 +24,15 @@ class infosController
         if (!in_array('status', $colunas, true)) {
             $BD->exec("ALTER TABLE produtos ADD COLUMN status ENUM('disponivel','esgotado','sob_encomenda') NOT NULL DEFAULT 'disponivel' AFTER novidade");
         }
+        if (!in_array('preco_personalizado', $colunas, true)) {
+            $BD->exec('ALTER TABLE produtos ADD COLUMN preco_personalizado TINYINT(1) NOT NULL DEFAULT 0 AFTER status');
+        }
+        if (!in_array('preco_minimo', $colunas, true)) {
+            $BD->exec('ALTER TABLE produtos ADD COLUMN preco_minimo DECIMAL(10,2) NOT NULL DEFAULT 0 AFTER preco_personalizado');
+        }
+        if (!in_array('preco_maximo', $colunas, true)) {
+            $BD->exec('ALTER TABLE produtos ADD COLUMN preco_maximo DECIMAL(10,2) NOT NULL DEFAULT 0 AFTER preco_minimo');
+        }
     }
 
     public function buscarPorId(int $id)
@@ -90,7 +99,7 @@ public function listarTodos($pagina = 1, $nome = '', $categoria = 0, $colecao = 
         int $id, string $idPDR, string $nome, string $modelo, string $descricao, string $cor,
         int $tamanho, int $estoque, ?int $categoria, ?int $colecao, string $jsonImagens,
         int $encomenda, float $valor, float $custo, int $totalVendidos, int $novidade, string $capa,
-        string $status = 'disponivel'
+        string $status = 'disponivel', int $precoPersonalizado = 0, float $precoMinimo = 0, float $precoMaximo = 0
     ){
         $this->garantirEstrutura();
         $BD = $this->BDlog();
@@ -98,10 +107,12 @@ public function listarTodos($pagina = 1, $nome = '', $categoria = 0, $colecao = 
         $query = $BD->prepare('
             INSERT INTO produtos (
                 idPDR, nome, modelo, descricao, cor, tamanho, estoque,
-                categoria, colecao, imagem, encomenda, valor, custo, totalVendidos, novidade, status, capa
+                categoria, colecao, imagem, encomenda, valor, custo, totalVendidos, novidade, status, capa,
+                preco_personalizado, preco_minimo, preco_maximo
             ) VALUES (
                 :idPDR, :nome, :modelo, :descricao, :cor, :tamanho, :estoque,
-                :categoria, :colecao, :imagem, :encomenda, :valor, :custo, :totalVendidos, :novidade, :status, :capa
+                :categoria, :colecao, :imagem, :encomenda, :valor, :custo, :totalVendidos, :novidade, :status, :capa,
+                :preco_personalizado, :preco_minimo, :preco_maximo
             )
         ');
 
@@ -122,6 +133,9 @@ public function listarTodos($pagina = 1, $nome = '', $categoria = 0, $colecao = 
         $query->bindValue(':novidade', $novidade, PDO::PARAM_INT);
         $query->bindValue(':status', $status, PDO::PARAM_STR);
         $query->bindValue(':capa', $capa, PDO::PARAM_STR);
+        $query->bindValue(':preco_personalizado', $precoPersonalizado, PDO::PARAM_INT);
+        $query->bindValue(':preco_minimo', $precoMinimo, PDO::PARAM_STR);
+        $query->bindValue(':preco_maximo', $precoMaximo, PDO::PARAM_STR);
 
         if (!$query->execute()) {
             echo "<pre>"; print_r($query->errorInfo()); echo "</pre>";
@@ -135,14 +149,15 @@ public function listarTodos($pagina = 1, $nome = '', $categoria = 0, $colecao = 
         int $id, string $nome, string $modelo, string $descricao, string $cor,
         int $tamanho, int $estoque, ?int $categoria, ?int $colecao, ?string $jsonImagens,
         int $encomenda, float $valor, float $custo, int $novidade, ?string $capa,
-        string $status = 'disponivel'
+        string $status = 'disponivel', int $precoPersonalizado = 0, float $precoMinimo = 0, float $precoMaximo = 0
     ){
         $this->garantirEstrutura();
         $BD = $this->BDlog();
 
         $sql = 'UPDATE produtos SET nome = :nome, modelo = :modelo, descricao = :descricao,
                 cor = :cor, tamanho = :tamanho, estoque = :estoque, categoria = :categoria,
-                colecao = :colecao, encomenda = :encomenda, valor = :valor, custo = :custo, novidade = :novidade, status = :status';
+                colecao = :colecao, encomenda = :encomenda, valor = :valor, custo = :custo, novidade = :novidade, status = :status,
+                preco_personalizado = :preco_personalizado, preco_minimo = :preco_minimo, preco_maximo = :preco_maximo';
 
         if ($jsonImagens !== null) $sql .= ', imagem = :imagem';
         if ($capa !== null) $sql .= ', capa = :capa';
@@ -163,6 +178,9 @@ public function listarTodos($pagina = 1, $nome = '', $categoria = 0, $colecao = 
         $query->bindValue(':custo', $custo, PDO::PARAM_STR);
         $query->bindValue(':novidade', $novidade, PDO::PARAM_INT);
         $query->bindValue(':status', $status, PDO::PARAM_STR);
+        $query->bindValue(':preco_personalizado', $precoPersonalizado, PDO::PARAM_INT);
+        $query->bindValue(':preco_minimo', $precoMinimo, PDO::PARAM_STR);
+        $query->bindValue(':preco_maximo', $precoMaximo, PDO::PARAM_STR);
         if ($jsonImagens !== null) $query->bindValue(':imagem', $jsonImagens, PDO::PARAM_STR);
         if ($capa !== null) $query->bindValue(':capa', $capa, PDO::PARAM_STR);
 
