@@ -291,6 +291,81 @@ if (!$modoEdicao) {
             <input required="true" name="estoque" type="number" class="form-control" value="<?= $modoEdicao ? htmlspecialchars($produto['estoque']) : '' ?>">
           </div>
 
+          <?php
+          $variacoesExistentes = [];
+          if ($modoEdicao) {
+              $variacoesExistentes = $Produtos->listarVariacoes((int) $produto['id']);
+          }
+          ?>
+          <div class="mb-3">
+            <label class="form-label">Variações</label>
+            <div class="form-text mb-2">Adicione variações (ex: cores) para este produto. Cada variação pode ter nome, foto e estoque.</div>
+            <div id="containerVariacoes">
+              <?php
+              $iconeJs = [];
+              foreach (\Controllers\ListController::ICONE_BIBLIOTECA as $chave => $dados) {
+                  $iconeJs[$chave] = $dados['svg'];
+              }
+              $iconesJson = json_encode($iconeJs);
+              ?>
+              <script>
+                const ICONES_BIBLIOTECA_VAR = <?= $iconesJson ?>;
+
+                function htmlIconeVariacao(chave) {
+                  if (!chave || !chave.startsWith('svg:')) return '';
+                  const key = chave.substring(4);
+                  const svg = ICONES_BIBLIOTECA_VAR[key];
+                  if (!svg) return '';
+                  return '<div class="svg-thumb-admin">' + svg.replace('<svg ', '<svg style="width:32px;height:32px;stroke:#e9e0c9;stroke-width:1;fill:none;" ') + '</div>';
+                }
+
+                function adicionarVariacao(nome, capa, estoque, precoAdicional) {
+                  const container = document.getElementById("containerVariacoes");
+                  const div = document.createElement("div");
+                  div.className = "variacao-item";
+                  div.innerHTML =
+                    '<div class="input-group mb-2">' +
+                      '<span class="input-group-text">Nome</span>' +
+                      '<input type="text" name="variacao_nome[]" class="form-control" placeholder="Ex: Vermelho" value="' + (nome || '') + '">' +
+                    '</div>' +
+                    '<div class="input-group mb-2">' +
+                      '<span class="input-group-text">Ícone</span>' +
+                      '<input type="text" name="variacao_icone[]" class="form-control" placeholder="svg:Nome ou deixe vazio" value="' + (capa || '') + '">' +
+                      '<span class="input-group-text preview-icone">' + (capa ? htmlIconeVariacao(capa) : '') + '</span>' +
+                    '</div>' +
+                    '<div class="input-group mb-2">' +
+                      '<span class="input-group-text">Foto</span>' +
+                      '<input type="file" name="variacao_capa[]" accept="image/*" class="form-control">' +
+                    '</div>' +
+                    '<div class="input-group mb-2">' +
+                      '<span class="input-group-text">Estoque</span>' +
+                      '<input type="number" name="variacao_estoque[]" class="form-control" value="' + (estoque || 0) + '">' +
+                    '</div>' +
+                    '<div class="input-group mb-2">' +
+                      '<span class="input-group-text">Acresc. R$</span>' +
+                      '<input type="number" step="0.01" name="variacao_preco_adicional[]" class="form-control" value="' + (precoAdicional || 0) + '">' +
+                    '</div>' +
+                    '<button type="button" class="btn btn-outline-danger btn-sm" onclick="removerVariacao(this)" style="margin-top:8px;">Remover</button>';
+                  container.appendChild(div);
+                }
+
+                function removerVariacao(btn) {
+                  btn.closest('.variacao-item').remove();
+                }
+
+                <?php foreach ($variacoesExistentes as $v): ?>
+                  adicionarVariacao(
+                    <?= json_encode($v['nome']) ?>,
+                    <?= json_encode($v['capa'] ?? '') ?>,
+                    <?= (int) ($v['estoque'] ?? 0) ?>,
+                    <?= json_encode(number_format((float) ($v['preco_adicional'] ?? 0), 2, '.', '')) ?>
+                  );
+                <?php endforeach; ?>
+              </script>
+            </div>
+            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="adicionarVariacao()" style="margin-top:8px;">+ Adicionar variação</button>
+          </div>
+
           <div class="mb-3">
             <label class="form-label">Imagens</label>
             <?php if ($modoEdicao && !empty($produto['imagem'])): ?>

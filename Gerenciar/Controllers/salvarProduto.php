@@ -99,6 +99,23 @@ if ($acao === 'editar') {
         $precoPersonalizado, $precoMinimo, $precoMaximo
     );
 
+    $variacoes = [];
+    $variacaoNomes = $_POST['variacao_nome'] ?? [];
+    $variacaoIcones = $_POST['variacao_icone'] ?? [];
+    $variacaoEstoques = $_POST['variacao_estoque'] ?? [];
+    $variacaoPrecos = $_POST['variacao_preco_adicional'] ?? [];
+    for ($i = 0; $i < count($variacaoNomes); $i++) {
+        if (trim((string) $variacaoNomes[$i]) !== '') {
+            $variacoes[] = [
+                'nome' => trim((string) $variacaoNomes[$i]),
+                'capa' => trim((string) ($variacaoIcones[$i] ?? '')),
+                'estoque' => (int) ($variacaoEstoques[$i] ?? 0),
+                'preco_adicional' => (float) ($variacaoPrecos[$i] ?? 0),
+            ];
+        }
+    }
+    $Controller->salvarVariacoes($produtoId, $variacoes);
+
     $redirect = '../produtos-lista.php?' . http_build_query([
         'salvo' => 1,
         'nome' => $nome,
@@ -118,6 +135,27 @@ $novoId = $Criar->criar(
     (float) $custo, $totalVendidos, $novidade, $capa ?? '', $status,
     $precoPersonalizado, $precoMinimo, $precoMaximo
 );
+
+if ($novoId > 0) {
+    $variacoes = [];
+    $variacaoNomes = $_POST['variacao_nome'] ?? [];
+    $variacaoIcones = $_POST['variacao_icone'] ?? [];
+    $variacaoEstoques = $_POST['variacao_estoque'] ?? [];
+    $variacaoPrecos = $_POST['variacao_preco_adicional'] ?? [];
+    for ($i = 0; $i < count($variacaoNomes); $i++) {
+        if (trim((string) $variacaoNomes[$i]) !== '') {
+            $variacoes[] = [
+                'nome' => trim((string) $variacaoNomes[$i]),
+                'capa' => trim((string) ($variacaoIcones[$i] ?? '')),
+                'estoque' => (int) ($variacaoEstoques[$i] ?? 0),
+                'preco_adicional' => (float) ($variacaoPrecos[$i] ?? 0),
+            ];
+        }
+    }
+    if (!empty($variacoes)) {
+        $Criar->salvarVariacoes($novoId, $variacoes);
+    }
+}
 
 $redirect = '../produtos-lista.php?' . http_build_query([
     'salvo' => 1,

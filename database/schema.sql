@@ -69,6 +69,18 @@ CREATE TABLE IF NOT EXISTS `configuracoes` (
   UNIQUE KEY `uniq_chave` (`chave`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS `variacoes` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `produto_id` INT NOT NULL,
+  `nome` VARCHAR(255) NOT NULL,
+  `capa` VARCHAR(255) DEFAULT NULL,
+  `estoque` INT NOT NULL DEFAULT 0,
+  `preco_adicional` DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+  `data_criacao` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_variacoes_produto` (`produto_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 INSERT INTO `configuracoes` (`chave`, `valor`, `atualizado_em`)
 VALUES
   ('preco_gasolina', '5.80', NOW()),
@@ -135,6 +147,18 @@ ALTER TABLE `produtos`
   ADD COLUMN IF NOT EXISTS `preco_minimo` DECIMAL(10,2) NOT NULL DEFAULT 0.00 AFTER `preco_personalizado`;
 ALTER TABLE `produtos`
   ADD COLUMN IF NOT EXISTS `preco_maximo` DECIMAL(10,2) NOT NULL DEFAULT 0.00 AFTER `preco_minimo`;
+
+CREATE TABLE IF NOT EXISTS `variacoes` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `produto_id` INT NOT NULL,
+  `nome` VARCHAR(255) NOT NULL,
+  `capa` VARCHAR(255) DEFAULT NULL,
+  `estoque` INT NOT NULL DEFAULT 0,
+  `preco_adicional` DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+  `data_criacao` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_variacoes_produto` (`produto_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;;
 
 ALTER TABLE `vendas`
   ADD COLUMN IF NOT EXISTS `cliente` VARCHAR(255) NOT NULL DEFAULT '' AFTER `id`,

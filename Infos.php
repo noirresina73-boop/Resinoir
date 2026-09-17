@@ -14,6 +14,11 @@ if (isset($_GET['id'])) {
 $controller = new infosController();
 $anuncio = $controller->pageInfo($id);
 
+$variacoes = [];
+if (method_exists($controller, 'listarVariacoes')) {
+    $variacoes = $controller->listarVariacoes((int) $id);
+}
+
 $capa = $anuncio['capa'];
 $imagens = json_decode($anuncio['imagem'], true);
 
@@ -143,6 +148,35 @@ $secoes = [
                     </div>
                 </div>
 
+                <?php if (!empty($variacoes)): ?>
+                <div class="variacoes-selector">
+                    <span class="rotulo">Variação</span>
+                    <div id="botoesVariacao" class="botoes-variacao">
+                        <?php foreach ($variacoes as $v): ?>
+                            <?php
+                            $vCapa = trim((string) ($v['capa'] ?? ''));
+                            $btnText = '';
+                            if ($vCapa !== '' && str_starts_with($vCapa, 'svg:')) {
+                                $btnText = ListController::htmlIconePorChave($vCapa, 'img-card');
+                            } elseif ($vCapa !== '') {
+                                $capaPath = $vCapa;
+                                if (!preg_match('#^(https?:)?//#', $capaPath) && !str_starts_with($capaPath, '../')) {
+                                    $capaPath = preg_match('#^assets/#', $capaPath) ? './' . $capaPath : './' . ltrim($capaPath, './');
+                                }
+                                $btnText = '<img src="' . htmlspecialchars($capaPath) . '" style="width:24px;height:24px;object-fit:cover;border-radius:6px;">';
+                            } else {
+                                $btnText = htmlspecialchars($v['nome']);
+                            }
+                            ?>
+                            <button type="button" class="btn-variacao" data-variacao-id="<?= (int) $v['id'] ?>" data-variacao-nome="<?= htmlspecialchars($v['nome']) ?>" data-variacao-capa="<?= htmlspecialchars($v['capa'] ?? '') ?>" data-variacao-estoque="<?= (int) ($v['estoque'] ?? 0 ) ?>" data-variacao-preco="<?= number_format((float) $v['preco_adicional'], 2, '.', '') ?>">
+                                <?= $btnText ?>
+                            </button>
+                        <?php endforeach; ?>
+                    </div>
+                    <input type="hidden" id="variacaoSelecionada" value="">
+                </div>
+                <?php endif; ?>
+
                 <div class="frete" id="freteContainer">
                     <div id="freteInfo" style="font-size:12px;color:var(--bone-dim);margin-top:4px;"></div>
                     <button type="button" id="btnTrocarEndereco" style="display:none;margin-top:8px;padding:6px 12px;border:1px solid rgba(176,141,87,0.5);border-radius:20px;background:transparent;color:#d4b077;font-family:'Jost',sans-serif;font-size:10px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;">Trocar endereço</button>
@@ -266,6 +300,7 @@ const produtoId = <?= json_encode((string) ($anuncio['id'] ?? '')) ?>;
 const produtoCapa = <?= json_encode((string) ($capa ?? '')) ?>;
 const valorProduto = Number(<?= json_encode((float) ($anuncio['valor'] ?? 0)) ?>) || 0;
 const produtoEstoque = Number(<?= json_encode((int) ($anuncio['estoque'] ?? 0)) ?>) || 0;
+const variacoes = <?= json_encode($variacoes ?: []) ?>;
 let usuarioCep = <?= json_encode((string) ($_SESSION['usuario_cep'] ?? '')) ?>;
 const usuarioLogado = <?= json_encode((bool) isset($_SESSION['usuario_id'])) ?>;
 let cepParaSalvar = '';
@@ -505,9 +540,11 @@ async function calcularFrete(cep) {
 }
 
 function continuarCompraSemCep() {
+    const variacaoNome = document.getElementById('variacaoSelecionada')?.value || '';
+    const variacaoTexto = variacaoNome ? `%0AVariação:%20${encodeURIComponent(variacaoNome)}` : '';
     const texto = produtoEstoque <= 0
-        ? `Olá! Gostaria de fazer o pedido do produto ${produtoNome} (ID: ${produtoId}).%0A%0AQuero%20confirmar%20a%20disponibilidade%20e%20o%20valor%20final.`
-        : `Olá! Gostaria de comprar o produto ${produtoNome} (ID: ${produtoId}).%0A%0AQuero%20mais%20informações%20sobre%20a%20entrega%20e%20pagamento.`;
+        ? `Olá! Gostaria de fazer o pedido do produto ${produtoNome} (ID: ${produtoId}).%0A%0AQuero%20confirmar%20a%20disponibilidade%20e%20o%20valor%20final.${variacaoTexto}`
+        : `Olá! Gostaria de comprar o produto ${produtoNome} (ID: ${produtoId}).%0A%0AQuero%20mais%20informações%20sobre%20a%20entrega%20e%20pagamento.${variacaoTexto}`;
     const url = `https://wa.me/${whatsappNumero}?text=${texto}`;
     window.open(url, '_blank');
 }
@@ -521,9 +558,11 @@ function prepararLinkCompra() {
     calcularFrete(usuarioCep).then(function(calculo) {
         if (calculo.valid) {
             const enderecoTexto = `%0A%0AEndereço salvo:%20${encodeURIComponent((calculo.rua || 'Rua não informada') + ', ' + (calculo.bairro || 'bairro não informado'))}%0ACEP:%20${encodeURIComponent(calculo.cep)}`;
+            const variacaoNome = document.getElementById('variacaoSelecionada')?.value || '';
+            const variacaoTexto = variacaoNome ? `%0AVariação:%20${encodeURIComponent(variacaoNome)}` : '';
             const texto = produtoEstoque <= 0
-                ? `Olá! Gostaria de fazer o pedido do produto ${produtoNome} (ID: ${produtoId}).%0A%0AQuero%20confirmar%20a%20disponibilidade%20e%20o%20valor%20final.${enderecoTexto}`
-                : `Olá! Gostaria de comprar o produto ${produtoNome} (ID: ${produtoId}).%0A%0AQuero%20mais%20informações%20sobre%20a%20entrega%20e%20pagamento.${enderecoTexto}`;
+                ? `Olá! Gostaria de fazer o pedido do produto ${produtoNome} (ID: ${produtoId}).%0A%0AQuero%20confirmar%20a%20disponibilidade%20e%20o%20valor%20final.${variacaoTexto}${endererecoTexto}`
+                : `Olá! Gostaria de comprar o produto ${produtoNome} (ID: ${produtoId}).%0A%0AQuero%20mais%20informações%20sobre%20a%20entrega%20e%20pagamento.${variacaoTexto}${endererecoTexto}`;
             const url = `https://wa.me/${whatsappNumero}?text=${texto}`;
             window.open(url, '_blank');
         } else {
@@ -622,6 +661,52 @@ document.getElementById('btnCalcularSubmit')?.addEventListener('click', async fu
 });
 
 aplicarMascaraCep(document.getElementById('cepFrete'));
+
+    function selecionarVariacao(btn) {
+        const botoes = document.querySelectorAll('.btn-variacao');
+        botoes.forEach(b => b.classList.remove('selecionada'));
+        btn.classList.add('selecionada');
+        const nomeVar = btn.getAttribute('data-variacao-nome') || '';
+        const input = document.getElementById('variacaoSelecionada');
+        if (input) input.value = nomeVar;
+
+        const capaVar = btn.getAttribute('data-variacao-capa') || '';
+        const estoqueVar = parseInt(btn.getAttribute('data-variacao-estoque') || '0');
+        if (capaVar !== '') {
+            trocarImagemVariacao(capaVar);
+        }
+
+        const statusEl = document.getElementById('statusEstoque');
+        if (statusEl) {
+            statusEl.textContent = estoqueVar <= 0 ? 'Esgotado' : 'Disponível';
+        }
+    }
+
+    function trocarImagemVariacao(capa) {
+        const imagemGrande = document.getElementById('imagemGrande');
+        if (!imagemGrande) return;
+        if (capa.startsWith('svg:')) {
+            imagemGrande.innerHTML = window.htmlIconePorChave(capa, 'img-card');
+            imagemGrande.onclick = abrirImagem;
+        } else {
+            let path = capa;
+            if (!/^(https?:)?\/\//.test(path) && !path.startsWith('/')) {
+                path = './' + path.replace(/^\.\//, '');
+            }
+            imagemGrande.src = path;
+            imagemGrande.innerHTML = '';
+        }
+    }
+
+    document.querySelectorAll('.btn-variacao').forEach(btn => {
+        btn.addEventListener('click', function() { selecionarVariacao(this); });
+    });
+
+    const botoesVariacaoInit = document.querySelectorAll('.btn-variacao');
+    if (botoesVariacaoInit.length > 0) {
+        botoesVariacaoInit[0].classList.add('selecionada');
+        document.getElementById('variacaoSelecionada').value = botoesVariacaoInit[0].getAttribute('data-variacao-nome') || '';
+    }
 
     </script>
 

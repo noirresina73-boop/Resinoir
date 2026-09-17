@@ -57,6 +57,15 @@ class infosController
         }
     }
 
+    public function listarVariacoes(int $produtoId): array
+    {
+        $BD = $this->BDlog();
+        $query = $BD->prepare('SELECT id, produto_id, nome, capa, estoque, preco_adicional FROM variacoes WHERE produto_id = :produtoId ORDER BY id ASC');
+        $query->bindValue(':produtoId', $produtoId, PDO::PARAM_INT);
+        $query->execute();
+        return $query->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     public function listarTodos($pagina = 1, $nome = '', $categoria = 0, $colecao = 0)
     {
         $BD = $this->BDlog();

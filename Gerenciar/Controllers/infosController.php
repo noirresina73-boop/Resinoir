@@ -197,4 +197,71 @@ public function listarTodos($pagina = 1, $nome = '', $categoria = 0, $colecao = 
         $query->bindValue(':id', $id, PDO::PARAM_INT);
         return $query->execute();
     }
+
+    public function garantirTabelaVariacoes(): void
+    {
+        $BD = $this->BDlog();
+        $BD->exec("CREATE TABLE IF NOT EXISTS variacoes (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            produto_id INT NOT NULL,
+            nome VARCHAR(255) NOT NULL,
+            capa VARCHAR(255) DEFAULT NULL,
+            estoque INT NOT NULL DEFAULT 0,
+            preco_adicional DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+            data_criacao DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            KEY idx_variacoes_produto (produto_id)
+        )");
+    }
+
+    public function salvarVariacoes(int $produtoId, array $variacoes): void
+    {
+        $this->garantirTabelaVariacoes();
+        $BD = $this->BDlog();
+
+        $BD->prepare('DELETE FROM variacoes WHERE produto_id = :produtoId')->execute([':produtoId' => $produtoId]);
+
+        foreach ($variacoes as $v) {
+            $nome = trim((string) ($v['nome'] ?? ''));
+            if ($nome === '') continue;
+
+            $capa = trim((string) ($v['capa'] ?? ''));
+            if ($capa !== '' && ListController::chaveIconeValida($capa)) {
+                $capaFinal = $capa;
+            } elseif ($capa !== '' && str_starts_with($capa, 'svg:')) {
+                $capaFinal = $capa;
+            } else {
+                $capaFinal = null;
+            }
+
+            if (isset($_FILES['variacao_capa']) && !empty($_FILES['variacao_capa']['tmp_name']) && $_FILES['variacao_capa']['error'] === UPLOAD_ERR_OK) {
+                $nomePasta = preg_replace('/[^a-zA-Z0-9_-]/', '_', $nome);
+                $pasta = __DIR__ . '/../../assets/imgs/' . $nomePasta . '/variacao';
+                if (!is_dir($pasta)) {
+                    mkdir($pasta, 0777, true);
+                }
+                $nomeArquivo = basename($_FILES['variacao_capa']['name']);
+                move_uploaded_file($_FILES['variacao_capa']['tmp_name'], $pasta . '/' . $nomeArquivo);
+                $capaFinal = './assets/imgs/' . $nomePasta . '/variacao/' . $nomeArquivo;
+            }
+
+            $BD->prepare('INSERT INTO variacoes (produto_id, nome, capa, estoque, preco_adicional) VALUES (:produto_id, :nome, :capa, :estoque, :preco_adicional)')
+              ->execute([
+                  ':produto_id' => $produtoId,
+                  ':nome' => $nome,
+                  ':capa' => $capaFinal ?? '',
+                  ':estoque' => (int) ($v['estoque'] ?? 0),
+                  ':preco_adicional' => (float) ($v['preco_adicional'] ?? 0),
+              ]);
+        }
+    }
+
+    public function listarVariacoes(int $produtoId): array
+    {
+        $this->garantirTabelaVariacoes();
+        $BD = $this->BDlog();
+        $query = $BD->prepare('SELECT id, produto_id, nome, capa, estoque, preco_adicional FROM variacoes WHERE produto_id = :produtoId ORDER BY id ASC');
+        $query->bindValue(':produtoId', $produtoId, PDO::PARAM_INT);
+        $query->execute();
+        return $query->fetchAll(PDO::FETCH_ASSOC);
+    }
 }
