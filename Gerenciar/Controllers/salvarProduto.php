@@ -106,7 +106,7 @@ if ($acao === 'editar') {
     $variacaoPrecos = $_POST['variacao_preco_adicional'] ?? [];
     for ($i = 0; $i < count($variacaoNomes); $i++) {
         if (trim((string) $variacaoNomes[$i]) !== '') {
-            $variacoes[] = [
+            $variacoes[$i] = [
                 'nome' => trim((string) $variacaoNomes[$i]),
                 'capa' => trim((string) ($variacaoIcones[$i] ?? '')),
                 'estoque' => (int) ($variacaoEstoques[$i] ?? 0),
@@ -144,7 +144,7 @@ if ($novoId > 0) {
     $variacaoPrecos = $_POST['variacao_preco_adicional'] ?? [];
     for ($i = 0; $i < count($variacaoNomes); $i++) {
         if (trim((string) $variacaoNomes[$i]) !== '') {
-            $variacoes[] = [
+            $variacoes[$i] = [
                 'nome' => trim((string) $variacaoNomes[$i]),
                 'capa' => trim((string) ($variacaoIcones[$i] ?? '')),
                 'estoque' => (int) ($variacaoEstoques[$i] ?? 0),

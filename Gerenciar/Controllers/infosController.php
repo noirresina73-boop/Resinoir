@@ -220,27 +220,29 @@ public function listarTodos($pagina = 1, $nome = '', $categoria = 0, $colecao = 
 
         $BD->prepare('DELETE FROM variacoes WHERE produto_id = :produtoId')->execute([':produtoId' => $produtoId]);
 
-        foreach ($variacoes as $v) {
+        $arquivosCapa = $_FILES['variacao_capa'] ?? null;
+
+        foreach ($variacoes as $idx => $v) {
             $nome = trim((string) ($v['nome'] ?? ''));
             if ($nome === '') continue;
 
             $capa = trim((string) ($v['capa'] ?? ''));
-            if ($capa !== '' && ListController::chaveIconeValida($capa)) {
+            if ($capa !== '' && str_starts_with($capa, 'svg:')) {
                 $capaFinal = $capa;
-            } elseif ($capa !== '' && str_starts_with($capa, 'svg:')) {
+            } elseif ($capa !== '') {
                 $capaFinal = $capa;
             } else {
                 $capaFinal = null;
             }
 
-            if (isset($_FILES['variacao_capa']) && !empty($_FILES['variacao_capa']['tmp_name']) && $_FILES['variacao_capa']['error'] === UPLOAD_ERR_OK) {
+            if ($arquivosCapa && isset($arquivosCapa['name'][$idx]) && $arquivosCapa['error'][$idx] === UPLOAD_ERR_OK && !empty($arquivosCapa['tmp_name'][$idx])) {
                 $nomePasta = preg_replace('/[^a-zA-Z0-9_-]/', '_', $nome);
                 $pasta = __DIR__ . '/../../assets/imgs/' . $nomePasta . '/variacao';
                 if (!is_dir($pasta)) {
                     mkdir($pasta, 0777, true);
                 }
-                $nomeArquivo = basename($_FILES['variacao_capa']['name']);
-                move_uploaded_file($_FILES['variacao_capa']['tmp_name'], $pasta . '/' . $nomeArquivo);
+                $nomeArquivo = basename($arquivosCapa['name'][$idx]);
+                move_uploaded_file($arquivosCapa['tmp_name'][$idx], $pasta . '/' . $nomeArquivo);
                 $capaFinal = './assets/imgs/' . $nomePasta . '/variacao/' . $nomeArquivo;
             }
 

@@ -120,6 +120,29 @@ $mensagem = !empty($_GET['msg']) ? htmlspecialchars($_GET['msg']) : '';
         font-size: 0.8rem;
         text-align: center;
       }
+      .panel {
+        overflow: visible;
+      }
+      .produto-preview .svg-img-card,
+      .slot-novidade .svg-img-card {
+        width: 56px;
+        height: 56px;
+        padding: 6px;
+      }
+      .produto-preview .svg-img-card svg,
+      .slot-novidade .svg-img-card svg {
+        max-width: 44px;
+        max-height: 44px;
+      }
+      .search-result-item .svg-img-card {
+        width: 40px;
+        height: 40px;
+        padding: 4px;
+      }
+      .search-result-item .svg-img-card svg {
+        max-width: 32px;
+        max-height: 32px;
+      }
       .search-results {
         position: absolute;
         z-index: 2050;

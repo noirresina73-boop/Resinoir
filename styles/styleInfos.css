@@ -396,6 +396,19 @@
 
 /* ---------------- VARIAÇÕES ---------------- */
 
+.variacoes-selector .btn-variacao .svg-img-card {
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    color: var(--bone);
+}
+
+.variacoes-selector .btn-variacao .svg-img-card svg {
+    max-width: 20px;
+    max-height: 20px;
+    stroke-width: 1;
+}
+
 .variacoes-selector {
     padding: 12px 24px 0;
 }
@@ -417,7 +430,7 @@
 }
 
 .btn-variacao {
-    width: 44px;
+    min-width: 44px;
     height: 44px;
     border: 1px solid rgba(176, 141, 87, 0.3);
     border-radius: 10px;
@@ -429,14 +442,9 @@
     justify-content: center;
     cursor: pointer;
     transition: all 0.2s ease;
-    padding: 4px;
+    padding: 4px 8px;
     overflow: hidden;
-}
-
-.btn-variacao:hover {
-    border-color: var(--gold-bright);
-    background: rgba(176, 141, 87, 0.08);
-    transform: scale(1.05);
+    white-space: nowrap;
 }
 
 .btn-variacao.selecionada {
@@ -446,16 +454,16 @@
 }
 
 .btn-variacao svg {
-    width: 100%;
-    height: 100%;
+    width: 24px;
+    height: 24px;
     stroke: currentColor;
     stroke-width: 1.2;
     fill: none;
 }
 
 .btn-variacao img {
-    width: 100%;
-    height: 100%;
+    width: 24px;
+    height: 24px;
     object-fit: cover;
     border-radius: 6px;
 }
